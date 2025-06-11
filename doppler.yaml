@@ -1,0 +1,7 @@
+setup:
+  - project: snapsplat_backend
+    config: dev_personal
+    path: backend/
+  - project: snapsplat_frontend
+    config: dev_personal
+    path: frontend/

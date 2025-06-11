@@ -1,0 +1,6 @@
+type User {
+    _id: String!
+    email: String!
+    name: String!
+    profile_picture: String!
+}

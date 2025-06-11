@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "doppler run -- bun run src/index.ts",
+    "dev": "doppler run -- bun run src/index.ts --watch",
+    "migrate": "doppler run -- bunx prisma migrate dev --name init",
+    "generate" : "doppler run -- bunx prisma generate"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.12.2",
+    "@prisma/client": "^6.9.0",
+    "graphql": "^16.11.0",
+    "prisma": "^6.9.0"
+  }
+}
