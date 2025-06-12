@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "doppler run -- NODE_ENV=production bun run src/index.ts",
-    "dev": "doppler run -- NODE_ENV=development bun run src/index.ts --watch",
+    "start": "doppler run -- cross-env NODE_ENV=production bun run src/index.ts",
+    "dev": "doppler run -- cross-env NODE_ENV=development bun run src/index.ts --watch",
     "studio": "doppler run -- bunx prisma studio"
   },
   "devDependencies": {
@@ -21,7 +21,10 @@
     "@escape.tech/graphql-armor-max-directives": "^2.3.0",
     "@escape.tech/graphql-armor-max-tokens": "^2.5.0",
     "@prisma/client": "^6.9.0",
+    "@types/validator": "^13.15.1",
     "axios": "^1.9.0",
+    "better-logging": "^5.0.0",
+    "cross-env": "^7.0.3",
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.13.5",
     "jose": "^6.0.11",

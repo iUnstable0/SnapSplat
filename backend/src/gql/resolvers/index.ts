@@ -8,4 +8,7 @@ export default {
     user: (...args: argsType) =>
       query_user.getAuthenticatedInfo(args[1], args[2]),
   },
+  Mutation: {
+    register: (...args: argsType) => query_user.register(args[1], args[2]),
+  },
 };

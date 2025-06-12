@@ -4,6 +4,7 @@ import validator from "validator";
 import db_user from "@/db/user";
 
 import lib_captcha from "@/modules/captcha";
+import lib_sanitize from "@/modules/sanitize.ts";
 
 export default class mutation_user {
   public static async register(args: any, contextValue: any) {
@@ -41,22 +42,24 @@ export default class mutation_user {
       });
     }
 
-    if (!validator.isEmail(email)) {
-      throw new GraphQLError("Invalid email format", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
-    }
+    const sanitizedEmail = lib_sanitize.email(email);
 
-    if (await db_user.getUserByEmail(email)) {
-      throw new GraphQLError("Email already registered", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
-    }
+    console.log(db_user.getUserByEmail(sanitizedEmail));
+
+    throw new GraphQLError("Not implemented", {
+      extensions: {
+        code: "NOT_IMPLEMENTED",
+        http: { status: 501 },
+      },
+    });
+
+    // if (await db_user.getUserByEmail(sanitizedEmail)) {
+    //   throw new GraphQLError("Email already registered", {
+    //     extensions: {
+    //       code: "BAD_REQUEST",
+    //       http: { status: 400 },
+    //     },
+    //   });
+    // }
   }
 }

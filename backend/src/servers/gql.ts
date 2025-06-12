@@ -11,9 +11,13 @@ import { maxTokensPlugin } from "@escape.tech/graphql-armor-max-tokens";
 
 import resolvers from "@/gql/resolvers";
 
+import lib_logger from "@/modules/logger";
+
 import type { IdentifyFn } from "@envelop/rate-limiter";
 
-export default class GQL {
+export default class gql {
+  private static server: any = null;
+
   public static async start() {
     const identifyFn: IdentifyFn = (context: any) => {
       return context.request.ip;
@@ -62,28 +66,24 @@ export default class GQL {
       port: process.env.GQL_PORT,
     });
 
+    gql.server = server;
+
     console.info(
-      `Server is running on ${new URL(
+      `${lib_logger.formatPrefix("gql")} Running on ${new URL(
         yoga.graphqlEndpoint,
         `http://${server.hostname}:${server.port}`,
       )}`,
     );
+  }
 
-    // const server = new ApolloServer<MyContext>({
-    //   schema,
-    //   introspection: process.env.NODE_ENV !== "production",
-    // });
-    //
-    // const { url } = await startStandaloneServer(server, {
-    //   // Your async context function should async and
-    //
-    //   // return an object
-    //
-    //   context: async ({ req, res }) => {
-    //     let token = req.headers["authorization"] as string | null;
-    //
-    //     token = token ? token.replace("Bearer ", "") : null;
-    //   },
-    // });
+  public static async stop() {
+    if (gql.server) {
+      await gql.server.stop();
+      console.info(`${lib_logger.formatPrefix("gql")} Server stopped.`);
+    } else {
+      console.warn(`${lib_logger.formatPrefix("gql")} No server to stop.`);
+    }
+
+    return true;
   }
 }

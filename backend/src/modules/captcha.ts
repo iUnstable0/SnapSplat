@@ -2,6 +2,14 @@ import axios from "axios";
 
 export default class lib_captcha {
   public static async verify(token: string, ip: string): Promise<boolean> {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "[Captcha] Skipping verification in non-production environment",
+      );
+
+      return Promise.resolve(true);
+    }
+
     return axios
       .request({
         method: "POST",
