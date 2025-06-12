@@ -7,7 +7,7 @@ import lib_captcha from "@/modules/captcha";
 import lib_sanitize from "@/modules/sanitize.ts";
 
 export default class mutation_user {
-  public static async register(args: any, contextValue: any) {
+  public static async register(args: any, context: any) {
     const { captchaToken, email, name, password } = args;
 
     if (!captchaToken) {
@@ -21,7 +21,7 @@ export default class mutation_user {
 
     const captchaValid = await lib_captcha.verify(
       captchaToken,
-      contextValue.req.headers["CF-Connecting-IP"],
+      context.request.headers["CF-Connecting-IP"] || null,
     );
 
     if (!captchaValid) {

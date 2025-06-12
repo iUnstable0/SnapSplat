@@ -36,11 +36,7 @@ export default class gql {
     const yoga = createYoga({
       schema,
       graphiql: {
-        defaultQuery: /* GraphQL */ `
-          query {
-            hello
-          }
-        `,
+        defaultQuery: await Bun.file("./src/gql/default.gql").text(),
       },
       plugins: [
         useRateLimiter({

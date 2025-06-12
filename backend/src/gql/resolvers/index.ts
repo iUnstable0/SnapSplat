@@ -1,6 +1,7 @@
 import query_user from "./query/user.ts";
+import mutation_user from "./mutation/user.ts";
 
-type argsType = [parent: any, args: any, contextValue: any];
+type argsType = [parent: any, args: any, context: any];
 
 export default {
   Query: {
@@ -9,6 +10,6 @@ export default {
       query_user.getAuthenticatedInfo(args[1], args[2]),
   },
   Mutation: {
-    register: (...args: argsType) => query_user.register(args[1], args[2]),
+    register: (...args: argsType) => mutation_user.register(args[1], args[2]),
   },
 };
