@@ -42,9 +42,22 @@ export default class mutation_user {
       });
     }
 
-    const sanitizedEmail = lib_sanitize.email(email);
+    let sanitizedEmail;
 
-    console.log(db_user.getUserByEmail(sanitizedEmail));
+    try {
+      sanitizedEmail = lib_sanitize.email(email);
+    } catch (error) {
+      throw new GraphQLError("Invalid email", {
+        extensions: {
+          code: "BAD_REQUEST",
+          http: { status: 400 },
+        },
+      });
+    }
+
+    console.log(sanitizedEmail);
+
+    console.log(await db_user.getUserByEmail(sanitizedEmail));
 
     throw new GraphQLError("Not implemented", {
       extensions: {

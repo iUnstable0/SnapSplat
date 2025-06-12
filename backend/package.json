@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "doppler run -- cross-env NODE_ENV=production bun run src/index.ts",
-    "dev": "doppler run -- cross-env NODE_ENV=development bun run src/index.ts --watch",
+    "dev": "doppler run -- cross-env NODE_ENV=development bun run --watch src/index.ts",
     "studio": "doppler run -- bunx prisma studio"
   },
   "devDependencies": {
