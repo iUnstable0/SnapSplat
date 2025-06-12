@@ -21,13 +21,15 @@ model User {
   id Int @id @default(autoincrement())
 
   email String @unique
-  name String
+  displayName String
 
   emailVerified Boolean
 
   profilePicture String
 
-  allowedTokens String[]
+  createdAt DateTime @default(now())
+
+  activeTokenIds String[]
   password      String
 }
 
