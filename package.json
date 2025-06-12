@@ -1,0 +1,9 @@
+{
+  "dependencies": {},
+  "scripts": {
+    "genkey": "openssl genpkey -algorithm ED25519 | tee >(openssl pkey -pubout) | pbcopy && echo 'Keypair copied to clipboard!'"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

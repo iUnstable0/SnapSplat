@@ -1,6 +1,37 @@
+directive @rateLimit(
+    max: Int,
+    window: String,
+    message: String,
+    identityArgs: [String],
+    arrayLengthField: String
+) on FIELD_DEFINITION
+
+##################################
+
+type Token {
+    token: String!
+}
+
 type User {
     _id: String!
     email: String!
     name: String!
     profile_picture: String!
+}
+
+## Query #########################
+
+type Query {
+    hello: String!
+    user: User!
+}
+
+## Mutation ######################
+
+type Mutation {
+    register(captchaToken: String!, email: String!, name: String!, password: String!): Token! @rateLimit(
+        window: "5s",
+        max: 10,
+        message: "Too many requests"
+    )
 }
