@@ -9,17 +9,17 @@ import lib_logger from "@/modules/logger";
 // @ts-ignore
 process.send = process.send || function () {};
 
-(async () => {
-  console.info(`${lib_logger.formatPrefix("init")} Starting server...`);
+// (async () => {
+console.info(`${lib_logger.formatPrefix("init")} Starting server...`);
 
-  await gql.start();
+await gql.start();
 
-  console.info(
-    `${lib_logger.formatPrefix("init")} Server online! Took ${Date.now() - time}ms`,
-  );
+console.info(
+  `${lib_logger.formatPrefix("init")} Server online! Took ${Date.now() - time}ms`,
+);
 
-  process.send!("ready");
-})();
+process.send!("ready");
+// })();
 
 process.on("SIGINT", async () => {
   // const chalk = await import("chalk").then((module) => module.default);

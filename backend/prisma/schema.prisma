@@ -14,28 +14,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Fields ordered from most likely to be edited directly in the database
-// to least likely (should rarely or never be changed manually)
-
 model User {
   id Int @id @default(autoincrement())
 
   email String @unique
-  name String
+  displayName String
 
-  emailVerified Boolean
+  emailVerified Boolean @default(false)
 
-  profilePicture String
+  profilePicture String @default("placeholder")
 
-  allowedTokens String[]
-  password      String
+  createdAt      DateTime @default(now())
+  activeTokenIds String[] @default([])
+  password       String
+  userId         String   @unique @default(uuid())
+  sessions       Session[]
 }
 
-model SuspendedToken {
+model Session {
   id Int @id @default(autoincrement())
 
-  tokenId String @unique
+  userId    String
+  sessionId String   @unique @default(uuid())
+  hash      String   @unique
+  expiresAt DateTime
 
-  expiresAt   DateTime
-  suspendedAt DateTime @default(now())
+  user User @relation(fields: [userId], references: [userId])
+
+  @@index([userId])
 }

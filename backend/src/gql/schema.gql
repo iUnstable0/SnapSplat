@@ -13,10 +13,11 @@ type Token {
 }
 
 type User {
-    _id: String!
+    id: Int!
     email: String!
-    name: String!
-    profile_picture: String!
+    displayName: String!
+    profilePicture: String!
+
 }
 
 ## Query #########################
@@ -29,7 +30,7 @@ type Query {
 ## Mutation ######################
 
 type Mutation {
-    register(captchaToken: String!, email: String!, name: String!, password: String!): Token! @rateLimit(
+    register(captchaToken: String!, email: String!, displayName: String!, password: String!): Token! @rateLimit(
         window: "5s",
         max: 10,
         message: "Too many requests"
