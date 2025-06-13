@@ -6,10 +6,13 @@
   "scripts": {
     "start": "doppler run -- cross-env NODE_ENV=production bun run src/index.ts",
     "dev": "doppler run -- cross-env NODE_ENV=development bun run --watch src/index.ts",
-    "studio": "doppler run -- bunx prisma studio"
+    "pm:migrate": "bun run src/migrations.ts",
+    "pm:studio": "doppler run -- bunx prisma studio"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "clipboardy": "^4.0.0",
+    "enquirer": "^2.4.1"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -21,6 +24,7 @@
     "@escape.tech/graphql-armor-max-directives": "^2.3.0",
     "@escape.tech/graphql-armor-max-tokens": "^2.5.0",
     "@prisma/client": "^6.9.0",
+    "@types/luxon": "^3.6.2",
     "@types/validator": "^13.15.1",
     "axios": "^1.9.0",
     "better-logging": "^5.0.0",
@@ -28,6 +32,7 @@
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.13.5",
     "jose": "^6.0.11",
+    "luxon": "^3.6.1",
     "password-validator": "^5.3.0",
     "prisma": "^6.9.0",
     "validator": "^13.15.15"

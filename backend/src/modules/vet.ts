@@ -1,33 +1,33 @@
 import validator from "validator";
 import passwordValidator from "password-validator";
 
+const displayNameSchema = new passwordValidator()
+  .is()
+  .min(1)
+  .is()
+  .max(30)
+  .has()
+  .not()
+  .symbols();
+
+const passwordSchema = new passwordValidator()
+  .is()
+  .min(8)
+  .is()
+  .max(100)
+  .has()
+  .uppercase()
+  .has()
+  .lowercase()
+  .has()
+  .digits(1)
+  .has()
+  .symbols(1)
+  .has()
+  .not()
+  .spaces();
+
 export default class lib_vet {
-  private static nameSchema = new passwordValidator()
-    .is()
-    .min(1)
-    .is()
-    .max(30)
-    .has()
-    .not()
-    .symbols();
-
-  private static passwordSchema = new passwordValidator()
-    .is()
-    .min(8)
-    .is()
-    .max(100)
-    .has()
-    .uppercase()
-    .has()
-    .lowercase()
-    .has()
-    .digits(1)
-    .has()
-    .symbols(1)
-    .has()
-    .not()
-    .spaces();
-
   public static email(email: string) {
     const sanitizedEmail = validator.normalizeEmail(email.trim());
 
@@ -38,7 +38,7 @@ export default class lib_vet {
     return sanitizedEmail;
   }
 
-  public static name(name: string) {
+  public static displayName(name: string) {
     const sanitizedName = name
       .split(" ")
       .filter((part) => part !== "")
@@ -53,7 +53,7 @@ export default class lib_vet {
       };
     }
 
-    const result: boolean | any[] = lib_vet.nameSchema.validate(name, {
+    const result: boolean | any[] = displayNameSchema.validate(name, {
       details: true,
     });
 
@@ -84,7 +84,7 @@ export default class lib_vet {
   }
 
   public static password(password: string) {
-    const result: boolean | any[] = lib_vet.passwordSchema.validate(password, {
+    const result: boolean | any[] = passwordSchema.validate(password, {
       details: true,
     });
 

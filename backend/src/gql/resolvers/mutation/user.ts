@@ -2,44 +2,48 @@ import Bun from "bun";
 import validator from "validator";
 import { GraphQLError } from "graphql";
 
-import db_user from "@/db/user";
+import prisma from "@/db/prisma";
 
+// import db_user from "@/db/user";
+
+import lib_logger from "@/modules/logger";
 import lib_captcha from "@/modules/captcha";
 import lib_vet from "@/modules/vet";
+import lib_token from "@/modules/token";
 
 export default class mutation_user {
   public static async register(args: any, context: any) {
-    const { captchaToken, email, name, password } = args;
+    const { captchaToken, email, displayName, password } = args;
 
     if (!captchaToken) {
       throw new GraphQLError("Captcha verification failed", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
-        }
+          http: { status: 400 },
+        },
       });
     }
 
     const captchaValid = await lib_captcha.verify(
       captchaToken,
-      context.request.headers["CF-Connecting-IP"] || null
+      context.request.headers["CF-Connecting-IP"] || nul,
     );
 
     if (!captchaValid) {
       throw new GraphQLError("Captcha verification failed", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
-        }
+          http: { status: 400 },
+        },
       });
     }
 
-    if (!email || !name || !password) {
+    if (!email || !displayName || !password) {
       throw new GraphQLError("Missing required fields", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
-        }
+          http: { status: 400 },
+        },
       });
     }
 
@@ -51,19 +55,19 @@ export default class mutation_user {
       throw new GraphQLError("Invalid email", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
-        }
+          http: { status: 400 ,
+        },
       });
     }
 
-    const nameVetResult = lib_vet.name(name);
+    const displayNameVetResult = lib_vet.displayName(displayName);
 
-    if (!nameVetResult.valid) {
-      throw new GraphQLError(nameVetResult.errors.join(". "), {
+    if (!displayNameVetResult.valid) {
+      throw new GraphQLError(displayNameVetResult.errors.join(". "), {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 }
-        }
+        },
       });
     }
 
@@ -74,16 +78,20 @@ export default class mutation_user {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 }
-        }
+        },
       });
     }
 
-    if (await db_user.getUserByEmail(sanitizedEmail)) {
+    if (
+      await prisma.user.findUnique({
+        where: { email: sanitizedEmail }
+      })
+    ) {
       throw new GraphQLError("Email already registered", {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 }
-        }
+        },
       });
     }
 
@@ -91,10 +99,34 @@ export default class mutation_user {
       algorithm: "argon2id"
     });
 
-    db_user.create({
-      email: sanitizedEmail,
-      name:
-    });
+    return prisma.user
+      .create({
+        data: {
+          email: sanitizedEmail,
+          displayName,
+          password: hashedPassword
+        }
+      })
+      .then(async (user) => {
+        const authToken = await lib_token.genAuthToken(user.userId);
+
+        return {
+          token: authToken
+        };
+      })
+      .catch((error) => {
+        console.error(
+          `${lib_logger.formatPrefix("mutation_user")} Failed to create user`,
+          error
+        );
+
+        throw new GraphQLError("Internal Server Error", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            http: { status: 500 }
+          }
+        });
+      });
 
     // throw new GraphQLError("Not implemented", {
     //   extensions: {
@@ -102,14 +134,5 @@ export default class mutation_user {
     //     http: { status: 501 },
     //   },
     // });
-
-    // if (await db_user.getUserByEmail(sanitizedEmail)) {
-    //   throw new GraphQLError("Email already registered", {
-    //     extensions: {
-    //       code: "BAD_REQUEST",
-    //       http: { status: 400 },
-    //     },
-    //   });
-    // }
   }
 }
