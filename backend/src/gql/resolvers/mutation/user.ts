@@ -96,7 +96,7 @@ export default class mutation_user {
     // }
 
     const hashedPassword = await Bun.password.hash(password, {
-      algorithm: "argon2id,
+      algorithm: "argon2id",
     });
 
     return prisma.user
@@ -104,26 +104,26 @@ export default class mutation_user {
         data: {
           email: sanitizedEmail,
           displayName,
-          password: hashedPassword
+          password: hashedPasswo,
         },
       })
       .then(async (user) => {
         return await lib_token.genAuthTokenWithRefresh(
           user.userId,
           user.passwordSession,
-          user.accountSession
+          user.accountSession,
         );
       })
       .catch((error) => {
         console.error(
           `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user`,
-          error
+          err,
         );
 
         throw new GraphQLError("Internal Server Error", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
-            http: { status: 500 }
+            http: { status: 500 },
           },
         });
       });
@@ -143,21 +143,21 @@ export default class mutation_user {
       throw new GraphQLError("Captcha verification failed", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
+          http: { status: 400 },
         },
       });
     }
 
     const captchaValid = await lib_captcha.verify(
       captchaToken,
-      context.request.headers["CF-Connecting-IP"] || null
+      context.request.headers["CF-Connecting-IP"] || null,
     );
 
     if (!captchaValid) {
       throw new GraphQLError("Captcha verification failed", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
+          http: { status: 400 },
         },
       });
     }
@@ -166,7 +166,7 @@ export default class mutation_user {
       throw new GraphQLError("Missing required fields", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
+          http: { status: 400 },
         },
       });
     }
@@ -179,7 +179,7 @@ export default class mutation_user {
       throw new GraphQLError("Unauthorized", {
         extensions: {
           code: "UNAUTHORIZED",
-          http: { status: 401 }
+          http: { status: 401 },
         },
       });
     }
@@ -190,20 +190,20 @@ export default class mutation_user {
       throw new GraphQLError("Unauthorized", {
         extensions: {
           code: "UNAUTHORIZED",
-          http: { status: 401 }
+          http: { status: 401 },
         },
       });
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: sanitizedEmail }
+      where: { email: sanitizedEmail },
     });
 
     if (!user) {
       throw new GraphQLError("Unauthorized", {
         extensions: {
           code: "UNAUTHORIZED",
-          http: { status: 401 }
+          http: { status: 401 },
         },
       });
     }
@@ -214,7 +214,7 @@ export default class mutation_user {
       throw new GraphQLError("Unauthorized", {
         extensions: {
           code: "UNAUTHORIZED",
-          http: { status: 401 }
+          http: { status: 401 },
         },
       });
     }
@@ -223,7 +223,7 @@ export default class mutation_user {
       .genAuthTokenWithRefresh(
         user.userId,
         user.passwordSession,
-        user.accountSession
+        user.accountSession,
       )
       .then((data) => {
         return data;
@@ -231,13 +231,13 @@ export default class mutation_user {
       .catch((error) => {
         console.error(
           `${lib_logger.formatPrefix("mutation_user/login")} Failed to generate token`,
-          error
+          error,
         );
 
         throw new GraphQLError("Internal Server Error", {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
-            http: { status: 500 }
+            http: { status: 500 },
           },
         });
       });
