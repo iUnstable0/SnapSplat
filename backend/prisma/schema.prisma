@@ -19,16 +19,21 @@ model User {
 
   email String @unique
   displayName String
+  role  String @default("user") // user, admin
 
   emailVerified Boolean @default(false)
 
   profilePicture String @default("placeholder")
 
-  createdAt      DateTime @default(now())
-  activeTokenIds String[] @default([])
-  password       String
-  userId         String   @unique @default(uuid())
-  sessions       Session[]
+  passwordSession String @unique @default(uuid())
+  accountSession  String @unique @default(uuid())
+
+  createdAt DateTime @default(now())
+  password  String
+  userId    String   @unique @default(uuid())
+
+  sessions        Session[]
+  suspendedTokens SuspendedToken[]
 }
 
 model Session {
@@ -42,4 +47,16 @@ model Session {
   user User @relation(fields: [userId], references: [userId])
 
   @@index([userId])
+}
+
+model SuspendedToken {
+  id Int @id @default(autoincrement())
+
+  tokenId     String   @unique
+  reason      String
+  suspendedAt DateTime @default(now())
+
+  user User @relation(fields: [tokenId], references: [userId])
+
+  @@index([tokenId])
 }

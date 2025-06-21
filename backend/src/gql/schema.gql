@@ -6,7 +6,16 @@ directive @rateLimit(
     arrayLengthField: String
 ) on FIELD_DEFINITION
 
+directive @auth(
+    requires: Role = USER
+) on OBJECT | FIELD_DEFINITION
+
 ##################################
+
+enum Role {
+    ADMIN
+    USER
+}
 
 type Token {
     token: String!
@@ -25,7 +34,7 @@ type User {
 
 type Query {
     hello: String!
-    user: User!
+    user: User! @auth(requires: USER)
 }
 
 ## Mutation ######################
@@ -38,12 +47,6 @@ type Mutation {
     )
 
     login(captchaToken: String!, email: String!, password: String!): Token! @rateLimit(
-        window: "5s",
-        max: 10,
-        message: "Too many requests"
-    )
-
-    authenticate(token: String!): Token! @rateLimit(
         window: "5s",
         max: 10,
         message: "Too many requests"

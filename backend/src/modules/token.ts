@@ -5,11 +5,19 @@ import { DateTime } from "luxon";
 
 import prisma from "@/db/prisma";
 
+import lib_logger from "@/modules/logger";
+
+import type { JWTAuthPayload } from "@/types";
+
 const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
 
 export default class lib_token {
-  public static async genAuthTokenWithRefresh(userId: string): Promise<{
+  public static async genAuthTokenWithRefresh(
+    userId: string,
+    passwordSession: string,
+    accountSession: string,
+  ): Promise<{
     token: string;
     refreshToken: string;
   }> {
@@ -46,7 +54,11 @@ export default class lib_token {
         throw new Error("Failed to create session in database");
       });
 
-    const jwt = await lib_token.genAuthToken(userId);
+    const jwt = await lib_token.genAuthToken(
+      userId,
+      passwordSession,
+      accountSessio,
+    );
 
     return {
       token: jwt,
@@ -54,45 +66,98 @@ export default class lib_token {
     };
   }
 
-  public static async genAuthToken(userId: string): Promise<string> {
+  public static async genAuthToken(
+    userId: string,
+    passwordSession: string,
+    accountSession: string,
+  ): Promise<string> {
     if (!userId) {
       throw new Error("User ID is required to generate an auth token.");
     }
 
-    const token = await new jose.SignJWT({ userId })
+    const jti = Bun.randomUUIDv7();
+
+    // Add the new jti to the user's activeTokenIds field
+
+    // await prisma.user
+    //   .update({
+    //     where: { userId },
+    //     data: {
+    //       activeTokenIds: {
+    //         push: jti,
+    //       },
+    //     },
+    //   })
+    //   .catch((error) => {
+    //     console.error(
+    //       `${lib_logger.formatPrefix("lib_token")} Error updating active token IDs for user ${userId}:`,
+    //       error,
+    //     );
+    //
+    //     throw new Error("Failed to update active token IDs in database");
+    //   });
+
+    return await new jose.SignJWT({
+      userId,
+      passwordSession,
+      accountSessio,
+    })
       .setProtectedHeader({ alg: "EdDSA" })
       .setIssuedAt()
       .setAudience("auth")
       .setExpirationTime("2h")
-      // .setJti(Bun.randomUUIDv7())
-      .setJti(crypto.randomUUID())
+      .setJti(jti)
+      // .setJti(crypto.randomUUID())
       .sign(privateKey);
-
-    return token;
   }
 
-  public static async verifyAuthToken(token: string): Promise<{
+  public static async validateAuthToken(token: string): Promise<{
     valid: boolean;
     renew: boolean;
+    payload?: JWTAuthPayload;
   }> {
     if (!token) {
       return { valid: false, renew: false };
     }
 
-    const { payload, protectedHeader } = await jose.jwtVerify(
-      token,
-      publicKey,
-      {
+    try {
+      const {
+        payload,
+        protectedHeader,
+      }: {
+        payload: JWTAuthPayload;
+        protectedHeader: jose.ProtectedHeaderParameters;
+      } = await jose.jwtVerify(token, publicKey, {
         audience: "auth",
-      },
-    );
+      });
 
-    console.log("Token payload:", payload);
-    console.log("Token protected header:", protectedHeader);
+      // if (!user.activeTokenIds.includes(payload.jti as string)) {
+      //   console.warn(
+      //     `${lib_logger.formatPrefix("lib_token")} Token JTI not found in user's active tokens:`,
+      //     payload.jti,
+      //   );
+      //
+      //   return { valid: false, renew: false };
+      // }
 
-    return {
-      valid: true,
-      renew: false,
-    };
+      return {
+        valid: true,
+        renew:
+          DateTime.fromSeconds(payload.exp) <
+          DateTime.now().plus({ minute: 10 }),
+        payload,
+      };
+    } catch (error) {
+      if (error instanceof jose.errors.JWTExpired) {
+        return { valid: false, renew: true };
+      }
+
+      console.error(
+        `${lib_logger.formatPrefix("lib_token")} Error validating auth token:`,
+        error,
+      );
+
+      return { valid: false, renew: false };
+    }
   }
 }

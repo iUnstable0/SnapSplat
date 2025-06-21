@@ -55,7 +55,7 @@ export default class mutation_user {
       throw new GraphQLError("Invalid email", {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 ,
+          http: { status: 400 },
         },
       });
     }
@@ -66,7 +66,7 @@ export default class mutation_user {
       throw new GraphQLError(displayNameVetResult.errors.join(". "), {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 }
+          http: { status: 400 ,
         },
       });
     }
@@ -82,18 +82,18 @@ export default class mutation_user {
       });
     }
 
-    if (
-      await prisma.user.findUnique({
-        where: { email: sanitizedEmail }
-      })
-    ) {
-      throw new GraphQLError("Email already registered", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 }
-        },
-      });
-    }
+    // if (
+    //   await prisma.user.findUnique({
+    //     where: { email: sanitizedEmail },
+    //   })
+    // ) {
+    //   throw new GraphQLError("Email already registered", {
+    //     extensions: {
+    //       code: "BAD_REQUEST",
+    //       http: { status: 400 },
+    //     },
+    //   });
+    // }
 
     const hashedPassword = await Bun.password.hash(password, {
       algorithm: "argon2id"
@@ -108,7 +108,11 @@ export default class mutation_user {
         },
       })
       .then(async (user) => {
-        return await lib_token.genAuthTokenWithRefresh(user.userId);
+        return await lib_token.genAuthTokenWithRefresh(
+          user.userId,
+          user.passwordSession,
+          user.accountSession
+        );
       })
       .catch((error) => {
         console.error(
@@ -140,7 +144,7 @@ export default class mutation_user {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 }
-        }
+        },
       });
     }
 
@@ -154,7 +158,7 @@ export default class mutation_user {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 }
-        }
+        },
       });
     }
 
@@ -163,7 +167,7 @@ export default class mutation_user {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 }
-        }
+        },
       });
     }
 
@@ -176,7 +180,7 @@ export default class mutation_user {
         extensions: {
           code: "UNAUTHORIZED",
           http: { status: 401 }
-        }
+        },
       });
     }
 
@@ -187,7 +191,7 @@ export default class mutation_user {
         extensions: {
           code: "UNAUTHORIZED",
           http: { status: 401 }
-        }
+        },
       });
     }
 
@@ -200,7 +204,7 @@ export default class mutation_user {
         extensions: {
           code: "UNAUTHORIZED",
           http: { status: 401 }
-        }
+        },
       });
     }
 
@@ -211,12 +215,16 @@ export default class mutation_user {
         extensions: {
           code: "UNAUTHORIZED",
           http: { status: 401 }
-        }
+        },
       });
     }
 
     return lib_token
-      .genAuthTokenWithRefresh(user.userId)
+      .genAuthTokenWithRefresh(
+        user.userId,
+        user.passwordSession,
+        user.accountSession
+      )
       .then((data) => {
         return data;
       })
@@ -230,7 +238,7 @@ export default class mutation_user {
           extensions: {
             code: "INTERNAL_SERVER_ERROR",
             http: { status: 500 }
-          }
+          },
         });
       });
   }
