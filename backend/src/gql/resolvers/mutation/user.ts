@@ -77,7 +77,7 @@ export default class mutation_user {
       throw new GraphQLError(passwordVetResult.errors.join(". "), {
         extensions: {
           code: "BAD_REQUEST",
-          http: { status: 400 ,
+          http: { status: 400 },
         },
       });
     }
@@ -96,7 +96,7 @@ export default class mutation_user {
     // }
 
     const hashedPassword = await Bun.password.hash(password, {
-      algorithm: "argon2id"
+      algorithm: "argon2id,
     });
 
     return prisma.user
