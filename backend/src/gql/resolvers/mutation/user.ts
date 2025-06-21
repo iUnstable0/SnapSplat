@@ -82,19 +82,6 @@ export default class mutation_user {
       });
     }
 
-    // if (
-    //   await prisma.user.findUnique({
-    //     where: { email: sanitizedEmail },
-    //   })
-    // ) {
-    //   throw new GraphQLError("Email already registered", {
-    //     extensions: {
-    //       code: "BAD_REQUEST",
-    //       http: { status: 400 },
-    //     },
-    //   });
-    // }
-
     const hashedPassword = await Bun.password.hash(password, {
       algorithm: "argon2id",
     });
@@ -115,17 +102,27 @@ export default class mutation_user {
         );
       })
       .catch((error) => {
-        console.error(
-          `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user`,
-          error,
-        );
+        switch (error.code) {
+          case "P2002":
+            throw new GraphQLError("Email already registered", {
+              extensions: {
+                code: "BAD_REQUEST",
+                http: { status: 400 },
+              },
+            });
+          default:
+            console.error(
+              `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user`,
+              error,
+            );
 
-        throw new GraphQLError("Internal Server Error", {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            http: { status: 500 },
-          },
-        });
+            throw new GraphQLError("Internal Server Error", {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                http: { status: 500 },
+              },
+            });
+        }
       });
 
     // throw new GraphQLError("Not implemented", {
