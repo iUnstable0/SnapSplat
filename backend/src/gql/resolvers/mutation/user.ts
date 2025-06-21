@@ -104,7 +104,7 @@ export default class mutation_user {
         data: {
           email: sanitizedEmail,
           displayName,
-          password: hashedPasswo,
+          password: hashedPassword,
         },
       })
       .then(async (user) => {
@@ -117,7 +117,7 @@ export default class mutation_user {
       .catch((error) => {
         console.error(
           `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user`,
-          err,
+          error,
         );
 
         throw new GraphQLError("Internal Server Error", {

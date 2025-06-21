@@ -57,7 +57,7 @@ export default class lib_token {
     const jwt = await lib_token.genAuthToken(
       userId,
       passwordSession,
-      accountSessio,
+      accountSession,
     );
 
     return {
@@ -100,7 +100,7 @@ export default class lib_token {
     return await new jose.SignJWT({
       userId,
       passwordSession,
-      accountSessio,
+      accountSession,
     })
       .setProtectedHeader({ alg: "EdDSA" })
       .setIssuedAt()
