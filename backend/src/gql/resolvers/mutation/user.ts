@@ -26,7 +26,7 @@ export default class mutation_user {
 
     const captchaValid = await lib_captcha.verify(
       captchaToken,
-      context.request.headers["CF-Connecting-IP"] || nul,
+      context.request.headers["CF-Connecting-IP"] || null,
     );
 
     if (!captchaValid) {
@@ -105,18 +105,124 @@ export default class mutation_user {
           email: sanitizedEmail,
           displayName,
           password: hashedPassword
-        }
+        },
       })
       .then(async (user) => {
-        const authToken = await lib_token.genAuthToken(user.userId);
-
-        return {
-          token: authToken
-        };
+        return await lib_token.genAuthTokenWithRefresh(user.userId);
       })
       .catch((error) => {
         console.error(
-          `${lib_logger.formatPrefix("mutation_user")} Failed to create user`,
+          `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user`,
+          error
+        );
+
+        throw new GraphQLError("Internal Server Error", {
+          extensions: {
+            code: "INTERNAL_SERVER_ERROR",
+            http: { status: 500 }
+          },
+        });
+      });
+
+    // throw new GraphQLError("Not implemented", {
+    //   extensions: {
+    //     code: "NOT_IMPLEMENTED",
+    //     http: { status: 501 },
+    //   },
+    // });
+  }
+
+  public static async login(args: any, context: any) {
+    const { captchaToken, email, password } = args;
+
+    if (!captchaToken) {
+      throw new GraphQLError("Captcha verification failed", {
+        extensions: {
+          code: "BAD_REQUEST",
+          http: { status: 400 }
+        }
+      });
+    }
+
+    const captchaValid = await lib_captcha.verify(
+      captchaToken,
+      context.request.headers["CF-Connecting-IP"] || null
+    );
+
+    if (!captchaValid) {
+      throw new GraphQLError("Captcha verification failed", {
+        extensions: {
+          code: "BAD_REQUEST",
+          http: { status: 400 }
+        }
+      });
+    }
+
+    if (!email || !password) {
+      throw new GraphQLError("Missing required fields", {
+        extensions: {
+          code: "BAD_REQUEST",
+          http: { status: 400 }
+        }
+      });
+    }
+
+    let sanitizedEmail;
+
+    try {
+      sanitizedEmail = lib_vet.email(email);
+    } catch (error) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: {
+          code: "UNAUTHORIZED",
+          http: { status: 401 }
+        }
+      });
+    }
+
+    const passwordVetResult = lib_vet.password(password);
+
+    if (!passwordVetResult.valid) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: {
+          code: "UNAUTHORIZED",
+          http: { status: 401 }
+        }
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: sanitizedEmail }
+    });
+
+    if (!user) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: {
+          code: "UNAUTHORIZED",
+          http: { status: 401 }
+        }
+      });
+    }
+
+    const passwordMatch = await Bun.password.verify(password, user.password);
+
+    if (!passwordMatch) {
+      throw new GraphQLError("Unauthorized", {
+        extensions: {
+          code: "UNAUTHORIZED",
+          http: { status: 401 }
+        }
+      });
+    }
+
+    return lib_token
+      .genAuthTokenWithRefresh(user.userId)
+      .then((data) => {
+        return data;
+      })
+      .catch((error) => {
+        console.error(
+          `${lib_logger.formatPrefix("mutation_user/login")} Failed to generate token`,
           error
         );
 
@@ -127,12 +233,5 @@ export default class mutation_user {
           }
         });
       });
-
-    // throw new GraphQLError("Not implemented", {
-    //   extensions: {
-    //     code: "NOT_IMPLEMENTED",
-    //     http: { status: 501 },
-    //   },
-    // });
   }
 }

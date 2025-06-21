@@ -10,6 +10,7 @@ directive @rateLimit(
 
 type Token {
     token: String!
+    refreshToken: String!
 }
 
 type User {
@@ -31,6 +32,18 @@ type Query {
 
 type Mutation {
     register(captchaToken: String!, email: String!, displayName: String!, password: String!): Token! @rateLimit(
+        window: "5s",
+        max: 10,
+        message: "Too many requests"
+    )
+
+    login(captchaToken: String!, email: String!, password: String!): Token! @rateLimit(
+        window: "5s",
+        max: 10,
+        message: "Too many requests"
+    )
+
+    authenticate(token: String!): Token! @rateLimit(
         window: "5s",
         max: 10,
         message: "Too many requests"
