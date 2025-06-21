@@ -49,7 +49,10 @@ export default class lib_token {
         console.log("Session created in database:", session);
       })
       .catch((error) => {
-        console.error("Error creating session in database:", error);
+        console.error(
+          `${lib_logger.formatPrefix("lib_token")} Error creating session in database:`,
+          error,
+        );
 
         throw new Error("Failed to create session in database");
       });
