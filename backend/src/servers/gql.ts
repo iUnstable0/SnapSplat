@@ -9,11 +9,18 @@ import { maxDepthPlugin } from "@escape.tech/graphql-armor-max-depth";
 import { maxDirectivesPlugin } from "@escape.tech/graphql-armor-max-directives";
 import { maxTokensPlugin } from "@escape.tech/graphql-armor-max-tokens";
 
+import { DateTime } from "luxon";
+
 import resolvers from "@/gql/resolvers";
+import authDirectiveTransformer from "@/gql/directives/auth";
 
 import lib_logger from "@/modules/logger";
+import lib_token from "@/modules/token";
+
+import prisma from "@/db/prisma";
 
 import type { IdentifyFn } from "@envelop/rate-limiter";
+import type { User } from "@/generated/prisma";
 
 export default class gql {
   private static server: any = null;
@@ -25,13 +32,16 @@ export default class gql {
 
     interface MyContext {
       authenticated: boolean;
+      user?: User | null;
       token?: string;
     }
 
-    const schema = createSchema({
+    let schema = createSchema({
       typeDefs: await Bun.file("./src/gql/schema.gql").text(),
       resolvers,
     });
+
+    schema = authDirectiveTransformer(schema);
 
     const yoga = createYoga({
       schema,
@@ -55,6 +65,78 @@ export default class gql {
           n: 1000,
         }),
       ],
+      context: async ({ request }): Promise<MyContext> => {
+        // console.log("omg!");
+        let token = request.headers.get("authorization") || "";
+
+        token = token.replace("Bearer ", "");
+
+        if (token.length === 0) {
+          return { authenticated: false };
+        }
+
+        const result = await lib_token.validateAuthToken(token);
+
+        // console.log(result);
+
+        let user;
+
+        if (result.valid && result.payload) {
+          const {
+            userId,
+            passwordSession,
+            accountSession,
+            jti: tokenId,
+          } = result.payload;
+
+          if (!userId) {
+            return { authenticated: false };
+          }
+
+          user = await prisma.user
+            .findUnique({
+              where: {
+                userId: userId,
+              },
+              include: {
+                sessions: true,
+                suspendedTokens: true,
+              },
+            })
+            .catch((error) => {
+              console.error(
+                `${lib_logger.formatPrefix("gql_ctx")} Error fetching user from database:`,
+                error,
+              );
+
+              return null;
+            });
+
+          if (!user) {
+            return { authenticated: false };
+          }
+
+          if (
+            user.passwordSession !== passwordSession ||
+            user.accountSession !== accountSession
+          ) {
+            return { authenticated: false };
+          }
+
+          if (user.suspendedTokens.some((token) => tokenId === token.tokenId)) {
+            console.warn(
+              `${lib_logger.formatPrefix("gql_ctx")} Token is suspended for user ${user.userId}`,
+            );
+
+            return { authenticated: false };
+          }
+        }
+
+        return {
+          authenticated: result.valid,
+          user,
+        };
+      },
     });
 
     const server = Bun.serve({
