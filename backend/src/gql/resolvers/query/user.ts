@@ -10,10 +10,17 @@ export default class query_user {
     // });
 
     return {
-      id: 12,
-      email: "test@test.com",
-      displayName: "Test User",
-      profilePicture: "https://example.com/profile.jpg",
+      id: context.user.id,
+      email: context.user.email,
+      displayName: context.user.displayName,
+      profilePicture: context.user.profilePicture,
     };
+
+    // return {
+    //   id: 12,
+    //   email: "test@test.com",
+    //   displayName: "Test User",
+    //   profilePicture: "https://example.com/profile.jpg",
+    // };
   }
 }

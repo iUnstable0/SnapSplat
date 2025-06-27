@@ -1,5 +1,5 @@
-import query_user from "./query/user.ts";
-import mutation_user from "./mutation/user.ts";
+import query_user from "./query/user";
+import mutation_user from "./mutation/user";
 
 type argsType = [parent: any, args: any, context: any];
 

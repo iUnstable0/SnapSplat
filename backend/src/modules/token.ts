@@ -1,13 +1,18 @@
-import * as jose from "jose";
 import Bun from "bun";
 import crypto from "node:crypto";
+
+import * as jose from "jose";
+import * as z from "zod/v4";
+
 import { DateTime } from "luxon";
 
 import prisma from "@/db/prisma";
 
 import lib_logger from "@/modules/logger";
 
-import type { JWTAuthPayload } from "@/types";
+import { Z_JWTAuthPayload } from "@/types";
+
+type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
 
 const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
@@ -114,10 +119,11 @@ export default class lib_token {
       .sign(privateKey);
   }
 
+  // Shared function with frontend! Remmeber to update
   public static async validateAuthToken(token: string): Promise<{
     valid: boolean;
     renew: boolean;
-    payload?: JWTAuthPayload;
+    payload?: Z_JWTAuthPayload;
   }> {
     if (!token) {
       return { valid: false, renew: false };
@@ -125,14 +131,16 @@ export default class lib_token {
 
     try {
       const {
-        payload,
-        protectedHeader,
+        payload: unsafePayload,
+        // protectedHeader,
       }: {
-        payload: JWTAuthPayload;
-        protectedHeader: jose.ProtectedHeaderParameters;
+        payload: Z_JWTAuthPayload;
+        // protectedHeader: jose.ProtectedHeaderParameters;
       } = await jose.jwtVerify(token, publicKey, {
         audience: "auth",
       });
+
+      const payload = Z_JWTAuthPayload.parse(unsafePayload);
 
       // if (!user.activeTokenIds.includes(payload.jti as string)) {
       //   console.warn(

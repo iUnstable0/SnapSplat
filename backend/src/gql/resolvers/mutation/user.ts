@@ -1,3 +1,4 @@
+import * as z from "zod";
 import Bun from "bun";
 import validator from "validator";
 import { GraphQLError } from "graphql";
@@ -52,7 +53,7 @@ export default class mutation_user {
     try {
       sanitizedEmail = lib_vet.email(email);
     } catch (error) {
-      throw new GraphQLError("Invalid email", {
+      throw new GraphQLError("Invalid email address", {
         extensions: {
           code: "BAD_REQUEST",
           http: { status: 400 },

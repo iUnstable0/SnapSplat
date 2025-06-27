@@ -1,0 +1,15 @@
+meta {
+  name: Test
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://127.0.0.1:3000/app
+  body: none
+  auth: inherit
+}
+
+headers {
+  Cookie: Authorization=1234;
+}

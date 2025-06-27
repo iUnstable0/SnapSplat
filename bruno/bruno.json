@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "SnapSplat",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
