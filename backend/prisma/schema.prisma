@@ -25,12 +25,12 @@ model User {
 
   profilePicture String @default("placeholder")
 
-  passwordSession String @unique @default(uuid())
-  accountSession  String @unique @default(uuid())
+  passwordSession String @unique @default(uuid(4))
+  accountSession  String @unique @default(uuid(4))
 
   createdAt DateTime @default(now())
   password  String
-  userId    String   @unique @default(uuid())
+  userId    String   @unique @default(uuid(4))
 
   sessions        Session[]
   suspendedTokens SuspendedToken[]
@@ -40,7 +40,7 @@ model Session {
   id Int @id @default(autoincrement())
 
   userId    String
-  sessionId String   @unique @default(uuid())
+  sessionId String   @unique @default(uuid(4))
   hash      String   @unique
   expiresAt DateTime
 

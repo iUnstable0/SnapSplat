@@ -79,7 +79,7 @@ export default class gql {
 
         // console.log(result);
 
-        let user;
+        let user = null;
 
         if (result.valid && result.payload) {
           const {
