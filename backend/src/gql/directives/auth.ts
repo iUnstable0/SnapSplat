@@ -41,12 +41,19 @@ export default function authDirectiveTransformer(schema: GraphQLSchema) {
               throw new GraphQLError("Unauthorized", {
                 extensions: {
                   code: "UNAUTHORIZED",
-                  http: { status: 401 },
+                  http: {
+                    status: 401,
+                    headers: {
+                      "x-refresh-token-needed": context.renew
+                        ? "true"
+                        : "false",
+                    },
+                  },
                 },
               });
             }
 
-            console.log(`Auth directive context:`, context);
+            // console.log(`Auth directive context:`, context);
 
             return resolve(source, args, context, info);
           };

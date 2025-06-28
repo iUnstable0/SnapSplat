@@ -3,8 +3,8 @@ import * as z from "zod/v4";
 import fs from "node:fs";
 import path from "node:path";
 
-type SchemaTree = {
-  [key: string]: SchemaTree | string;
+type Tree = {
+  [key: string]: Tree | string;
 };
 
 const schemasDir = "./src/gql/schemas";
@@ -17,19 +17,24 @@ const schemasParser = z.object({
       getAuthenticatedInfo: z.string(),
     }),
   }),
+  mutation: z.object({
+    user: z.object({
+      login: z.string(),
+      register: z.string(),
+      refreshToken: z.string(),
+    }),
+  }),
 });
 
-function buildSchemaTree(dir: string): SchemaTree {
-  // return tree;
-  console.log("scanning dir for gql schemas:", dir);
-  const tree: SchemaTree = {};
+function buildTree(dir: string): Tree {
+  const tree: Tree = {};
   const files = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const file of files) {
     const fullPath = path.join(dir, file.name);
 
     if (file.isDirectory()) {
-      tree[file.name] = buildSchemaTree(fullPath);
+      tree[file.name] = buildTree(fullPath);
     } else if (file.isFile() && file.name.endsWith(".gql")) {
       const fileContent = fs.readFileSync(fullPath, "utf-8").trim();
       const baseName = file.name.replace(/\.gql$/, "");
@@ -41,7 +46,7 @@ function buildSchemaTree(dir: string): SchemaTree {
   return tree;
 }
 
-const schemas = buildSchemaTree(schemasDir);
+const schemas = buildTree(schemasDir);
 
 const result = schemasParser.safeParse(schemas);
 

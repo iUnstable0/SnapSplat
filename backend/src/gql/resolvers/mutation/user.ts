@@ -1,6 +1,7 @@
-import * as z from "zod";
+import * as z from "zod/v4";
 import Bun from "bun";
-import validator from "validator";
+import crypto from "node:crypto";
+
 import { GraphQLError } from "graphql";
 
 import prisma from "@/db/prisma";
@@ -11,41 +12,41 @@ import lib_logger from "@/modules/logger";
 import lib_captcha from "@/modules/captcha";
 import lib_vet from "@/modules/vet";
 import lib_token from "@/modules/token";
+import lib_error from "@/modules/error";
+
+import { Z_JWTAuthPayload, Z_RefreshTokenPayload } from "@/modules/parser";
+
+type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
+type Z_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;
 
 export default class mutation_user {
   public static async register(args: any, context: any) {
     const { captchaToken, email, displayName, password } = args;
 
     if (!captchaToken) {
-      throw new GraphQLError("Captcha verification failed", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captchaToken is missing"
+      );
     }
 
     const captchaValid = await lib_captcha.verify(
       captchaToken,
-      context.request.headers["CF-Connecting-IP"] || null,
+      context.request.headers["CF-Connecting-IP"] || null
     );
 
     if (!captchaValid) {
-      throw new GraphQLError("Captcha verification failed", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captcha is not valid"
+      );
     }
 
     if (!email || !displayName || !password) {
-      throw new GraphQLError("Missing required fields", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Missing required fields",
+        "missing email/displayName/password"
+      );
     }
 
     let sanitizedEmail;
@@ -53,34 +54,29 @@ export default class mutation_user {
     try {
       sanitizedEmail = lib_vet.email(email);
     } catch (error) {
-      throw new GraphQLError("Invalid email address", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Invalid email address",
+        `email vet failed: ${error}`
+      );
+
+      // throw new GraphQLError("Invalid email address", {
+      //   extensions: {
+      //     code: "BAD_REQUEST",
+      //     http: { status: 400 },
+      //   },
+      // });
     }
 
     const displayNameVetResult = lib_vet.displayName(displayName);
 
     if (!displayNameVetResult.valid) {
-      throw new GraphQLError(displayNameVetResult.errors.join(". "), {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(displayNameVetResult.errors.join(". "));
     }
 
     const passwordVetResult = lib_vet.password(password);
 
     if (!passwordVetResult.valid) {
-      throw new GraphQLError(passwordVetResult.errors.join(". "), {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(passwordVetResult.errors.join(". "));
     }
 
     const hashedPassword = await Bun.password.hash(password, {
@@ -99,30 +95,34 @@ export default class mutation_user {
         return await lib_token.genAuthTokenWithRefresh(
           user.userId,
           user.passwordSession,
-          user.accountSession,
+          user.accountSession
         );
       })
       .catch((error) => {
         switch (error.code) {
           case "P2002":
-            throw new GraphQLError("Email already registered", {
-              extensions: {
-                code: "BAD_REQUEST",
-                http: { status: 400 },
-              },
-            });
+            throw lib_error.bad_request(
+              "Email is already registered",
+              `unique constraint error: ${error}`
+            );
+          // throw new GraphQLError("Email already registered", {
+          //   extensions: {
+          //     code: "BAD_REQUEST",
+          //     http: { status: 400 },
+          //   },
+          // });
           default:
+            const refId = Bun.randomUUIDv7();
+
             console.error(
-              `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user`,
-              error,
+              `${lib_logger.formatPrefix("mutation_user/register")} [${refId}] Failed to create user`,
+              error
             );
 
-            throw new GraphQLError("Internal Server Error", {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                http: { status: 500 },
-              },
-            });
+            throw lib_error.internal_server_error(
+              `Internal Server Error. refId: ${refId}`,
+              `500 failed to create user: ${error}`
+            );
         }
       });
 
@@ -138,35 +138,29 @@ export default class mutation_user {
     const { captchaToken, email, password } = args;
 
     if (!captchaToken) {
-      throw new GraphQLError("Captcha verification failed", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captchaToken is missing"
+      );
     }
 
     const captchaValid = await lib_captcha.verify(
       captchaToken,
-      context.request.headers["CF-Connecting-IP"] || null,
+      context.request.headers["CF-Connecting-IP"] || null
     );
 
     if (!captchaValid) {
-      throw new GraphQLError("Captcha verification failed", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captchaToken is not valid"
+      );
     }
 
     if (!email || !password) {
-      throw new GraphQLError("Missing required fields", {
-        extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
-        },
-      });
+      throw lib_error.bad_request(
+        "Missing required fields",
+        "missing email/password"
+      );
     }
 
     let sanitizedEmail;
@@ -174,23 +168,16 @@ export default class mutation_user {
     try {
       sanitizedEmail = lib_vet.email(email);
     } catch (error) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: {
-          code: "UNAUTHORIZED",
-          http: { status: 401 },
-        },
-      });
+      throw lib_error.unauthorized(
+        "Unauthorized",
+        `email vet failed: ${error}`
+      );
     }
 
     const passwordVetResult = lib_vet.password(password);
 
     if (!passwordVetResult.valid) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: {
-          code: "UNAUTHORIZED",
-          http: { status: 401 },
-        },
-      });
+      throw lib_error.unauthorized("Unauthorized", `password vet failed`);
     }
 
     const user = await prisma.user.findUnique({
@@ -198,46 +185,149 @@ export default class mutation_user {
     });
 
     if (!user) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: {
-          code: "UNAUTHORIZED",
-          http: { status: 401 },
-        },
-      });
+      throw lib_error.unauthorized("Unauthorized", `email not found`);
     }
 
-    const passwordMatch = await Bun.password.verify(password, user.password);
+    const passwordMatch = await Bun.password.verify(
+      password,
+      user.password,
+      "argon2id"
+    );
 
     if (!passwordMatch) {
-      throw new GraphQLError("Unauthorized", {
-        extensions: {
-          code: "UNAUTHORIZED",
-          http: { status: 401 },
-        },
-      });
+      throw lib_error.unauthorized("Unauthorized", `password incorrect`);
     }
 
     return lib_token
       .genAuthTokenWithRefresh(
         user.userId,
         user.passwordSession,
-        user.accountSession,
+        user.accountSession
       )
       .then((data) => {
         return data;
       })
       .catch((error) => {
+        const refId = Bun.randomUUIDv7();
+
         console.error(
-          `${lib_logger.formatPrefix("mutation_user/login")} Failed to generate token`,
-          error,
+          `${lib_logger.formatPrefix("mutation_user/login")} [${refId}] Failed to generate token`,
+          error
         );
 
-        throw new GraphQLError("Internal Server Error", {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            http: { status: 500 },
-          },
-        });
+        throw lib_error.internal_server_error(
+          `Internal Server Error. refId: ${refId}`,
+          `500 failed to generate token: ${error}`
+        );
       });
+  }
+
+  public static async refreshToken(args: any) {
+    const { token, refreshToken } = args;
+
+    if (!token || !refreshToken) {
+      throw lib_error.bad_request(
+        "Missing required fields",
+        "missing token/refreshToken"
+      );
+    }
+
+    const result = await lib_token.validateAuthToken(
+      "This function doesn't do suspended token check",
+      token
+    );
+
+    if (
+      (!result.valid || !result.payload) &&
+      !result.renew &&
+      process.env.NODE_ENV !== "development"
+    ) {
+      throw lib_error.unauthorized("Unauthorized", "token is not valid");
+    }
+
+    if (!result.renew && process.env.NODE_ENV === "development") {
+      console.warn(
+        `${lib_logger.formatPrefix("mutation_user/refreshToken")} Token not ready for renew but bypassed for dev mode`
+      );
+    }
+
+    const extractedRefreshToken = lib_token.extractRefreshToken(refreshToken);
+
+    if (!extractedRefreshToken.success) {
+      throw lib_error.unauthorized(
+        "Unauthorized",
+        `refresh token extraction failed: ${JSON.stringify(extractedRefreshToken.error)}`
+      );
+    }
+
+    const { userId, sessionId, sessionKey } =
+      extractedRefreshToken.data as Z_RefreshTokenPayload;
+
+    let user = null;
+
+    try {
+      user = await prisma.user.findUnique({
+        where: {
+          userId,
+        },
+        include: {
+          sessions: true,
+          suspendedTokens: true,
+        },
+      });
+    } catch (error) {
+      throw lib_error.unauthorized(
+        "Unauthorized",
+        `unexpected error: ${error}`
+      );
+    }
+
+    if (!user) {
+      throw lib_error.unauthorized("Unauthorized", "user not found lol");
+    }
+
+    if (!lib_token.checkAuthToken(user, result.payload as Z_JWTAuthPayload)) {
+      throw lib_error.unauthorized(
+        "Unauthorized",
+        `token db check failed, either suspended or invalidated account/password session`
+      );
+    }
+
+    const refreshTokenValidationResult = await lib_token.validateRefreshToken(
+      user,
+      userId,
+      sessionId,
+      sessionKey
+    );
+
+    if (!refreshTokenValidationResult.valid) {
+      throw lib_error.unauthorized(
+        "Unauthorized",
+        `refresh token validation error. code: ${refreshTokenValidationResult.code}`
+      );
+    }
+
+    return await lib_token
+      .genAuthToken(userId, user.passwordSession, user.accountSession)
+      .then((data) => {
+        return {
+          token: data
+        };
+      })
+      .catch((error) => {
+        const refId = Bun.randomUUIDv7();
+
+        console.error(
+          `${lib_logger.formatPrefix("mutation_user/login")} [${refId}] Failed to generate token`,
+          error
+        );
+
+        throw lib_error.internal_server_error(
+          `Internal Server Error. refId: ${refId}`,
+          `500 failed to generate token: ${error}`
+        );
+      });
+
+    // throw lib_error.unauthorized("Unauthorized", `gurt: yo`);
   }
 }

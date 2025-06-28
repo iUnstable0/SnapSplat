@@ -1,6 +1,6 @@
 import validator from "validator";
 
-import { Z_DisplayName, Z_Password, Z_Email } from "@/types";
+import { Z_DisplayName, Z_Password, Z_Email } from "@/modules/parser";
 
 export default class lib_vet {
   public static email(input: string) {

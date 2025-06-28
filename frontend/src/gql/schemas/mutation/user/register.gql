@@ -1,0 +1,16 @@
+mutation (
+  $captchaToken: String!
+  $email: String!
+  $password: String!
+  $displayName: String!
+) {
+  register(
+    captchaToken: $captchaToken
+    email: $email
+    password: $password
+    displayName: $displayName
+  ) {
+    token
+    refreshToken
+  }
+}

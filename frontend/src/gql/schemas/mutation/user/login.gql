@@ -1,0 +1,6 @@
+mutation ($captchaToken: String!, $email: String!, $password: String!) {
+  login(captchaToken: $captchaToken, email: $email, password: $password) {
+    refreshToken
+    token
+  }
+}

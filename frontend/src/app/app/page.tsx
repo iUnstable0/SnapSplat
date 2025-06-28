@@ -6,13 +6,11 @@ export default async function Page() {
   let user = null;
 
   try {
-    // Attempt to fetch user data
-    user = (await gql.query.user()).data.data.user;
+    user = (await gql.query.user()).user;
   } catch (error) {
-    // Handle error if user data fetch fails
+    console.log(error.data[0].extensions.originalError);
     console.error("Error fetching user data:", error);
 
-    // Optionally, you can return an error message or redirect
     return <h1>Error fetching user data</h1>;
   }
 

@@ -32,6 +32,7 @@ export default class gql {
 
     interface MyContext {
       authenticated: boolean;
+      renew?: boolean;
       user?: User | null;
       token?: string;
     }
@@ -116,20 +117,26 @@ export default class gql {
             return { authenticated: false };
           }
 
-          if (
-            user.passwordSession !== passwordSession ||
-            user.accountSession !== accountSession
-          ) {
-            return { authenticated: false };
+          if (!lib_token.checkAuthToken(user, result.payload)) {
+            return {
+              authenticated: false
+            }
           }
 
-          if (user.suspendedTokens.some((token) => tokenId === token.tokenId)) {
-            console.warn(
-              `${lib_logger.formatPrefix("gql_ctx")} Token is suspended for user ${user.userId}`,
-            );
+          // if (
+          //   user.passwordSession !== passwordSession ||
+          //   user.accountSession !== accountSession
+          // ) {
+          //   return { authenticated: false };
+          // }
 
-            return { authenticated: false };
-          }
+          // if (user.suspendedTokens.some((token) => tokenId === token.tokenId)) {
+          //   console.warn(
+          //     `${lib_logger.formatPrefix("gql_ctx")} Token is suspended for user ${user.userId}`,
+          //   );
+
+          //   return { authenticated: false };
+          // }
         }
 
         return {

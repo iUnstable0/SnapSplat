@@ -1,12 +1,15 @@
 import { DateTime } from "luxon";
 import * as jose from "jose";
+import * as z from "zod/v4";
 
-import type { JWTAuthPayload } from "@/types";
+import { Z_JWTAuthPayload } from "@/modules/parser";
+
+type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
 
 const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 
 export default class lib_token {
-  // Shared function with backend! Remmeber to update
+  // /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ Shared with backend! Remmeber to update /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 
   // Middleware is meant for quick token validation
   // Valid tokens doesnt mean valid authentication, the token could
@@ -14,22 +17,26 @@ export default class lib_token {
   public static async validateAuthToken(token: string): Promise<{
     valid: boolean;
     renew: boolean;
-    payload?: JWTAuthPayload;
+    payload?: Z_JWTAuthPayload;
   }> {
     if (!token) {
       return { valid: false, renew: false };
     }
 
     try {
+      z.jwt({alg:"EdDSA"}).parse(token);
+      
       const {
-        payload,
+        payload: unsafePayload,
         // protectedHeader,
       }: {
-        payload: JWTAuthPayload;
+        payload: Z_JWTAuthPayload;
         // protectedHeader: jose.ProtectedHeaderParameters;
       } = await jose.jwtVerify(token, publicKey, {
         audience: "auth",
       });
+
+      const payload = Z_JWTAuthPayload.parse(unsafePayload);
 
       return {
         valid: true,

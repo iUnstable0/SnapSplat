@@ -12,5 +12,6 @@ export default {
   Mutation: {
     register: (...args: argsType) => mutation_user.register(args[1], args[2]),
     login: (...args: argsType) => mutation_user.login(args[1], args[2]),
+    refreshToken: (...args: argsType) => mutation_user.refreshToken(args[1])
   },
 };

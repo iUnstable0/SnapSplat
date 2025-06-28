@@ -19,6 +19,10 @@ enum Role {
 
 type Token {
     token: String!
+}
+
+type TokenSet {
+    token: String!
     refreshToken: String!
 }
 
@@ -40,13 +44,19 @@ type Query {
 ## Mutation ######################
 
 type Mutation {
-    register(captchaToken: String!, email: String!, displayName: String!, password: String!): Token! @rateLimit(
+    register(captchaToken: String!, email: String!, displayName: String!, password: String!): TokenSet! @rateLimit(
         window: "5s",
         max: 10,
         message: "Too many requests"
     )
 
-    login(captchaToken: String!, email: String!, password: String!): Token! @rateLimit(
+    login(captchaToken: String!, email: String!, password: String!): TokenSet! @rateLimit(
+        window: "5s",
+        max: 10,
+        message: "Too many requests"
+    )
+
+    refreshToken(token: String!, refreshToken: String!): Token! @rateLimit(
         window: "5s",
         max: 10,
         message: "Too many requests"
