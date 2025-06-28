@@ -1,3 +1,5 @@
+import * as z from "zod/v4";
+
 import { NextResponse } from "next/server";
 
 import lib_token from "@/modules/token";
@@ -6,9 +8,39 @@ import type { NextRequest } from "next/server";
 
 const guardedPaths = {
   "/app": {
-    source: "cookie",
+    type: "token",
     onFailed: (request: NextRequest) => {
       return NextResponse.redirect(new URL("/login", request.url));
+    },
+    onSuccess: (request: NextRequest) => {
+      return NextResponse.next();
+    },
+  },
+  "/login": {
+    type: "token",
+    onFailed: (request: NextRequest) => {
+      return NextResponse.next();
+    },
+    onSuccess: (request: NextRequest) => {
+      return NextResponse.redirect(new URL("/app", request.url));
+    },
+  },
+  "/register": {
+    type: "token",
+    onFailed: (request: NextRequest) => {
+      return NextResponse.next();
+    },
+    onSuccess: (request: NextRequest) => {
+      return NextResponse.redirect(new URL("/app", request.url));
+    },
+  },
+  "/refresh": {
+    type: "refresh_token",
+    onFailed: (request: NextRequest) => {
+      return NextResponse.redirect(new URL("/login", request.url));
+    },
+    onSuccess: (request: NextRequest) => {
+      return NextResponse.next();
     },
   },
 };
@@ -16,36 +48,77 @@ const guardedPaths = {
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  if (!(pathname in guardedPaths)) return;
+  if (!(pathname in guardedPaths)) {
+    return;
+  }
 
   const options = guardedPaths[pathname as keyof typeof guardedPaths];
 
   let token = null;
 
-  if (options.source === "cookie") {
-    const authToken = request.cookies.get("Authorization");
-    if (!authToken) return options.onFailed(request);
+  // if (options.type === "token") {
+  const tokenCookie = request.cookies.get("token");
 
-    token = authToken.value.replaceAll("Bearer ", "");
+  if (!tokenCookie) {
+    return options.onFailed(request);
   }
 
-  if (options.source === "params") {
-    token = null;
+  token = tokenCookie.value.replaceAll("Bearer ", "");
+  // }
+
+  // if (options.type === "refresh_token") {
+  //   const refreshToken = request.cookies.get("refresh_token");
+  //   if (!refreshToken) return options.onFailed(request);
+
+  //   token = refreshToken.value;
+  // }
+
+  if (!token) {
+    return options.onFailed(request);
   }
-
-  // console.log(token);
-
-  if (!token) return options.onFailed(request);
 
   const result = await lib_token.validateAuthToken(token);
 
   if (!result.valid || !result.payload) {
-    return options.onFailed(request);
+    if (!result.renew) {
+      return options.onFailed(request);
+    }
+
+    if (options.type === "token") {
+      // return NextResponse.redirect(new URL("/refresh", request.url));
+      return NextResponse.redirect(
+        new URL(`/refresh?redir=${encodeURIComponent(pathname)}`, request.url)
+      );
+    }
   }
 
-  // return NextResponse.redirect(new URL("/home", request.url));
+  if (options.type === "refresh_token") {
+    try {
+      let refreshTokenCookie: any = request.cookies.get("refresh_token");
+
+      if (!refreshTokenCookie) {
+        return options.onFailed(request);
+      }
+
+      const refreshToken = refreshTokenCookie.value;
+
+      const [userId, sessionId, sessionKey] = refreshToken.split(":");
+
+      if (!userId || !sessionId || !sessionKey) {
+        return options.onFailed(request);
+      }
+
+      z.uuidv4().parse(userId);
+      z.uuidv4().parse(sessionId);
+      z.string().parse(sessionKey);
+    } catch (error) {
+      return options.onFailed(request);
+    }
+  }
+
+  return options.onSuccess(request);
 }
 
 export const config = {
-  matcher: "/app/:path*",
+  matcher: ["/app/:path*", "/login", "/register", "/refresh"],
 };

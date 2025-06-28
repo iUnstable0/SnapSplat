@@ -1,6 +1,6 @@
 declare namespace NodeJS {
   interface ProcessEnv {
-    NODE_ENV: "development" | "production" | "staging";
+    NEXT_PUBLIC_NODE_ENV: "development" | "production" | "staging";
 
     PUBLIC_KEY: string;
 

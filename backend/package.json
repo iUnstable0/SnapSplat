@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "doppler run -- cross-env NODE_ENV=production bun run src/index.ts",
-    "dev": "doppler run -- cross-env NODE_ENV=development bun run --watch src/index.ts",
+    "start": "doppler run -- bun run src/index.ts",
+    "dev": "doppler run -- bun run --watch src/index.ts",
     "pm:migrate": "bun run src/migrations.ts",
     "pm:studio": "doppler run -- bunx prisma studio",
     "codegen": "doppler run -- bun run src/codegen.ts"
@@ -34,7 +34,6 @@
     "@prisma/client": "^6.10.1",
     "axios": "^1.9.0",
     "better-logging": "^5.0.0",
-    "cross-env": "^7.0.3",
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.13.5",
     "jose": "^6.0.11",

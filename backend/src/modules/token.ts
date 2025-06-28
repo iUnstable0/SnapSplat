@@ -10,9 +10,12 @@ import prisma from "@/db/prisma";
 
 import lib_logger from "@/modules/logger";
 
-import { Z_JWTAuthPayload } from "@/types";
+import type { User, Session, SuspendedToken } from "@/generated/prisma";
+
+import { Z_JWTAuthPayload , Z_RefreshTokenPayload} from "@/modules/parser";
 
 type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
+type Z_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;
 
 const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
@@ -21,7 +24,7 @@ export default class lib_token {
   public static async genAuthTokenWithRefresh(
     userId: string,
     passwordSession: string,
-    accountSession: string,
+    accountSession: string
   ): Promise<{
     token: string;
     refreshToken: string;
@@ -56,7 +59,7 @@ export default class lib_token {
       .catch((error) => {
         console.error(
           `${lib_logger.formatPrefix("lib_token")} Error creating session in database:`,
-          error,
+          error
         );
 
         throw new Error("Failed to create session in database");
@@ -65,7 +68,7 @@ export default class lib_token {
     const jwt = await lib_token.genAuthToken(
       userId,
       passwordSession,
-      accountSession,
+      accountSession
     );
 
     return {
@@ -77,7 +80,7 @@ export default class lib_token {
   public static async genAuthToken(
     userId: string,
     passwordSession: string,
-    accountSession: string,
+    accountSession: string
   ): Promise<string> {
     if (!userId) {
       throw new Error("User ID is required to generate an auth token.");
@@ -119,17 +122,164 @@ export default class lib_token {
       .sign(privateKey);
   }
 
-  // Shared function with frontend! Remmeber to update
-  public static async validateAuthToken(token: string): Promise<{
+  public static extractRefreshToken(refreshToken: string): {
+    success: boolean;
+    error?: string;
+    data?: Z_RefreshTokenPayload
+  } {
+    const parts = refreshToken.split(":");
+
+    if (parts.length !== 3) {
+      return {
+        success: false,
+        error: `splitted refreshToken length is not 3! length=${parts.length} | ${parts.join("$")}`,
+      };
+    }
+
+    const [userId, sessionId, sessionKey] = parts;
+
+    if (!userId || !sessionId || !sessionKey) {
+      return {
+        success: false,
+        error:
+          "missing userId/sessionId/sessionKey (what the sigma this is impossible)",
+      };
+    }
+
+    const data = {
+      userId,
+      sessionId,
+      sessionKey
+    }
+
+    try {
+      Z_RefreshTokenPayload.parse(data)
+    } catch (error) {
+      return {
+        success: false,
+        error:
+          "refresh token payload parsing failed (what the sigma this is impossible)",
+      };
+    }
+
+    return {
+      success: true,
+      data
+    };
+  }
+  public static async validateRefreshToken(
+    user: {
+      sessions: Session[];
+      suspendedTokens: SuspendedToken[];
+    } & User,
+    userId: string,
+    sessionId: string,
+    sessionKey: string
+  ) {
+    if (!userId || !sessionId || !sessionKey || !user) {
+      return {
+        valid: false,
+        code: 0,
+      };
+    }
+
+    const session = user.sessions.find(
+      (session) => session.sessionId === sessionId
+    );
+
+    if (!session) {
+      return {
+        valid: false,
+        code: 0,
+      };
+    }
+
+    // Parent should check as they provides user db + fields
+    // if (userId !== session.userId) {
+    //   return {
+    //     valid: false,
+    //     code: 0,
+    //   };
+    // }
+
+    if (DateTime.fromJSDate(session.expiresAt) < DateTime.now()) {
+      return {
+        valid: false,
+        code: 1,
+      };
+    }
+
+    const hashVerifyResult = await Bun.password.verify(
+      sessionKey,
+      session.hash,
+      "argon2id"
+    );
+
+    if (!hashVerifyResult) {
+      return {
+        valid: false,
+        code: 2,
+      };
+    }
+
+    return {
+      valid: true,
+      code: 0,
+    };
+  }
+
+  public static async checkAuthToken(
+    user: {
+      suspendedTokens: SuspendedToken[];
+    } & User,
+    payload: Z_JWTAuthPayload
+  ) {
+    if (
+      user.passwordSession !== payload.passwordSession ||
+      user.accountSession !== payload.accountSession
+    ) {
+      return false;
+    }
+
+    if (user.suspendedTokens.some((token) => token.tokenId === payload.jti)) {
+      console.warn(
+        `${lib_logger.formatPrefix("gql_ctx")} Token is suspended for user ${user.userId}`
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  // /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ Shared with frontend! Remmeber to update /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+
+  // WARNING: This does not check if the token is suspended!!! For the main reason of reducing DB load
+  // If possible, access suspendedTokens from the relations of the user instead. or use checkAuthToken
+  public static async validateAuthToken(
+    WARNING_THIS_FUNCTION_DOES_NOT_DO_SUSPENDED_CHECK: string,
+    token: string
+  ): Promise<{
     valid: boolean;
     renew: boolean;
     payload?: Z_JWTAuthPayload;
   }> {
+    if (
+      WARNING_THIS_FUNCTION_DOES_NOT_DO_SUSPENDED_CHECK !==
+      "This function doesn't do suspended token check"
+    ) {
+      throw new Error(
+        "WARNING: This function doesn't do suspended token check!"
+      );
+    }
+
     if (!token) {
       return { valid: false, renew: false };
     }
 
     try {
+      z.jwt({ alg: "EdDSA" }).parse(token);
+
       const {
         payload: unsafePayload,
         // protectedHeader,
@@ -165,7 +315,7 @@ export default class lib_token {
 
       console.error(
         `${lib_logger.formatPrefix("lib_token")} Error validating auth token:`,
-        error,
+        error
       );
 
       return { valid: false, renew: false };

@@ -1,7 +1,9 @@
+// /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ Shared with frontend! Remmeber to update /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+
 import * as z from "zod/v4";
 
 export const Z_JWTAuthPayload = z.object({
-  userId: z.string(),
+  userId: z.uuidv4(),
   passwordSession: z.uuidv4(),
   accountSession: z.uuidv4(),
   jti: z.uuidv7(),
@@ -40,3 +42,9 @@ export const Z_DisplayName = z
   .refine((name) => !name.startsWith(" ") && !name.endsWith(" "), {
     message: "Display name cannot start or end with a space",
   });
+
+  export const Z_RefreshTokenPayload = z.object({
+    userId: z.uuidv4(),
+    sessionId: z.uuidv4(),
+    sessionKey: z.string()
+  })
