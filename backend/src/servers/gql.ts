@@ -76,7 +76,10 @@ export default class gql {
           return { authenticated: false };
         }
 
-        const result = await lib_token.validateAuthToken(token);
+        const result = await lib_token.validateAuthToken(
+          "This function doesn't do suspended token check",
+          token,
+        );
 
         // console.log(result);
 
@@ -119,8 +122,8 @@ export default class gql {
 
           if (!lib_token.checkAuthToken(user, result.payload)) {
             return {
-              authenticated: false
-            }
+              authenticated: false,
+            };
           }
 
           // if (
