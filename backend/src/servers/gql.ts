@@ -88,9 +88,6 @@ export default class gql {
         if (result.valid && result.payload) {
           const {
             userId,
-            passwordSession,
-            accountSession,
-            jti: tokenId,
           } = result.payload;
 
           if (!userId) {
@@ -144,6 +141,7 @@ export default class gql {
 
         return {
           authenticated: result.valid,
+          renew: result.renew,
           user,
         };
       },
