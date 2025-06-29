@@ -3,9 +3,14 @@ declare namespace NodeJS {
     NODE_ENV: "development" | "production" | "staging";
 
     DATABASE_URL: string;
-    GQL_PORT: number;
 
     GQL_ENDPOINT: string;
+    GQL_PORT: number;
+
+    VALKEY_HOST: string;
+    VALKEY_PORT: number;
+
+    CACHE_ENABLED: boolean;
 
     PRIVATE_KEY: string;
     PUBLIC_KEY: string;

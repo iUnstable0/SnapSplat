@@ -16,5 +16,10 @@ export default async function Page() {
 
   console.log("User data fetched successfully:", user);
 
-  return <h1>Hello world! {user.email}</h1>;
+  return <div>
+    <h1>Hello world! {user.email}</h1>
+    <h1 className="text-3xl font-italic underline">
+      Hello world!
+    </h1>
+    </div>;
 }
