@@ -3,6 +3,43 @@
 
 @custom-variant dark (&:is(.dark *));
 
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  scrollbar-width: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background-color: var(--sp-background-color);
+  /* background-color: red; */
+
+  transition: all 0.2s ease-in-out;
+}
+
+:root {
+  --sp-background-color: #f9f9f9;
+  --sp-text-color: #1d1d1f;
+  --sp-secondary-text-color: #6e6e73;
+  --sp-header-border-color: #d2d2d7;
+
+  --sp-background-color-2: #dddddd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sp-background-color: #1d1d1f;
+    --sp-text-color: #f9f9f9;
+    --sp-secondary-text-color: #a1a1aa;
+    --sp-header-border-color: #3f3f46;
+
+    --sp-background-color-2: #303135;
+  }
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

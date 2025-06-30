@@ -1,3 +1,5 @@
+import Error from "@/components/error";
+
 export default class lib_error {
   private static parseMessage(normal: string, dev?: string) {
     let message = normal;
@@ -9,24 +11,57 @@ export default class lib_error {
     return message;
   }
 
-  public static unauthorized(normal?: string, dev?: string) {
-    return new Response(
-      lib_error.parseMessage(normal ? normal : "Unauthorized", dev),
-      { status: 401 }
-    );
+  public static unauthorized(
+    type: "server" | "client",
+    normal?: string,
+    dev?: string
+  ) {
+    if (type === "server") {
+      return new Response(
+        lib_error.parseMessage(normal ? normal : "Unauthorized", dev),
+        { status: 401 }
+      );
+    }
+
+    return Error({
+      message: lib_error.parseMessage(normal ? normal : "Unauthorized", dev),
+    });
   }
 
-  public static bad_request(normal?: string, dev?: string) {
-    return new Response(
-      lib_error.parseMessage(normal ? normal : "Bad Request", dev),
-      { status: 400 }
-    );
+  public static bad_request(
+    type: "server" | "client",
+    normal?: string,
+    dev?: string
+  ) {
+    if (type === "server") {
+      return new Response(
+        lib_error.parseMessage(normal ? normal : "Bad Request", dev),
+        { status: 400 }
+      );
+    }
+
+    return Error({
+      message: lib_error.parseMessage(normal ? normal : "Bad Request", dev),
+    });
   }
 
-  public static internal_server_error(normal?: string, dev?: string) {
-    return new Response(
-      lib_error.parseMessage(normal ? normal : "Internal Server Error", dev),
-      { status: 500 }
-    );
+  public static internal_server_error(
+    type: "server" | "client",
+    normal?: string,
+    dev?: string
+  ) {
+    if (type === "server") {
+      return new Response(
+        lib_error.parseMessage(normal ? normal : "Internal Server Error", dev),
+        { status: 500 }
+      );
+    }
+
+    return Error({
+      message: lib_error.parseMessage(
+        normal ? normal : "Internal Server Error",
+        dev
+      ),
+    });
   }
 }
