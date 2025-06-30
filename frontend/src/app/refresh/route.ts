@@ -18,8 +18,9 @@ export async function GET(request: Request) {
 
   if (!token || !refreshToken) {
     return lib_error.unauthorized(
+      "server",
       "Unauthorized",
-      "missing cookie token/refreshToken",
+      "missing cookie token/refreshToken"
     );
   }
 
@@ -38,20 +39,23 @@ export async function GET(request: Request) {
     if ("gql" in error) {
       if (error.gql) {
         return lib_error.unauthorized(
+          "server",
           "Unauthorized",
-          `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`,
+          `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
         );
       }
 
       return lib_error.unauthorized(
+        "server",
         "Unauthorized",
-        `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`,
+        `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
       );
     }
 
     return lib_error.unauthorized(
+      "server",
       "Unauthorized",
-      `unexpected error: ${JSON.stringify(error)}`,
+      `unexpected error: ${JSON.stringify(error)}`
     );
   }
 
@@ -62,6 +66,6 @@ export async function GET(request: Request) {
 
   // return new Response("OK", { status: 200 });
   return NextResponse.redirect(
-    new URL(redirectUrl ? redirectUrl : "/app", request.url),
+    new URL(redirectUrl ? redirectUrl : "/app", request.url)
   );
 }

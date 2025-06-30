@@ -1,0 +1,55 @@
+.eventCardContainer {
+  position: relative;
+  width: 280px;
+  height: 420px;
+  transition: transform 0.5s ease-in-out;
+  /* background-color: red; */
+}
+
+.eventCard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  /* background-color: #e0e0e0; */
+  /* background-color: green; */
+  box-sizing: border-box;
+}
+
+.eventCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gradientOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7),
+    rgba(0, 0, 0, 0.3) 50%,
+    transparent
+  );
+}
+
+.cardContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 20px;
+  color: white;
+}
+
+.cardContent h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.cardContent p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}

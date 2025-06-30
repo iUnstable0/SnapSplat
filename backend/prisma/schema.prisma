@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output = "../src/generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -17,13 +17,13 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
 
-  email String @unique
+  email       String @unique
   displayName String
-  role  String @default("user") // user, admin
+  role        String @default("user") // user, admin
 
   emailVerified Boolean @default(false)
 
-  profilePicture String @default("placeholder")
+  profilePicture String @default("/placeholder.png")
 
   passwordSession String @unique @default(uuid(4))
   accountSession  String @unique @default(uuid(4))

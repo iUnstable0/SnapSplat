@@ -3,10 +3,10 @@
 import Image from "next/image";
 
 // import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 // import { GlowEffect } from "@/components/ui/glow-effect";
 
-import styles from "./page.module.css";
+import styles from "./event-card.module.css";
 
 export default function EventCard({
   event,
@@ -15,14 +15,14 @@ export default function EventCard({
   event: any;
   index: number;
 }) {
-//   const [isGlowVisible, setIsGlowVisible] = useState(false);
+  //   const [isGlowVisible, setIsGlowVisible] = useState(false);
 
   return (
     <motion.div
       className={styles.eventCardContainer}
       key={index}
       initial={{ scale: 0.98 }}
-      whileHover={{ scale: 1 }}  
+      whileHover={{ scale: 1 }}
       transition={{
         duration: 0.05,
       }}

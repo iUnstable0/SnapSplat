@@ -3,24 +3,22 @@ import Link from "next/link";
 
 import styles from "./page.module.css";
 
-import gql from "@/gql";
+// import gql from "@/gql";
 
-import EventCard from "./event-card";
+import EventCard from "./components/event-card";
 
-import { InfiniteSlider } from "@/components/ui/infinite-slider";
+import { InfiniteSlider } from "@/components/ui/mp_infinite-slider";
 
 import { Handshake } from "lucide-react";
 
-import Header from "./header";
-
 export default async function Home() {
-  let user = null;
+  // let user = null;
 
-  try {
-    user = (await gql.query.user()).user;
-  } catch (error) {
-    console.log("Not authenticated");
-  }
+  // try {
+  //   user = (await gql.query.user()).user;
+  // } catch (error) {
+  //   console.log("Not authenticated");
+  // }
 
   // Data for the event cards
   const events = [
@@ -49,7 +47,7 @@ export default async function Home() {
       eventId: 4,
       title: "Shanghai Hackathon",
       location: "Shanghai, China",
-      date: "May 14 2025",
+      date: "April 8, 2025",
       imageUrl: "https://picsum.photos/seed/picsqrt/400/600",
     },
     {
@@ -63,16 +61,21 @@ export default async function Home() {
 
   return (
     <div className={styles.pageWrapper}>
-      <Header />
-
       <main className={styles.mainContainer}>
         <section className={styles.mainContent}>
           <Image
-            src="/snapsplat-transparent.png"
+            src={"/snapsplat-transparent.png"}
             alt="SnapSplat"
-            width={320}
-            height={320}
-            className={styles.mainContentLogo}
+            width={280}
+            height={280}
+            className={styles.mainContentLogoLight}
+          />
+          <Image
+            src={"/snapsplat-transparent-ai.png"}
+            alt="SnapSplat"
+            width={370}
+            height={370}
+            className={styles.mainContentLogoDark}
           />
           <h1>Welcome to SnapSplat</h1>
           <p className={styles.subtitle}>
@@ -80,7 +83,8 @@ export default async function Home() {
             join and contribute.
           </p>
           <Link href="/login" className={styles.ctaButton}>
-            {user ? "Open App" : "Get Started"}
+            {/* {user ? "Open App" : "Get Started"} */}
+            Get Started
           </Link>
         </section>
 
@@ -105,10 +109,10 @@ export default async function Home() {
             <Handshake className={styles.footerIconSvg} />
           </div>
           <p className={styles.footerText}>
-            SnapSplat allows anyone to create beautiful photo galleries for their
-            events. Users can join events, contribute photos, and share memories
-            with friends and family. Events are collaborative spaces where
-            everyone can upload, view, and organize photos from shared
+            SnapSplat allows anyone to create beautiful photo galleries for
+            their events. Users can join events, contribute photos, and share
+            memories with friends and family. Events are collaborative spaces
+            where everyone can upload, view, and organize photos from shared
             experiences, making it easy to capture and relive special moments
             together.
           </p>

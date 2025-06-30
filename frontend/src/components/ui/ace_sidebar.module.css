@@ -1,0 +1,209 @@
+/* Vars shared with sidebar.module.css */
+
+.desktopSidebar {
+  justify-content: space-between;
+  gap: 40px;
+
+  height: 100%;
+  padding: 16px;
+  display: none;
+
+  background-color: var(--sp-sidebar-background-color);
+  /* background-color: red; */
+
+  overflow-x: hidden;
+
+  width: 300px;
+  flex-shrink: 0;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  z-index: 100;
+
+  transition: background-color 0.2s ease-in-out;
+}
+
+@media (min-width: 768px) {
+  .desktopSidebar {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.mobileSidebar {
+  height: 40px;
+  width: 100%;
+
+  padding: 16px;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+  /* background-color: blue; */
+}
+
+@media (min-width: 768px) {
+  .mobileSidebar {
+    display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .mobileSidebar {
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+  }
+}
+
+.mobileSidebarMenuIcon {
+  z-index: 20;
+
+  color: var(--sp-text-color);
+}
+
+.mobileSidebarCloseButton {
+  position: absolute;
+  right: 40px;
+  top: 50px;
+  z-index: 50;
+
+  color: var(--sp-text-color);
+
+  transition: all 0.2s ease-in-out;
+}
+
+.mobileSidebarCloseButton:hover {
+  cursor: pointer;
+
+  /* .mobileSidebarCloseIcon { */
+  scale: 1.1;
+  /* } */
+}
+
+.mobileSidebarCloseButton:active {
+  scale: 0.98;
+}
+
+.mobileSidebarCloseIcon {
+  z-index: 20;
+
+  color: var(--sp-text-color);
+
+  transition: all 0.2s ease-in-out;
+}
+
+.mobileSidebarContent {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  background-color: transparent;
+
+  padding: 2.5rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  backdrop-filter: blur(10px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mobileSidebarContent {
+    background-color: #171717ac;
+  }
+}
+
+.sidebarLink {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+
+  gap: 12px;
+
+  padding-left: 6px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+  border-radius: 8px;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebarLinkIcon {
+  margin-left: 2px;
+
+  background-color: transparent;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebarLink:hover {
+  .sidebarLinkIcon {
+    transform: translateX(3px);
+  }
+  .sidebarLinkText {
+    transform: translateX(3px);
+    /* text shadow */
+    /* ad glow around text */
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+  scale: 0.99;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sidebarLink:hover {
+    .sidebarLinkIcon {
+      transform: translateX(3px);
+    }
+    .sidebarLinkText {
+      transform: translateX(3px);
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    background-color: var(--sp-sidebar-item-hover-color);
+    /* box-shadow: 0 0 5px 0 rgba(255, 255, 255, 0.1); */
+    box-shadow: none;
+
+    /* scale: 1; */
+  }
+}
+
+.sidebarLink:active {
+  /* .sidebarLinkIcon {
+    transform: translateX(0px);
+  }
+  .sidebarLinkText {
+    transform: translateX(0px);
+  } */
+
+  scale: 0.98;
+}
+
+.sidebarLinkText {
+  color: var(--sp-text-color);
+
+  font-size: 14px;
+  font-weight: 400;
+
+  /* Adjust gap in sidebarLink instead! No padding here */
+  /* padding-left: 4px !important; */
+
+  white-space: pre;
+  padding: 0;
+  margin: 0;
+
+  transition: all 0.2s ease-in-out;
+}

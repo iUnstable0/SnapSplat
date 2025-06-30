@@ -23,8 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en"> 
+      <body
+        className={`${geistSans.variable} ${geistMono.variable}`}
+        // style={{
+        //   backgroundColor: "#f9f9f9",
+        //   overflowY: "hidden",
+        //   margin: 0,
+        //   padding: 0,
+        // }}
+      >
         {children}
       </body>
     </html>
