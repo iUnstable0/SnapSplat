@@ -16,6 +16,9 @@ const schemasParser = z.object({
     user: z.object({
       getAuthenticatedInfo: z.string(),
     }),
+    platform: z.object({
+      getInfo: z.string(),
+    }),
   }),
   mutation: z.object({
     user: z.object({
@@ -53,7 +56,7 @@ const result = schemasParser.safeParse(schemas);
 if (!result.success) {
   console.error(
     "[gql.schemas] Schema validation failed:",
-    result.error.issues.map((issue) => issue.message).join(". "),
+    result.error.issues.map((issue) => issue.message).join(". ")
   );
 
   throw new Error("Schema validation failed");

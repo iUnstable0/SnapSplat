@@ -2,9 +2,12 @@ declare namespace NodeJS {
   interface ProcessEnv {
     NODE_ENV: "development" | "production" | "staging";
 
+    SETUP_KEY: string;
+
     DATABASE_URL: string;
 
-    GQL_ENDPOINT: string;
+    NEXT_URL: string;
+
     GQL_PORT: number;
 
     VALKEY_HOST: string;

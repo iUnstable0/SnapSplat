@@ -19,7 +19,8 @@ export default class mutation_user {
     captchaToken: string,
     email: string,
     password: string,
-    displayName: string
+    displayName: string,
+    setupKey?: string
   ) {
     return requester.request({
       data: {
@@ -29,6 +30,7 @@ export default class mutation_user {
           email,
           password,
           displayName,
+          setupKey,
         },
       },
     });

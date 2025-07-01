@@ -14,16 +14,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum PlatformRole {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum EventRole {
+  HOST
+  COHOST
+  ATTENDEE
+}
+
+model Platform {
+  key String @id
+
+  value String
+
+  @@index([key])
+}
+
 model User {
   id Int @id @default(autoincrement())
 
-  email       String @unique
-  displayName String
-  role        String @default("user") // user, admin
+  email        String       @unique
+  displayName  String
+  platformRole PlatformRole @default(USER)
 
-  emailVerified Boolean @default(false)
+  isEmailVerified Boolean @default(false)
 
-  profilePicture String @default("/placeholder.png")
+  avatar String @default("/placeholder.png")
 
   passwordSession String @unique @default(uuid(4))
   accountSession  String @unique @default(uuid(4))
@@ -34,6 +54,8 @@ model User {
 
   sessions        Session[]
   suspendedTokens SuspendedToken[]
+  events          Event[]
+  memberships     EventMembership[]
 }
 
 model Session {
@@ -52,11 +74,75 @@ model Session {
 model SuspendedToken {
   id Int @id @default(autoincrement())
 
+  userId      String
   tokenId     String   @unique
   reason      String
   suspendedAt DateTime @default(now())
 
-  user User @relation(fields: [tokenId], references: [userId])
+  user User @relation(fields: [userId], references: [userId])
 
   @@index([tokenId])
+}
+
+model Event {
+  id Int @id @default(autoincrement())
+
+  hostId      String
+  eventId     String  @unique @default(uuid(4))
+  name        String
+  description String?
+
+  startsAt   DateTime
+  endsAt     DateTime
+  isArchived Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  host User @relation(fields: [hostId], references: [userId])
+
+  memberships EventMembership[]
+  invites     EventInvite[]
+
+  @@index([eventId])
+}
+
+model EventMembership {
+  id Int @id @default(autoincrement())
+
+  userId  String
+  eventId String
+
+  eventRole EventRole @default(ATTENDEE)
+
+  displayNameAlt String?
+  avatarAlt      String?
+
+  joinedAt   DateTime @default(now())
+  isApproved Boolean  @default(true)
+
+  user  User  @relation(fields: [userId], references: [userId])
+  event Event @relation(fields: [eventId], references: [eventId])
+
+  @@unique([userId, eventId])
+  @@index([userId, eventId])
+}
+
+model EventInvite {
+  id Int @id @default(autoincrement())
+
+  eventId  String
+  inviteId String @unique
+
+  role            EventRole @default(ATTENDEE)
+  requireApproval Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  maxUses Int @default(0) // 0 = unlimited
+  uses    Int @default(0)
+
+  event Event @relation(fields: [eventId], references: [eventId])
+
+  @@index([eventId, inviteId])
 }

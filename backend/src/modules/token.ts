@@ -12,10 +12,8 @@ import lib_logger from "@/modules/logger";
 
 import type { User, Session, SuspendedToken } from "@/generated/prisma";
 
-import { Z_JWTAuthPayload , Z_RefreshTokenPayload} from "@/modules/parser";
-
-type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
-type Z_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;
+import { Z_JWTAuthPayload, Z_RefreshTokenPayload } from "@/modules/parser";
+import type { T_JWTAuthPayload, T_RefreshTokenPayload } from "@/modules/parser";
 
 const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
@@ -125,7 +123,7 @@ export default class lib_token {
   public static extractRefreshToken(refreshToken: string): {
     success: boolean;
     error?: string;
-    data?: Z_RefreshTokenPayload
+    data?: T_RefreshTokenPayload;
   } {
     const parts = refreshToken.split(":");
 
@@ -149,11 +147,11 @@ export default class lib_token {
     const data = {
       userId,
       sessionId,
-      sessionKey
-    }
+      sessionKey,
+    };
 
     try {
-      Z_RefreshTokenPayload.parse(data)
+      Z_RefreshTokenPayload.parse(data);
     } catch (error) {
       return {
         success: false,
@@ -164,7 +162,7 @@ export default class lib_token {
 
     return {
       success: true,
-      data
+      data,
     };
   }
   public static async validateRefreshToken(
@@ -232,7 +230,7 @@ export default class lib_token {
     user: {
       suspendedTokens: SuspendedToken[];
     } & User,
-    payload: Z_JWTAuthPayload
+    payload: T_JWTAuthPayload
   ) {
     if (
       user.passwordSession !== payload.passwordSession ||
@@ -262,7 +260,7 @@ export default class lib_token {
   ): Promise<{
     valid: boolean;
     renew: boolean;
-    payload?: Z_JWTAuthPayload;
+    payload?: T_JWTAuthPayload;
   }> {
     if (
       WARNING_THIS_FUNCTION_DOES_NOT_DO_SUSPENDED_CHECK !==
@@ -284,7 +282,7 @@ export default class lib_token {
         payload: unsafePayload,
         // protectedHeader,
       }: {
-        payload: Z_JWTAuthPayload;
+        payload: T_JWTAuthPayload;
         // protectedHeader: jose.ProtectedHeaderParameters;
       } = await jose.jwtVerify(token, publicKey, {
         audience: "auth",

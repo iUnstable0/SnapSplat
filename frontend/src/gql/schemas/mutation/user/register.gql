@@ -3,12 +3,14 @@ mutation (
   $email: String!
   $password: String!
   $displayName: String!
+  $setupKey: String
 ) {
   register(
     captchaToken: $captchaToken
     email: $email
     password: $password
     displayName: $displayName
+    setupKey: $setupKey
   ) {
     token
     refreshToken

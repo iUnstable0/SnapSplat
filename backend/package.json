@@ -10,6 +10,9 @@
     "pm:studio": "doppler run -- bunx prisma studio",
     "codegen": "doppler run -- bun run src/codegen.ts"
   },
+  "prisma": {
+    "seed": "doppler run -- bun run prisma/seed.ts"
+  },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/client-preset": "^4.8.3",

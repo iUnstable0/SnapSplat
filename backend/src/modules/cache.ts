@@ -20,7 +20,7 @@ const client = await GlideClient.createClient({
   clientName: "snapsplat",
 });
 
-export default class lib_valkey {
+export default class lib_cache {
   public static async get(key: string) {
     if (!process.env.CACHE_ENABLED) {
       return {
@@ -53,7 +53,7 @@ export default class lib_valkey {
     }
   }
 
-  public static async set(key: string, value: object | string, ttl: number) {
+  public static async set(key: string, value: object | string, ttl?: number) {
     if (!process.env.CACHE_ENABLED) {
       return;
     }
@@ -63,9 +63,13 @@ export default class lib_valkey {
         value = JSON.stringify(value);
       }
 
-      return await client.set(key, value, {
-        expiry: { type: TimeUnit.Seconds, count: ttl },
-      });
+      if (ttl) {
+        return await client.set(key, value, {
+          expiry: { type: TimeUnit.Seconds, count: ttl },
+        });
+      }
+
+      return await client.set(key, value);
     } catch (error) {
       console.error(
         `${lib_logger.formatPrefix("lib_cache.set")} Error while setting key ${key} to value ${value}`,

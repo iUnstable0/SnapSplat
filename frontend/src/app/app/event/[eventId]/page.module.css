@@ -1,6 +1,5 @@
 .pageWrapper {
   color: var(--sp-text-color);
-
   transition: all 0.2s ease-in-out;
 }
 

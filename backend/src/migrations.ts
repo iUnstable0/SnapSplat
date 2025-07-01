@@ -9,8 +9,11 @@ const selectionPrompt = new Select({
   name: "selected-command",
   message: "Select a command to run",
   choices: [
+    "prisma db seed",
     "prisma db push",
+    "prisma db push && prisma db seed",
     "prisma db push --force-reset",
+    "prisma db push --force-reset && prisma db seed",
     "prisma migrate dev --create-only --name <migration_name>",
     "prisma migrate dev",
     "prisma migrate reset",
@@ -20,6 +23,8 @@ const selectionPrompt = new Select({
 const selectionPromptResult = await selectionPrompt.run();
 
 let commandToRun = selectionPromptResult;
+
+const prefix = "doppler run -- bunx";
 
 if (selectionPromptResult.includes("<migration_name>")) {
   const namePrompt = new Input({
@@ -40,11 +45,11 @@ if (selectionPromptResult.includes("<migration_name>")) {
 
   commandToRun = selectionPromptResult.replaceAll(
     "<migration_name>",
-    namePromptResult,
+    namePromptResult
   );
 }
 
-const finalCommand = `doppler run -- bunx ${commandToRun}`;
+const finalCommand = `${prefix} ${commandToRun.replaceAll("&&", `&& ${prefix}`)}`;
 
 clipboardy.writeSync(finalCommand);
 

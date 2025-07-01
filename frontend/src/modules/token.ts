@@ -3,8 +3,7 @@ import * as jose from "jose";
 import * as z from "zod/v4";
 
 import { Z_JWTAuthPayload } from "@/modules/parser";
-
-type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
+import type { T_JWTAuthPayload } from "@/modules/parser";
 
 const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 
@@ -17,20 +16,20 @@ export default class lib_token {
   public static async validateAuthToken(token: string): Promise<{
     valid: boolean;
     renew: boolean;
-    payload?: Z_JWTAuthPayload;
+    payload?: T_JWTAuthPayload;
   }> {
     if (!token) {
       return { valid: false, renew: false };
     }
 
     try {
-      z.jwt({alg:"EdDSA"}).parse(token);
-      
+      z.jwt({ alg: "EdDSA" }).parse(token);
+
       const {
         payload: unsafePayload,
         // protectedHeader,
       }: {
-        payload: Z_JWTAuthPayload;
+        payload: T_JWTAuthPayload;
         // protectedHeader: jose.ProtectedHeaderParameters;
       } = await jose.jwtVerify(token, publicKey, {
         audience: "auth",
