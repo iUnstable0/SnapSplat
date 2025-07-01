@@ -15,7 +15,12 @@ export default function Page() {
         </div>
         <div>
           <label htmlFor="confirmPassword">Confirm Password</label>
-          <input type="password" id="confirmPassword" name="confirmPassword" required />
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            required
+          />
         </div>
         <div>
           <label htmlFor="">Display Name</label>

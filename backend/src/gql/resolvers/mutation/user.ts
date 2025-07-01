@@ -5,6 +5,7 @@ import crypto from "node:crypto";
 import { GraphQLError } from "graphql";
 
 import prisma from "@/db/prisma";
+import { PlatformRole } from "@/generated/prisma";
 
 // import db_user from "@/db/user";
 
@@ -13,15 +14,16 @@ import lib_captcha from "@/modules/captcha";
 import lib_vet from "@/modules/vet";
 import lib_token from "@/modules/token";
 import lib_error from "@/modules/error";
+import lib_cache from "@/modules/cache";
 
 import { Z_JWTAuthPayload, Z_RefreshTokenPayload } from "@/modules/parser";
+import type { T_JWTAuthPayload, T_RefreshTokenPayload } from "@/modules/parser";
 
-type Z_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
-type Z_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;
+import query_platform from "@/gql/resolvers/query/platform";
 
 export default class mutation_user {
   public static async register(args: any, context: any) {
-    const { captchaToken, email, displayName, password } = args;
+    const { captchaToken, email, displayName, password, setupKey } = args;
 
     if (!captchaToken) {
       throw lib_error.bad_request(
@@ -79,6 +81,56 @@ export default class mutation_user {
       throw lib_error.bad_request(passwordVetResult.errors.join(". "));
     }
 
+    let platformRole: PlatformRole = "USER";
+
+    let platformSetupCompleted: boolean | undefined;
+
+    const cacheResult = await lib_cache.get("platform_is_setup_completed");
+
+    if (cacheResult.data && cacheResult.data.platformSetupCompleted === true) {
+      // Will never save to cache if it's not setup
+      platformSetupCompleted = true;
+    } else {
+      const platformInfo = await query_platform.getInfo();
+
+      platformSetupCompleted = platformInfo.isSetupCompleted;
+
+      if (platformSetupCompleted === true) {
+        await lib_cache.set(
+          "platform_setup_completed",
+          {
+            platformSetupCompleted,
+          },
+          60 * 60 * 24
+        );
+      }
+    }
+
+    if (!platformSetupCompleted) {
+      if (!setupKey) {
+        throw lib_error.bad_request(
+          "Platform must be setup first",
+          "setupKey is missing"
+        );
+      }
+
+      if (setupKey !== process.env.SETUP_KEY) {
+        throw lib_error.bad_request(
+          "Unauthorized",
+          `setupKey is not valid, received: ${setupKey}`
+        );
+      }
+
+      platformRole = "SUPER_ADMIN";
+    } else {
+      if (setupKey) {
+        throw lib_error.bad_request(
+          "Unauthorized",
+          "platform is already setup lol, super admin registration is closed"
+        );
+      }
+    }
+
     const hashedPassword = await Bun.password.hash(password, {
       algorithm: "argon2id",
     });
@@ -89,6 +141,7 @@ export default class mutation_user {
           email: sanitizedEmail,
           displayName,
           password: hashedPassword,
+          platformRole,
         },
       })
       .then(async (user) => {
@@ -261,7 +314,7 @@ export default class mutation_user {
     }
 
     const { userId, sessionId, sessionKey } =
-      extractedRefreshToken.data as Z_RefreshTokenPayload;
+      extractedRefreshToken.data as T_RefreshTokenPayload;
 
     let user = null;
 
@@ -286,7 +339,7 @@ export default class mutation_user {
       throw lib_error.unauthorized("Unauthorized", "user not found lol");
     }
 
-    if (!lib_token.checkAuthToken(user, result.payload as Z_JWTAuthPayload)) {
+    if (!lib_token.checkAuthToken(user, result.payload as T_JWTAuthPayload)) {
       throw lib_error.unauthorized(
         "Unauthorized",
         `token db check failed, either suspended or invalidated account/password session`
@@ -311,7 +364,7 @@ export default class mutation_user {
       .genAuthToken(userId, user.passwordSession, user.accountSession)
       .then((data) => {
         return {
-          token: data
+          token: data,
         };
       })
       .catch((error) => {

@@ -1,9 +1,9 @@
 import { GraphQLSchema, defaultFieldResolver, GraphQLError } from "graphql";
 import { mapSchema, MapperKind, getDirective } from "@graphql-tools/utils";
 
-const directiveName = "auth";
+import lib_role from "@/modules/role";
 
-function getUserFn(token: string) {}
+const directiveName = "auth";
 
 export default function authDirectiveTransformer(schema: GraphQLSchema) {
   const typeDirectiveArgumentMaps: Record<string, any> = {};
@@ -31,12 +31,6 @@ export default function authDirectiveTransformer(schema: GraphQLSchema) {
           const { resolve = defaultFieldResolver } = fieldConfig;
 
           fieldConfig.resolve = function (source, args, context, info) {
-            // const user = getUserFn(context.headers["authorization"]);
-            //
-            // if (!user.hasRole(requires)) {
-            //   throw new Error(`Unauthorized`);
-            // }
-
             if (!context.authenticated) {
               throw new GraphQLError("Unauthorized", {
                 extensions: {
@@ -53,7 +47,21 @@ export default function authDirectiveTransformer(schema: GraphQLSchema) {
               });
             }
 
-            // console.log(`Auth directive context:`, context);
+            if (!lib_role.hasRole(context.user, requires)) {
+              throw new GraphQLError("Unauthorized", {
+                extensions: {
+                  code: "UNAUTHORIZED",
+                  http: {
+                    status: 401,
+                    headers: {
+                      "x-refresh-token-needed": context.renew
+                        ? "true"
+                        : "false",
+                    },
+                  },
+                },
+              });
+            }
 
             return resolve(source, args, context, info);
           };

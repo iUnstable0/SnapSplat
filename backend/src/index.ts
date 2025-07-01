@@ -10,12 +10,12 @@ import lib_logger from "@/modules/logger";
 process.send = process.send || function () {};
 
 // (async () => {
-console.info(`${lib_logger.formatPrefix("init")} Starting server...`);
+console.log(`${lib_logger.formatPrefix("init")} Starting server...`);
 
 await gql.start();
 
-console.info(
-  `${lib_logger.formatPrefix("init")} Server online! Took ${Date.now() - time}ms`,
+console.log(
+  `${lib_logger.formatPrefix("init")} Server online! Took ${Date.now() - time}ms`
 );
 
 process.send!("ready");
@@ -26,12 +26,12 @@ process.on("SIGINT", async () => {
 
   time = Date.now();
 
-  console.info(`${lib_logger.formatPrefix("init")} Stopping server...`);
+  console.log(`${lib_logger.formatPrefix("init")} Stopping server...`);
 
   await gql.stop();
 
-  console.info(
-    `${lib_logger.formatPrefix("init")} Ready to exit! Took ${Date.now() - time}ms`,
+  console.log(
+    `${lib_logger.formatPrefix("init")} Ready to exit! Took ${Date.now() - time}ms`
   );
 
   process.exit(0);

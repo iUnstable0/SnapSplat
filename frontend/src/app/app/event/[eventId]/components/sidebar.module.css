@@ -1,0 +1,405 @@
+:root {
+  --sp-sidebar-background-color: var(--sp-background-color);
+  --sp-sidebar-item-hover-color: var(--sp-background-color);
+  --sp-sidebar-seperator-shadow-color: #d2d2d7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* --sp-sidebar-background-color: #1a1a1a; */
+    --sp-sidebar-content-background-color: #1a1a1a;
+    --sp-sidebar-item-hover-color: #252527;
+    --sp-sidebar-seperator-shadow-color: #131313;
+  }
+}
+
+.mainContent {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
+
+  height: 100vh;
+  width: 100vw;
+
+  border-top-left-radius: 28px;
+
+  box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.2);
+
+  border-top: 10px solid #ffffff00;
+  border-bottom: 10px solid #ffffff00;
+  border-left: 10px solid #ffffff00;
+
+  transition: background-color 0.2s ease-in-out;
+}
+
+@media (max-width: 767px) {
+  .mainContent {
+    margin-left: 0px !important;
+
+    box-shadow: none !important;
+
+    border-top: 0px solid #ffffff00;
+    border-bottom: 0px solid #ffffff00;
+    border-left: 0px solid #ffffff00;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .mainContent {
+    box-shadow: inset 0 0 6px 0 rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* .sidebarOverlayCover {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  height: calc(100% - (100% - 98px));
+
+  z-index: 2;
+
+  backdrop-filter: blur(2px);
+} */
+
+.sidebarOverlay {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+
+  /* height: calc(100% - 60px); */
+  height: 100%;
+
+  background: transparent;
+  /* backdrop-filter: blur(12px); */
+
+  z-index: 1;
+}
+
+/* .sidebarOverlayMobile {
+  display: none;
+
+  position: fixed;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: transparent;
+
+  z-index: 1;
+} */
+
+/* @media (max-width: 767px) {
+  .sidebarOverlayDesktop {
+    display: none;
+  }
+
+  .sidebarOverlayMobile {
+    display: block;
+  }
+} */
+
+.sidebarOverlayContent {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  /* height: calc(100% - (100% - 98px)); */
+
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  /* background-color: blue !important; */
+
+  margin-top: 60px;
+
+  padding-top: 40px;
+  padding-left: 10px;
+  padding-right: 10px;
+
+  /* disable selection */
+}
+
+@media (max-width: 767px) {
+  .sidebarOverlayContent {
+    padding-left: 30px;
+    padding-top: 60px;
+  }
+}
+
+.sidebarOverlayButton {
+  width: 100%;
+  height: 100%;
+
+  /* background-color: red !important; */
+
+  /* transition: all 0.2s ease-in-out; */
+  /* spring transition more damp */
+  /* transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; */
+}
+
+/* .sidebarOverlayButton:hover {
+  transform: translateX(8px) !important;
+  scale: 1.1 !important; */
+
+/* .sidebarOverlayButtonText {
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  } */
+/* } */
+
+.eventMenuLeaveButton {
+  color: rgb(255, 63, 63);
+}
+
+.eventMenuLeaveButtonDisabled {
+  color: rgb(168, 39, 39);
+}
+
+.eventMenuLeaveButton:hover {
+  .sidebarOverlayButtonText {
+    text-shadow: 0 0 10px rgba(255, 63, 63, 0.5);
+  }
+
+  .sidebarOverlayButtonIcon {
+    filter: drop-shadow(0 0 10px rgb(255, 63, 63));
+  }
+}
+
+.eventMenuNormalButton {
+  color: var(--sp-text-color);
+}
+
+.eventMenuNormalButton:hover {
+  .sidebarOverlayButtonText {
+    /* text-shadow: 0 0 10px rgba(0, 0, 0, 0.3); */
+  }
+
+  .sidebarOverlayButtonIcon {
+    filter: drop-shadow(0 0 10px var(--sp-text-color));
+  }
+}
+
+.sidebarOverlayMagnet {
+  width: 100%;
+  height: 100%;
+
+  padding-left: 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.sidebarOverlayMagnet_free:hover {
+  cursor: pointer;
+
+  transform: translateX(8px) !important;
+  scale: 1.1 !important;
+}
+
+.sidebarOverlayMagnet_active {
+  cursor: pointer;
+
+  transform: translateX(4px) !important;
+  scale: 1.05 !important;
+}
+
+.sidebarOverlayButtonIcon {
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sidebarOverlayButtonText {
+  font-size: 16px;
+
+  transition: all 0.5s ease-in-out;
+  /* add shadow aroundtext */
+}
+
+.sidebarContent {
+  display: flex;
+  flex: 1 1 0%;
+  flex-direction: column;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  /* background-color: red; */
+
+  /* min-height: 100px; */
+
+  scrollbar-width: none;
+  /* scrollbar-color: var(--sp-text-color); */
+}
+
+.linksContainer {
+  margin-top: 32px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.linksContainerMobile {
+  display: none;
+
+  margin-top: 32px;
+
+  gap: 8px;
+
+  transition: all 0.2s ease-in-out;
+}
+
+@media (max-width: 767px) {
+  .linksContainer {
+    display: none;
+  }
+
+  .linksContainerMobile {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.sidebarSeperator {
+  display: block;
+
+  background: transparent;
+
+  /* box shadow on the TOP only */
+  box-shadow: 0 -6px 6px 0 var(--sp-sidebar-seperator-shadow-color);
+
+  position: relative;
+  top: -30px;
+  /* open ? 0 : -5px  in TSX*/
+  /* right: -5px; */
+
+  /* margin-top: 4px; */
+
+  margin: none;
+
+  height: 2px;
+
+  opacity: 0;
+
+  transition: all 0.2s ease-in-out;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sidebarSeperator {
+    box-shadow: 0 -6px 6px 0 var(--sp-sidebar-seperator-shadow-color);
+  }
+}
+
+@media (max-width: 767px) {
+  .sidebarSeperator {
+    top: 0;
+    right: 0;
+  }
+
+  @media (max-height: 422px) {
+    .sidebarSeperator {
+      opacity: 1;
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-height: 410px) {
+  .sidebarSeperator {
+    opacity: 1;
+  }
+}
+
+.sidebarLinkIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+
+  /* margin-left: 2.5px; */
+}
+
+.logoLink {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: start;
+
+  gap: 8px;
+
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+  /* Added this to blur the overlayMenu when it animates down */
+  /* background: transparent;
+  backdrop-filter: blur(10px); */
+  /* Nevermind it looks ugly, make a new overlay specific for that instead */
+
+  border-radius: 8px;
+
+  z-index: 2;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.logoLink:hover {
+  transform: translateX(6px);
+  scale: 1.05;
+}
+
+.logoLink:active {
+  transform: translateX(0px);
+  scale: 1;
+}
+
+@media (max-width: 767px) {
+  .logoLink:hover {
+    transform: translateX(12px);
+    scale: 1.05;
+  }
+}
+
+.logoImage {
+  flex-shrink: 0;
+  margin-left: 4px;
+
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.logoText {
+  font-weight: 500;
+  white-space: pre;
+
+  color: var(--sp-text-color);
+}
+
+.avatarLink:hover {
+  .avatarImage {
+    transform: translateX(3px);
+  }
+}
+
+.avatarImage {
+  border-radius: 100%;
+
+  flex-shrink: 0;
+
+  min-width: 28px;
+  min-height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+
+  transition: all 0.2s ease-in-out;
+}

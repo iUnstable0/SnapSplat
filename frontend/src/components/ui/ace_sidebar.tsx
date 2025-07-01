@@ -1,6 +1,7 @@
 "use client";
 
 // import Image from "next/image";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
@@ -22,6 +23,8 @@ interface Links {
 interface SidebarContextProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  eventMenuOpen: boolean;
+  setEventMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
   animate: boolean;
 }
 
@@ -41,11 +44,15 @@ export const SidebarProvider = ({
   children,
   open: openProp,
   setOpen: setOpenProp,
+  eventMenuOpen,
+  setEventMenuOpen,
   animate = true,
 }: {
   children: React.ReactNode;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  eventMenuOpen?: boolean;
+  setEventMenuOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   animate?: boolean;
 }) => {
   const [openState, setOpenState] = useState(false);
@@ -54,7 +61,15 @@ export const SidebarProvider = ({
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
   return (
-    <SidebarContext.Provider value={{ open, setOpen, animate: animate }}>
+    <SidebarContext.Provider
+      value={{
+        open,
+        setOpen,
+        eventMenuOpen,
+        setEventMenuOpen,
+        animate: animate,
+      }}
+    >
       {children}
     </SidebarContext.Provider>
   );
@@ -64,15 +79,25 @@ export const Sidebar = ({
   children,
   open,
   setOpen,
+  eventMenuOpen,
+  setEventMenuOpen,
   animate,
 }: {
   children: React.ReactNode;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  eventMenuOpen?: boolean;
+  setEventMenuOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   animate?: boolean;
 }) => {
   return (
-    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
+    <SidebarProvider
+      open={open}
+      setOpen={setOpen}
+      eventMenuOpen={eventMenuOpen}
+      setEventMenuOpen={setEventMenuOpen}
+      animate={animate}
+    >
       {children}
     </SidebarProvider>
   );
@@ -92,7 +117,9 @@ export const DesktopSidebar = ({
   children,
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
+  const { open, setOpen, animate, eventMenuOpen, setEventMenuOpen } =
+    useSidebar();
+
   return (
     <>
       <motion.div
@@ -100,8 +127,22 @@ export const DesktopSidebar = ({
         animate={{
           width: animate ? (open ? "300px" : "60px") : "300px",
         }}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        transition={{
+          type: "spring",
+          stiffness: 210,
+          damping: 30,
+          mass: 1,
+          restDelta: 0.01,
+          restSpeed: 10,
+        }}
+        onMouseEnter={() => {
+          setOpen(true);
+          // setEventMenuOpen(true);
+        }}
+        onMouseLeave={() => {
+          setOpen(false);
+          setEventMenuOpen(false);
+        }}
         {...props}
       >
         {children}
@@ -115,7 +156,7 @@ export const MobileSidebar = ({
   children,
   ...props
 }: React.ComponentProps<"div">) => {
-  const { open, setOpen } = useSidebar();
+  const { open, setOpen, eventMenuOpen, setEventMenuOpen } = useSidebar();
   return (
     <>
       <div className={styles.mobileSidebar} {...props}>
@@ -148,7 +189,10 @@ export const MobileSidebar = ({
             >
               <div
                 className={styles.mobileSidebarCloseButton}
-                onClick={() => setOpen(!open)}
+                onClick={() => {
+                  setOpen(!open);
+                  setEventMenuOpen(false);
+                }}
               >
                 <X className={styles.mobileSidebarCloseIcon} />
               </div>
@@ -162,7 +206,7 @@ export const MobileSidebar = ({
 };
 
 export const SidebarLink = ({
-  link,
+  link: info,
   className,
   ...props
 }: {
@@ -171,29 +215,36 @@ export const SidebarLink = ({
 }) => {
   const { open, animate } = useSidebar();
   return (
-    <a
-      href={link.href}
+    <Link
+      href={info.href}
       className={clsx(styles.sidebarLink, className)}
       {...props}
     >
-      {link.avatar && link.icon}
+      {info.avatar && info.icon}
 
-      {!link.avatar && (
-        <div className={styles.sidebarLinkIcon}>{link.icon}</div>
+      {!info.avatar && (
+        <div className={styles.sidebarLinkIcon}>{info.icon}</div>
       )}
 
       {/* {link.label !== "" && ( */}
-      <motion.span
-        animate={{
-          // display: link.label !== "" ? "inline-block" : "none",
-          // display: animate ? (open ? "inline-block" : "none") : "inline-block",
+      {/* <motion.span
+        animate={
+          {
+            // display: link.label !== "" ? "inline-block" : "none",
+            // display: animate ? (open ? "inline-block" : "none") : "inline-block",
+            // opacity: animate ? (open ? 1 : 0) : 1,
+          }
+        } */}
+      <span
+        style={{
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
         className={styles.sidebarLinkText}
       >
-        {link.label}
-      </motion.span>
+        {info.label}
+      </span>
+      {/* </motion.span> */}
       {/* )} */}
-    </a>
+    </Link>
   );
 };

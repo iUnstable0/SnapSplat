@@ -43,16 +43,23 @@ const guardedPaths = {
       return NextResponse.next();
     },
   },
+  "/setup": {
+    type: "token",
+    onFailed: (request: NextRequest) => {
+      return NextResponse.next();
+    },
+    onSuccess: (request: NextRequest) => {
+      return NextResponse.redirect(new URL("/app", request.url));
+    },
+  },
 };
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  if (!(pathname in guardedPaths)) {
-    return;
-  }
+  const rootPath = `/${pathname.split("/")[1]}`;
 
-  const options = guardedPaths[pathname as keyof typeof guardedPaths];
+  const options = guardedPaths[rootPath as keyof typeof guardedPaths];
 
   let token = null;
 
@@ -120,5 +127,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/login", "/register", "/refresh"],
+  matcher: [
+    "/app/:path*",
+    "/login",
+    "/register",
+    "/refresh",
+    "/platform/:path*",
+    "/setup",
+  ],
 };

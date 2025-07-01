@@ -6,11 +6,12 @@ directive @rateLimit(
   arrayLengthField: String
 ) on FIELD_DEFINITION
 
-directive @auth(requires: Role = USER) on OBJECT | FIELD_DEFINITION
+directive @auth(requires: PlatformRole = USER) on OBJECT | FIELD_DEFINITION
 
 ##################################
 
-enum Role {
+enum PlatformRole {
+  SUPER_ADMIN
   ADMIN
   USER
 }
@@ -27,7 +28,13 @@ type TokenSet {
 type User {
   email: String!
   displayName: String!
-  profilePicture: String!
+  avatar: String!
+  isEmailVerified: Boolean!
+  platformRole: PlatformRole!
+}
+
+type Platform {
+  isSetupCompleted: Boolean!
 }
 
 ## Query #########################
@@ -35,6 +42,7 @@ type User {
 type Query {
   hello: String!
   user: User! @auth(requires: USER)
+  platform: Platform!
 }
 
 ## Mutation ######################
@@ -45,6 +53,7 @@ type Mutation {
     email: String!
     displayName: String!
     password: String!
+    setupKey: String
   ): TokenSet! @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
   login(captchaToken: String!, email: String!, password: String!): TokenSet!

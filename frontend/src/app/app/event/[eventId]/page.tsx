@@ -1,14 +1,18 @@
-import Navbar from "./components/navbar";
+import Sidebar from "./components/sidebar";
 
 import styles from "./page.module.css";
+
+import lib_error from "@/modules/error";
 
 import gql from "@/gql";
 
 import type { T_User } from "@/gql/types";
 
-import lib_error from "@/modules/error";
-
-export default async function Page() {
+export default async function Page({
+  params,
+}: {
+  params: { eventId: string };
+}) {
   let user: T_User | null = null;
 
   try {
@@ -41,8 +45,17 @@ export default async function Page() {
 
   return (
     <div className={styles.pageWrapper}>
-      <Navbar user={user} />
-      <main className={styles.mainContainer}></main>
+      <main className={styles.mainContainer}>
+        <Sidebar user={user}>
+          <h1>Hello world! {JSON.stringify(user)}</h1>
+
+          <div style={{ padding: 32, fontSize: 24 }}>
+            <p>
+              Event ID: <strong>{params.eventId}</strong>
+            </p>
+          </div>
+        </Sidebar>
+      </main>
     </div>
   );
 }

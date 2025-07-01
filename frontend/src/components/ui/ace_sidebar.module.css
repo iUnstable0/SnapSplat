@@ -70,7 +70,7 @@
 .mobileSidebarCloseButton {
   position: absolute;
   right: 40px;
-  top: 50px;
+  top: 48px;
   z-index: 50;
 
   color: var(--sp-text-color);
@@ -138,6 +138,8 @@
   border-radius: 8px;
 
   transition: all 0.2s ease-in-out;
+
+  /* transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; */
 }
 
 .sidebarLinkIcon {

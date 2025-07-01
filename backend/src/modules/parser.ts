@@ -12,6 +12,8 @@ export const Z_JWTAuthPayload = z.object({
   aud: z.string(),
 });
 
+export type T_JWTAuthPayload = z.infer<typeof Z_JWTAuthPayload>;
+
 export const Z_Email = z.email({ message: "Invalid email address" }).trim();
 
 export const Z_Password = z
@@ -43,8 +45,10 @@ export const Z_DisplayName = z
     message: "Display name cannot start or end with a space",
   });
 
-  export const Z_RefreshTokenPayload = z.object({
-    userId: z.uuidv4(),
-    sessionId: z.uuidv4(),
-    sessionKey: z.string()
-  })
+export const Z_RefreshTokenPayload = z.object({
+  userId: z.uuidv4(),
+  sessionId: z.uuidv4(),
+  sessionKey: z.string(),
+});
+
+export type T_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;

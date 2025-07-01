@@ -52,6 +52,7 @@ export default function Header() {
             className={styles.backButtonLink}
             tabIndex={showArrow ? 0 : -1}
             aria-hidden={!showArrow}
+            prefetch={true}
           >
             <ChevronLeft className={styles.icon} />
           </Link>
@@ -62,6 +63,7 @@ export default function Header() {
             styles.headerNavLink,
             pathname === "/about" && styles.active
           )}
+          prefetch={true}
         >
           About
         </Link>
@@ -71,6 +73,7 @@ export default function Header() {
             styles.headerNavLink,
             pathname === "/contact" && styles.active
           )}
+          prefetch={true}
         >
           Contact
         </Link>

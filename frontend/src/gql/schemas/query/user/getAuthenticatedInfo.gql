@@ -2,6 +2,8 @@ query {
   user {
     email
     displayName
-    profilePicture
+    avatar
+    isEmailVerified
+    platformRole
   }
 }

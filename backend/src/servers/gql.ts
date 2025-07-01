@@ -20,7 +20,7 @@ import lib_token from "@/modules/token";
 import prisma from "@/db/prisma";
 
 import type { IdentifyFn } from "@envelop/rate-limiter";
-import type { User } from "@/generated/prisma";
+import type { Session, SuspendedToken, User } from "@/generated/prisma";
 
 export default class gql {
   private static server: any = null;
@@ -78,17 +78,20 @@ export default class gql {
 
         const result = await lib_token.validateAuthToken(
           "This function doesn't do suspended token check",
-          token,
+          token
         );
 
         // console.log(result);
 
-        let user = null;
+        let user:
+          | ({
+              suspendedTokens: SuspendedToken[];
+              sessions: Session[];
+            } & User)
+          | null = null;
 
         if (result.valid && result.payload) {
-          const {
-            userId,
-          } = result.payload;
+          const { userId } = result.payload;
 
           if (!userId) {
             return { authenticated: false };
@@ -107,7 +110,7 @@ export default class gql {
             .catch((error) => {
               console.error(
                 `${lib_logger.formatPrefix("gql_ctx")} Error fetching user from database:`,
-                error,
+                error
               );
 
               return null;
@@ -116,6 +119,8 @@ export default class gql {
           if (!user) {
             return { authenticated: false };
           }
+
+          // console.log("GQL GQL GQL", result);
 
           if (!lib_token.checkAuthToken(user, result.payload)) {
             return {
@@ -154,20 +159,30 @@ export default class gql {
 
     gql.server = server;
 
-    console.info(
+    console.log(
       `${lib_logger.formatPrefix("gql")} Running on ${new URL(
         yoga.graphqlEndpoint,
-        `http://${server.hostname}:${server.port}`,
-      )}`,
+        `http://${server.hostname}:${server.port}`
+      )}`
+    );
+
+    console.info(
+      `${lib_logger.formatPrefix("gql")} SETUP_KEY: ${process.env.SETUP_KEY}`
+    );
+
+    console.info(
+      `${lib_logger.formatPrefix("gql")} Visit ${
+        process.env.NEXT_PUBLIC_URL
+      }/setup to setup a super admin account if you havent already`
     );
   }
 
   public static async stop() {
     if (gql.server) {
       await gql.server.stop();
-      console.info(`${lib_logger.formatPrefix("gql")} Server stopped.`);
+      console.log(`${lib_logger.formatPrefix("gql")} Server stopped.`);
     } else {
-      console.warn(`${lib_logger.formatPrefix("gql")} No server to stop.`);
+      console.log(`${lib_logger.formatPrefix("gql")} No server to stop.`);
     }
 
     return true;
