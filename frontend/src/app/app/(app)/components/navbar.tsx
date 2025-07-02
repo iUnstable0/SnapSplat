@@ -154,47 +154,65 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      <div className={styles.overlayContent}>
-        <AnimatePresence>
-          {overlayOpen &&
-            menuItems.map((item, index) => (
-              <motion.div
-                key={`item_${item.label}_${index}`}
-                initial={{ opacity: 0, x: "0", scale: 0.95 }}
-                animate={{ opacity: 1, x: "0", scale: 1 }}
-                exit={{ opacity: 0, x: "0", scale: 0.95 }}
-                transition={{
-                  delay: showMenu ? index * 0.1 + 0.2 : 0,
-                }}
-                className={styles.menuButton}
-                onClick={() => {
-                  setOverlayOpen(false);
-                  router.push(item.href);
-                }}
-              >
-                <Magnetic
-                  intensity={0.1}
-                  springOptions={{ bounce: 0.1 }}
-                  actionArea="global"
-                  className={clsx(
-                    styles.overlayMagnet,
-                    item.className,
-                    pathname === item.href && styles.overlayMagnet_active,
-                    pathname !== item.href && styles.overlayMagnet_free
-                    // activeEventMenuItem === item.label &&
-                    //   styles.sidebarOverlayMagnet_active,
-                    // activeEventMenuItem !== item.label &&
-                    //   styles.sidebarOverlayMagnet_free
-                  )}
-                  range={200}
+      <AnimatePresence>
+        {overlayOpen && (
+          <motion.div
+            className={styles.overlayContent}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: 0.2,
+              // type: "spring",
+              // stiffness: 90,
+              // damping: 10,
+              // mass: 1,
+              // opacity: { duration: 0.2 },
+            }}
+          >
+            <AnimatePresence>
+              {menuItems.map((item, index) => (
+                <motion.div
+                  key={`item_${item.label}_${index}`}
+                  initial={{ opacity: 0, x: "0", scale: 0.95 }}
+                  animate={{ opacity: 1, x: "0", scale: 1 }}
+                  exit={{ opacity: 0, x: "0", scale: 0.95 }}
+                  transition={{
+                    delay: showMenu ? index * 0.1 + 0.2 : 0,
+                  }}
+                  className={styles.menuButton}
+                  onClick={() => {
+                    setOverlayOpen(false);
+                    router.push(item.href);
+                  }}
                 >
-                  <div className={styles.overlayButtonIcon}>{item.icon}</div>
-                  <span className={styles.overlayButtonText}>{item.label}</span>
-                </Magnetic>
-              </motion.div>
-            ))}
-        </AnimatePresence>
-      </div>
+                  <Magnetic
+                    intensity={0.1}
+                    springOptions={{ bounce: 0.1 }}
+                    actionArea="global"
+                    className={clsx(
+                      styles.overlayMagnet,
+                      item.className,
+                      pathname === item.href && styles.overlayMagnet_active,
+                      pathname !== item.href && styles.overlayMagnet_free
+                      // activeEventMenuItem === item.label &&
+                      //   styles.sidebarOverlayMagnet_active,
+                      // activeEventMenuItem !== item.label &&
+                      //   styles.sidebarOverlayMagnet_free
+                    )}
+                    range={200}
+                  >
+                    <div className={styles.overlayButtonIcon}>{item.icon}</div>
+                    <span className={styles.overlayButtonText}>
+                      {item.label}
+                    </span>
+                  </Magnetic>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className={styles.navbar}>
         <div className={styles.navbarContent}>
