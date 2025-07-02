@@ -1,6 +1,8 @@
-import Navbar from "./components/navbar";
+import Navbar from "../components/navbar";
 
 import styles from "./page.module.css";
+
+import { DateTime } from "luxon";
 
 import gql from "@/gql";
 
@@ -39,10 +41,16 @@ export default async function Page() {
     );
   }
 
+  // get user timezone
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   return (
     <div className={styles.pageWrapper}>
-      <Navbar user={user} />
-      <main className={styles.mainContainer}></main>
+      <main className={styles.mainContainer}>
+        {DateTime.now()
+          .setZone(timezone)
+          .toLocaleString(DateTime.DATETIME_FULL)}
+      </main>
     </div>
   );
 }

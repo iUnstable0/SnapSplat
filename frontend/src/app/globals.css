@@ -21,6 +21,7 @@ body {
 }
 
 :root {
+  /* --sp-background-color: #f0f2f5; */
   --sp-background-color: #f9f9f9;
   --sp-text-color: #1d1d1f;
   --sp-secondary-text-color: #6e6e73;
