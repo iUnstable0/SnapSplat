@@ -24,20 +24,16 @@ export function TextMorph({
 
   const characters = useMemo(() => {
     const charCounts: Record<string, number> = {};
-    let previousCharacter: string | null = null;
 
     return children.split("").map((char) => {
-      console.log("Char", char);
+      //   console.log("Char", char);
       const lowerChar = char;
       charCounts[lowerChar] = (charCounts[lowerChar] || 0) + 1;
 
-      const mappedChar = {
+      return {
         id: `${uniqueId}-${char === " " ? "#" : char}${charCounts[lowerChar]}`,
         label: char === " " ? "\u00A0" : char,
-        previousCharacter,
       };
-      previousCharacter = char;
-      return mappedChar;
     });
   }, [children, uniqueId]);
 

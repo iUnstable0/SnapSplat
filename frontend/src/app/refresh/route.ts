@@ -1,7 +1,9 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import gql from "@/gql";
+import * as gql_builder from "gql-query-builder";
+
+import requester from "@/gql/requester";
 
 import lib_error from "@/modules/error";
 
@@ -31,8 +33,24 @@ export async function GET(request: Request) {
   let result = null;
 
   try {
-    result = (await gql.mutation.refreshToken(token, refreshToken))
-      .refreshToken;
+    result = (
+      await requester.request({
+        data: gql_builder.mutation({
+          operation: "refreshToken",
+          variables: {
+            token: {
+              value: token,
+              required: true,
+            },
+            refreshToken: {
+              value: refreshToken,
+              required: true,
+            },
+          },
+          fields: ["token"],
+        }),
+      })
+    ).refreshToken;
   } catch (error: any) {
     console.error(`[/api/refresh] Error refreshing token`, error);
 

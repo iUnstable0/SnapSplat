@@ -1,3 +1,9 @@
+scalar DateTimeISO
+scalar EmailAddress
+scalar JWT
+scalar URL
+scalar UUID
+
 directive @rateLimit(
   max: Int
   window: String
@@ -17,24 +23,40 @@ enum PlatformRole {
 }
 
 type Token {
-  token: String!
+  token: JWT!
 }
 
 type TokenSet {
-  token: String!
+  token: JWT!
   refreshToken: String!
 }
 
 type User {
-  email: String!
+  userId: UUID!
+  email: EmailAddress!
   displayName: String!
-  avatar: String!
+  avatar: URL!
   isEmailVerified: Boolean!
   platformRole: PlatformRole!
+
+  events: [Event!]!
 }
 
 type Platform {
   isSetupCompleted: Boolean!
+}
+
+type Event {
+  hostId: UUID!
+  eventId: UUID!
+  name: String!
+  description: String!
+
+  startsAt: DateTimeISO!
+  endsAt: DateTimeISO!
+  isArchived: Boolean!
+
+  createdAt: DateTimeISO!
 }
 
 ## Query #########################
@@ -50,7 +72,7 @@ type Query {
 type Mutation {
   register(
     captchaToken: String!
-    email: String!
+    email: EmailAddress!
     displayName: String!
     password: String!
     setupKey: String
@@ -60,5 +82,31 @@ type Mutation {
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
   refreshToken(token: String!, refreshToken: String!): Token!
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
+  createEvent(
+    captchaToken: String!
+    name: String!
+    description: String
+    startsAt: DateTimeISO!
+    endsAt: DateTimeISO!
+  ): Event!
+    @auth(requires: USER)
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
+  # updateEvent(
+  #   captchaToken: String!
+  #   eventId: UUID!
+  #   name: String
+  #   description: String
+  #   startsAt: DateTimeISO
+  #   endsAt: DateTimeISO
+  #   isArchived: Boolean
+  # ): Event!
+  #   @auth(requires: USER)
+  #   @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
+  deleteEvent(captchaToken: String!, eventId: String!): Boolean!
+    @auth(requires: USER)
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 }

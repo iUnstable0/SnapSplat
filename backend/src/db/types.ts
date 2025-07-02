@@ -9,6 +9,7 @@ export const Z_Platform = z.object({
 export type T_Platform = z.infer<typeof Z_Platform>;
 
 export const Z_User = z.object({
+  userId: z.uuidv4(),
   displayName: Z_DisplayName,
   email: Z_Email,
   avatar: z
