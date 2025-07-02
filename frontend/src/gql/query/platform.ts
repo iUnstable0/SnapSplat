@@ -1,20 +1,20 @@
-import * as z from "zod/v4";
+// import * as z from "zod/v4";
 
-import schemas from "@/gql/schemas";
-import requester from "@/gql/requester";
+// import schemas from "@/gql/schemas";
+// import requester from "@/gql/requester";
 
-import { Z_Platform } from "@/gql/types";
+// import { Z_Platform } from "@/gql/types";
 
-const Z_PlatformResponse = z.object({
-  platform: Z_Platform,
-});
+// const Z_PlatformResponse = z.object({
+//   platform: Z_Platform,
+// });
 
-type T_PlatformResponse = z.infer<typeof Z_PlatformResponse>;
+// type T_PlatformResponse = z.infer<typeof Z_PlatformResponse>;
 
-export default class query_platform {
-  public static async getInfo(): Promise<T_PlatformResponse> {
-    return requester.request({
-      data: { query: schemas.query.platform.getInfo },
-    });
-  }
-}
+// export default class query_platform {
+//   public static async getInfo(): Promise<T_PlatformResponse> {
+//     return requester.request({
+//       data: { query: schemas.query.platform.getInfo },
+//     });
+//   }
+// }

@@ -2,11 +2,13 @@
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
+  /* right: 0; */
 
   height: 128px;
 
   user-select: none;
+
+  z-index: 1;
 
   /* background: red; */
 
@@ -71,84 +73,21 @@
   height: 38px;
 }
 
-.navbarItem_right {
-  gap: 12px;
-}
-
-.createEvent {
-  border-radius: 100%;
-
-  width: 42px;
-  height: 42px;
-
-  background-color: #f9f9f9c1;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  transition: all 0.2s ease-in-out;
-}
-
-.createEvent:hover {
-  scale: 1.1;
-}
-
-.createEvent:active {
-  scale: 1;
-}
-
-@media (prefers-color-scheme: dark) {
-  .createEvent {
-    background-color: #f0f2f5c1;
-  }
-}
-
-.createEventIcon {
-  width: 28px;
-  height: 28px;
-
-  /* increase svg thickness */
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 3 !important;
-  fill: none;
-
-  stroke: #000;
-}
-
-.profile {
-  transition: all 0.2s ease-in-out;
-}
-
-.profile:hover {
-  scale: 1.1;
-}
-
-.profile:active {
-  scale: 1;
-}
-
-.profileAvatar {
-  border-radius: 100%;
-  min-width: 42px;
-  min-height: 42px;
-}
-
 .overlayContent {
   position: fixed;
 
   top: 0;
   left: 0;
 
-  /* z-index: 2; */
+  z-index: 1;
 
   display: flex;
   flex-direction: column;
   gap: 24px;
 
   /* margin-top: 60px; */
+
+  /* background: blue; */
 
   padding-top: 140px;
   padding-left: 60px;
@@ -241,14 +180,15 @@
 .blurOverlay {
   position: fixed;
   inset: 0;
-  /* background: rgba(255, 255, 255, 0.025); */
-  background: linear-gradient(
+  background: rgba(240, 240, 240, 0.1);
+  /* background: linear-gradient(
     to bottom,
-    #509cff 0%,
-    #81baff 50%,
-    #aacdf5 75%,
-    #fffdef 100%
-  );
+    #509cff17 0%,
+    #81baff17 50%,
+    #aacdf517 75%,
+    #fffdef17 100%
+  ); */
+  /* background: transparent; */
 
   /* background: transparent; */
   backdrop-filter: blur(12px);
@@ -256,18 +196,22 @@
   /* -webkit-backdrop-filter: blur(12px); */
   /* z-index: 40; */
   will-change: clip-path;
+
+  z-index: 1;
 }
 
 @media (prefers-color-scheme: dark) {
   .blurOverlay {
-    background: linear-gradient(
+    background: rgba(50, 50, 50, 0.05);
+
+    /* background: linear-gradient(
       to bottom,
-      #080c13 0%,
-      #14171e 30%,
-      #24323b 75%,
-      #313938 85%,
-      #3f3e32 90%,
-      #514223 100%
-    );
+      #080c1317 0%,
+      #14171e17 30%,
+      #24323b17 75%,
+      #31393817 85%,
+      #3f3e3217 90%,
+      #51422317 100%
+    ); */
   }
 }
