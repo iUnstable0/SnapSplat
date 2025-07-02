@@ -9,18 +9,19 @@ import clsx from "clsx";
 import { AnimatePresence, delay, motion } from "motion/react";
 
 import {
-  Earth,
   FolderLock,
   House,
   Images,
   LogOut,
   ArrowLeft,
-  SlidersHorizontal,
   UsersRound,
   Cog,
   Link,
   Wrench,
+  Icon,
 } from "lucide-react";
+
+import { layoutGridPlus } from "@lucide/lab";
 
 import {
   Sidebar as Ace_Sidebar,
@@ -138,7 +139,9 @@ export default function Sidebar({
     },
     {
       label: "Public Board",
-      icon: <Earth className={styles.sidebarLinkIcon} />,
+      icon: (
+        <Icon iconNode={layoutGridPlus} className={styles.sidebarLinkIcon} />
+      ),
       href: "#",
     },
     // {
