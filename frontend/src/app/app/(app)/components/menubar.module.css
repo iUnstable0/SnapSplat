@@ -145,13 +145,6 @@
   /* background: yellow; */
 }
 
-.createEventFormContent {
-  width: 100%;
-
-  height: 100%;
-  /* background: orange; */
-}
-
 .createEventFormEventName {
   outline: none;
   border: none;
@@ -159,6 +152,32 @@
   width: 100%;
 
   font-size: 36px;
+
+  color: var(--sp-text-color);
+
+  transition: all 0.2s ease-in-out;
+}
+
+.createEventFormInvalid {
+  background-color: #492020;
+  border-bottom: 2px solid var(--sp-dangerous-color) !important;
+}
+
+.createEventFormInvalidText {
+  color: var(--sp-dangerous-color);
+}
+
+.createEventFormEventName::placeholder {
+  color: var(--sp-secondary-text-color);
+
+  transition: all 0.2s ease-in-out;
+}
+
+.createEventFormContent {
+  width: 100%;
+  height: 100%;
+
+  /* background: orange; */
 }
 
 .createEventFormDescription {
@@ -170,9 +189,120 @@
 
   resize: none;
 
-  /* color: var(--sp-secondary-text-color); */
-
   font-size: 28px;
+  color: var(--sp-text-color);
+
+  transition: all 0.2s ease-in-out;
+}
+
+.createEventFormDescription::placeholder {
+  color: var(--sp-secondary-text-color);
+
+  transition: all 0.2s ease-in-out;
+}
+
+.createEventFormFooter {
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  /* background: purple; */
+
+  gap: 12px;
+}
+
+.createEventFormMagnet {
+  transition: all 0.2s ease-in-out;
+}
+
+.createEventFormButtonText {
+  font-size: 20px;
+  font-weight: 500;
+
+  transition: color 0.2s ease-in-out;
+
+  /* transition: all 0.2s ease-in-out; */
+}
+
+.createEventFormMagnet:hover {
+  scale: 1.1;
+
+  .createEventFormKeybind {
+    filter: drop-shadow(0 0 10px #0000009d);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .createEventFormKeybind {
+      filter: drop-shadow(0 0 10px #f9f9f997);
+    }
+  }
+}
+
+.createEventFormMagnetCancel:hover {
+  .createEventFormKeybind {
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color-shadow));
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .createEventFormKeybind {
+      filter: drop-shadow(0 0 10px var(--sp-dangerous-color-shadow));
+    }
+  }
+}
+
+.createEventFormMagnet:active {
+  scale: 1.05;
+}
+
+.createEventFormButton {
+  cursor: pointer;
+
+  color: var(--sp-text-color);
+  border: none;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  height: 42px;
+
+  /* background: lime; */
+
+  padding: 0 12px;
+
+  gap: 12px;
+}
+
+.createEventFormButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.createEventFormButtonCancel:hover {
+  .createEventFormButtonText {
+    color: var(--sp-dangerous-color);
+  }
+
+  /* .createEventFormKeybind {
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color));
+  } */
+
+  .createEventFormKeybindCancel {
+    background-color: var(--sp-dangerous-color);
+    border-radius: 4px;
+  }
+
+  .createEventFormKeybind {
+    color: #492020;
+  }
+
+  /* .createEventFormKeybind {
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color));
+  } */
 }
 
 @media (prefers-color-scheme: dark) {

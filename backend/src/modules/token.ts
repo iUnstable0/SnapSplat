@@ -232,7 +232,7 @@ export default class lib_token {
     } & User,
     payload: T_JWTAuthPayload
   ) {
-    console.log("CHECKAUTHTOKEN", user, payload);
+    console.log("CHECKAUTHTOKEN", payload);
     if (
       user.passwordSession !== payload.passwordSession ||
       user.accountSession !== payload.accountSession

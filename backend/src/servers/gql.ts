@@ -172,7 +172,7 @@ export default class gql {
 
     console.info(
       `${lib_logger.formatPrefix("gql")} Visit ${
-        process.env.NEXT_PUBLIC_URL
+        process.env.NEXT_URL
       }/setup to setup a super admin account if you havent already`
     );
   }

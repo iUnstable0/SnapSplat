@@ -46,3 +46,20 @@ export const Z_DisplayName = z
   });
 
 export const Z_SetupKey = z.string().min(1);
+
+export const Z_EventName = z
+  .string()
+  .min(3, {
+    message: "Event name can't be shorter than 3 characters",
+  })
+  .max(50, {
+    message: "Event name can't be longer than 50 characters",
+  })
+  .trim();
+export const Z_EventDescription = z
+  .string()
+  .max(500, {
+    message: "Event description can't be longer than 500 characters",
+  })
+  .trim()
+  .default("");

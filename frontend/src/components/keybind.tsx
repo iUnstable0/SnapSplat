@@ -1,0 +1,144 @@
+import React, { useEffect, useState } from "react";
+// import useSound from "use-sound";
+import clsx from "clsx";
+
+import { ArrowBigUp, CircleArrowOutUpLeft, CornerDownLeft } from "lucide-react";
+
+import styles from "./keybind.module.css";
+import { Magnetic } from "./ui/mp_magnetic";
+
+export enum T_Keybind {
+  shift = "shift",
+  enter = "enter",
+  escape = "escape",
+}
+
+export default function Keybind({
+  keybinds,
+  className,
+  parentClass,
+  dangerous,
+  onPress,
+  disabled,
+}: {
+  keybinds: T_Keybind[];
+  className?: string;
+  parentClass?: string;
+  dangerous?: boolean;
+  onPress?: () => void;
+  disabled?: boolean;
+}) {
+  // Set of currently held keys
+  const [heldKeys, setHeldKeys] = useState<Set<string>>(new Set());
+  const [animatedKeys, setAnimatedKeys] = useState<Set<string>>(new Set());
+
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setAnimatedKeys(new Set(heldKeys));
+  //   }, 200);
+  // }, [heldKeys]);
+
+  useEffect(() => {
+    const addToAnimatedKeys = (key: string) => {
+      setAnimatedKeys((prev) => new Set(prev).add(key));
+    };
+
+    const removeFromAnimatedKeys = (key: string) => {
+      setTimeout(() => {
+        if (
+          onPress &&
+          keybinds.every((key) => heldKeys.has(key)) &&
+          keybinds[keybinds.length - 1] === key
+        ) {
+          // alert(`keybind removed ${key}`);
+          if (!disabled) {
+            onPress();
+          }
+        }
+
+        setAnimatedKeys((prev) => {
+          const next = new Set(prev);
+          next.delete(key);
+          return next;
+        });
+      }, 200);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // e.preventDefault();
+      // e.stopPropagation();
+
+      const key = e.key.toLowerCase();
+
+      console.log(key);
+
+      // check if key is in keybinds (keybinds type is T_Keybind[])
+      if (keybinds.includes(key as T_Keybind)) {
+        setHeldKeys((prev) => new Set(prev).add(key));
+        addToAnimatedKeys(key);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
+      if (heldKeys.has(key)) {
+        setHeldKeys((prev) => {
+          const next = new Set(prev);
+
+          next.delete(key);
+
+          return next;
+        });
+
+        removeFromAnimatedKeys(key);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [heldKeys]);
+
+  return (
+    <Magnetic
+      intensity={0.1}
+      springOptions={{ bounce: 0.1 }}
+      actionArea="global"
+      className={clsx(styles.buttonKeybindMagnet)}
+      range={75}
+    >
+      {keybinds.map((keybind, index) => (
+        <div
+          className={clsx(
+            styles.buttonKeybind,
+            parentClass,
+            animatedKeys.has(keybind) &&
+              (dangerous
+                ? styles.buttonKeybindDangerous_active
+                : styles.buttonKeybind_active)
+          )}
+          key={`keybind_${keybind}_${index}`}
+        >
+          {keybind === T_Keybind.shift && (
+            <ArrowBigUp className={clsx(styles.buttonKeybindIcon, className)} />
+          )}
+          {keybind === T_Keybind.enter && (
+            <CornerDownLeft
+              className={clsx(styles.buttonKeybindIcon, className)}
+            />
+          )}
+          {keybind === T_Keybind.escape && (
+            <CircleArrowOutUpLeft
+              className={clsx(styles.buttonKeybindIcon, className)}
+            />
+          )}
+        </div>
+      ))}
+    </Magnetic>
+  );
+}

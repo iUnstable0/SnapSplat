@@ -1,7 +1,5 @@
 import * as gql_builder from "gql-query-builder";
 
-import Image from "next/image";
-
 import MenuBar from "./components/menubar";
 
 import styles from "./page.module.css";

@@ -291,9 +291,11 @@ export default class mutation_user {
     );
 
     if (
-      (!result.valid || !result.payload) &&
-      !result.renew &&
-      process.env.NODE_ENV !== "development"
+      // (!result.valid || !result.payload) &&
+      !result.valid &&
+      !result.renew
+      // !result.renew &&
+      // process.env.NODE_ENV !== "development"
     ) {
       throw lib_error.unauthorized("Unauthorized", "token is not valid");
     }
@@ -338,6 +340,8 @@ export default class mutation_user {
     if (!user) {
       throw lib_error.unauthorized("Unauthorized", "user not found lol");
     }
+
+    console.log("REFRESH TOKEN", result.payload);
 
     if (!lib_token.checkAuthToken(user, result.payload as T_JWTAuthPayload)) {
       throw lib_error.unauthorized(

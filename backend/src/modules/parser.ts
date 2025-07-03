@@ -52,3 +52,6 @@ export const Z_RefreshTokenPayload = z.object({
 });
 
 export type T_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;
+
+export const Z_EventName = z.string().min(1).max(50).trim();
+export const Z_EventDescription = z.string().max(500).trim();

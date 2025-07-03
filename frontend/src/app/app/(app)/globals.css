@@ -1,34 +1,85 @@
 :root {
   --sp-text-color: #363636;
   --sp-secondary-text-color: #4e4e4e;
+
+  --sp-gradient-1: #4998ff;
+  --sp-gradient-2: #4998ff;
+  --sp-gradient-3: #a4caf4;
+  --sp-gradient-4: #b9d4ed;
+  --sp-gradient-5: #cedee5;
+  --sp-gradient-6: #f7f2d5;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --sp-text-color: #f0f0f0;
     --sp-secondary-text-color: #9e9e9e;
+
+    --sp-gradient-1: #080c13;
+    --sp-gradient-2: #0e1015;
+    --sp-gradient-3: #1f2c34;
+    --sp-gradient-4: #29302f;
+    --sp-gradient-5: #343329;
+    --sp-gradient-6: #483a1e;
   }
 }
 
-html,
+/* html, */
 body {
   color: var(--sp-text-color);
 
   background: linear-gradient(
     to bottom,
     #4998ff 0%,
-    #77b1fa 50%,
+    #4998ff 30%,
     #a4caf4 75%,
-    #fffce9 100%
+    #b9d4ed 85%,
+    #cedee5 90%,
+    #f7f2d5 100%
   );
+
+  /* background: linear-gradient(
+    to bottom,
+    var(--sp-gradient-1) 0%,
+    var(--sp-gradient-2) 30%,
+    var(--sp-gradient-3) 75%,
+    var(--sp-gradient-4) 85%,
+    var(--sp-gradient-5) 90%,
+    var(--sp-gradient-6) 100%
+  ); */
 
   background-repeat: no-repeat;
   background-attachment: fixed;
 
-  transition: all 0.2s ease-in-out;
+  /* transition: background 0.2s ease-in-out; */
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    #080c13 0%,
+    #0e1015 30%,
+    #1f2c34 75%,
+    #29302f 85%,
+    #343329 90%,
+    #483a1e 100%
+  );
 }
 
 @media (prefers-color-scheme: dark) {
+  body::before {
+    opacity: 1;
+  }
+}
+
+/* @media (prefers-color-scheme: dark) {
   html,
   body {
     background: linear-gradient(
@@ -44,4 +95,4 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
   }
-}
+} */

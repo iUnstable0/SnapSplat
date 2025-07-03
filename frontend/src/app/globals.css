@@ -28,6 +28,9 @@ body {
   --sp-header-border-color: #d2d2d7;
 
   --sp-background-color-2: #dddddd;
+
+  --sp-dangerous-color: rgb(255, 63, 63);
+  --sp-dangerous-color-shadow: rgba(255, 63, 63, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
