@@ -13,7 +13,7 @@ export default function Spinner({
 }: {
   loading: boolean;
   size: number;
-  overrideStyle: React.CSSProperties;
+  overrideStyle?: React.CSSProperties;
 }) {
   const isDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 

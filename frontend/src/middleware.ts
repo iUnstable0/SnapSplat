@@ -123,6 +123,10 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (pathname === "/app") {
+    return NextResponse.redirect(new URL("/app/me", request.url));
+  }
+
   return options.onSuccess(request);
 }
 

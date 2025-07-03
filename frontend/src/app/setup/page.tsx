@@ -1,19 +1,27 @@
 import { redirect, RedirectType } from "next/navigation";
 
-import * as z from "zod/v4";
+import * as gql_builder from "gql-query-builder";
 
 import setup from "@/actions/user/register";
 
 import lib_error from "@/modules/error";
 
-import gql from "@/gql";
+import requester from "@/gql/requester";
+
 import type { T_Platform } from "@/gql/types";
 
 export default async function Page() {
   let platform: T_Platform | null = null;
 
   try {
-    platform = (await gql.query.platform()).platform;
+    platform = (
+      await requester.request({
+        data: gql_builder.query({
+          operation: "platform",
+          fields: ["isSetupCompleted"],
+        }),
+      })
+    ).platform;
   } catch (error: any) {
     console.error(`[/setup] Error fetching platform`, error);
 

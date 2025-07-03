@@ -64,25 +64,25 @@ export default function Navbar() {
     {
       label: "Upcoming",
       icon: <CalendarDays />,
-      href: "/app",
+      href: "/app/me",
       className: styles.menuNormalButton,
     },
     {
       label: "Past Events",
       icon: <RotateCcw />,
-      href: "/app/past-events",
+      href: "/app/me/past-events",
       className: styles.menuNormalButton,
     },
     {
       label: "Drafts",
       icon: <Pencil />,
-      href: "/app/drafts",
+      href: "/app/me/drafts",
       className: styles.menuNormalButton,
     },
     {
       label: "Recently Deleted",
       icon: <Trash2 />,
-      href: "/app/trash",
+      href: "/app/me/trash",
       className: styles.menuNormalButton,
     },
     // {

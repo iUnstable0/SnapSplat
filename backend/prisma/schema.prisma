@@ -54,8 +54,8 @@ model User {
 
   sessions        Session[]
   suspendedTokens SuspendedToken[]
-  events          Event[]
   memberships     EventMembership[]
+  hostedEvents    Event[]           @relation("EventHostUser")
 }
 
 model Session {
@@ -87,44 +87,67 @@ model SuspendedToken {
 model Event {
   id Int @id @default(autoincrement())
 
-  hostId      String
-  eventId     String  @unique @default(uuid(4))
+  eventId     String @unique @default(uuid(4))
   name        String
-  description String?
+  description String @default("")
 
   startsAt   DateTime
   endsAt     DateTime
+  isDraft    Boolean  @default(true)
   isArchived Boolean  @default(false)
 
   createdAt DateTime @default(now())
 
-  host User @relation(fields: [hostId], references: [userId])
+  // --------------- PRIVATE --------------- //
+
+  hostUserId String
+  hostUser   User   @relation("EventHostUser", fields: [hostUserId], references: [userId])
+
+  // --------------- PUBLIC --------------- //
+
+  hostMemberId String?          @unique @default(uuid(4))
+  hostMember   EventMembership? @relation("EventHostMembership", fields: [hostMemberId], references: [memberId])
+
+  // --------------- INVERSE RELATIONS --------------- //
 
   memberships EventMembership[]
   invites     EventInvite[]
 
-  @@index([eventId])
+  @@unique([eventId, hostUserId])
+  @@index([eventId, hostUserId])
 }
 
 model EventMembership {
   id Int @id @default(autoincrement())
 
-  userId  String
   eventId String
 
   eventRole EventRole @default(ATTENDEE)
 
-  displayNameAlt String?
-  avatarAlt      String?
+  displayNameAlt String
+  avatarAlt      String
 
   joinedAt   DateTime @default(now())
   isApproved Boolean  @default(true)
 
-  user  User  @relation(fields: [userId], references: [userId])
-  event Event @relation(fields: [eventId], references: [eventId])
+  event Event @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
 
-  @@unique([userId, eventId])
-  @@index([userId, eventId])
+  // --------------- PRIVATE --------------- //
+
+  userId String
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  // --------------- PUBLIC --------------- //
+
+  memberId String @unique @default(uuid(4))
+
+  // --------------- INVERSE RELATIONS --------------- //
+
+  hostedEvent Event? @relation("EventHostMembership")
+
+  @@unique([eventId, userId])
+  @@index([eventId, userId, memberId])
 }
 
 model EventInvite {

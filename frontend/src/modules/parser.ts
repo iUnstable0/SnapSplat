@@ -58,6 +58,9 @@ export const Z_EventName = z
   .trim();
 export const Z_EventDescription = z
   .string()
+  // .min(3, {
+  //   message: "Event description can't be shorter than 3 characters",
+  // })
   .max(500, {
     message: "Event description can't be longer than 500 characters",
   })
