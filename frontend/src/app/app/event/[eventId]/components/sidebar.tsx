@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import clsx from "clsx";
 
@@ -16,7 +17,7 @@ import {
   ArrowLeft,
   UsersRound,
   Cog,
-  Link,
+  Link as LinkIcon,
   Wrench,
   Icon,
 } from "lucide-react";
@@ -37,13 +38,21 @@ import lib_role from "@/modules/role";
 // import clsx from "clsx";
 
 import styles from "./sidebar.module.css";
+
+import { T_User, T_Event } from "@/gql/types";
+
 export default function Sidebar({
   children,
-  user,
+  data,
 }: {
   children: React.ReactNode;
-  user: any;
+  data: {
+    me: T_User;
+    event: T_Event;
+  };
 }) {
+  const router = useRouter();
+
   const [open, setOpen] = useState(true);
   const [eventMenuOpen, setEventMenuOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
@@ -77,7 +86,7 @@ export default function Sidebar({
     {
       label: "Back to My Events",
       icon: <ArrowLeft />,
-      href: "#",
+      href: "/app",
       className: styles.eventMenuNormalButton,
     },
     {
@@ -88,7 +97,7 @@ export default function Sidebar({
     },
     {
       label: "Invite / Share",
-      icon: <Link />,
+      icon: <LinkIcon />,
       href: "#",
       className: styles.eventMenuNormalButton,
     },
@@ -236,6 +245,8 @@ export default function Sidebar({
                     onClick={() => {
                       setActiveEventMenuItem(item.label);
 
+                      router.push(item.href);
+
                       setTimeout(() => {
                         setActiveEventMenuItem("");
                       }, 250);
@@ -286,7 +297,7 @@ export default function Sidebar({
                 animate={{ opacity: open ? 1 : 0 }}
                 className={styles.logoText}
               >
-                Test Event
+                {data.event.name}
               </motion.span>
             </a>
 
@@ -335,12 +346,12 @@ export default function Sidebar({
             <SidebarLink
               className={styles.avatarLink}
               link={{
-                label: user.displayName,
+                label: data.event.myMembership.displayNameAlt,
                 href: "#",
                 avatar: true,
                 icon: (
                   <img
-                    src={user.avatar}
+                    src={data.event.myMembership.avatarAlt}
                     className={styles.avatarImage}
                     // width={50}
                     // height={50}

@@ -1,13 +1,15 @@
 import { DateTime } from "luxon";
 
 import prisma from "@/db/prisma";
+import { EventRole } from "@/generated/prisma";
 
 import lib_captcha from "@/modules/captcha";
 import lib_error from "@/modules/error";
+import lib_logger from "@/modules/logger";
 
 export default class mutation_event {
   public static async createEvent(args: any, context: any) {
-    const { captchaToken, name, description, startsAt, endsAt } = args;
+    const { captchaToken, name, description } = args;
 
     if (!captchaToken) {
       throw lib_error.bad_request(
@@ -28,43 +30,87 @@ export default class mutation_event {
       );
     }
 
-    if (!name || !startsAt || !endsAt) {
-      throw lib_error.bad_request(
-        "Missing required fields",
-        "missing name/startsAt/endsAt"
-      );
+    if (!name) {
+      throw lib_error.bad_request("Missing required fields", "missing name");
     }
 
-    if (startsAt > endsAt) {
-      throw lib_error.bad_request(
-        "Invalid date range",
-        "startsAt must be before endsAt"
-      );
-    }
+    const memberId = crypto.randomUUID();
 
-    const startsAtLuxon = DateTime.fromISO(startsAt);
-    const endsAtLuxon = DateTime.fromISO(endsAt);
-    const nowLuxon = DateTime.now();
+    return await prisma
+      .$transaction(async (tx) => {
+        const event = await tx.event.create({
+          data: {
+            name,
+            description,
 
-    console.log(startsAtLuxon, endsAtLuxon, nowLuxon);
+            startsAt: DateTime.now().plus({ days: 3 }).toISO(),
+            endsAt: DateTime.now()
+              .plus({ days: 7 + 3 })
+              .toISO(),
 
-    // const startsAtMinutes = startsAtLuxon.diff(nowLuxon, "minutes").minutes;
-    // const endsAtMinutes = endsAtLuxon.diff(nowLuxon, "minutes").minutes;
+            hostUser: {
+              connect: {
+                userId: context.user.userId,
+              },
+            },
 
-    // if (startsAtMinutes < 0 || endsAtMinutes < 0) {
-    //   throw lib_error.bad_request(
-    //     "Invalid date range",
-    //     "startsAt and endsAt must be in the future"
-    //   );
-    // }
-    // const event = await prisma.event.create({
-    //   data: {
-    //     name,
-    //     description,
-    //     startsAt,
-    //     endsAt,
-    //     host: { connect: { userId: context.user.userId } },
-    //   },
-    // });
+            memberships: {
+              create: {
+                memberId: memberId,
+
+                eventRole: EventRole.HOST,
+
+                displayNameAlt: context.user.displayName,
+                avatarAlt: context.user.avatar,
+
+                user: {
+                  connect: {
+                    userId: context.user.userId,
+                  },
+                },
+              },
+            },
+          },
+          include: {
+            memberships: true,
+          },
+        });
+
+        const updatedEvent = await tx.event.update({
+          where: {
+            id: event.id,
+          },
+          data: {
+            hostMember: {
+              connect: {
+                memberId: memberId,
+              },
+            },
+          },
+          include: {
+            hostUser: true,
+            hostMember: true,
+            memberships: true,
+          },
+        });
+
+        return updatedEvent;
+      })
+      .then((event) => {
+        return event;
+      })
+      .catch((error) => {
+        const refId = Bun.randomUUIDv7();
+
+        console.error(
+          `${lib_logger.formatPrefix("mutation_event/createEvent")} [${refId}] Failed to create event`,
+          error
+        );
+
+        throw lib_error.internal_server_error(
+          "Internal Server Error. refId: ${refId}",
+          `500 failed to create event: ${error}`
+        );
+      });
   }
 }

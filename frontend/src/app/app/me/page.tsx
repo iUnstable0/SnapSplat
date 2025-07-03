@@ -11,27 +11,18 @@ import type { T_User } from "@/gql/types";
 import lib_error from "@/modules/error";
 
 export default async function Page() {
-  let user: T_User | null = null;
+  let me: T_User | null = null;
 
   try {
-    // user = (await gql.query.user()).user;
-
-    user = (
+    me = (
       await requester.request({
         data: gql_builder.query({
-          operation: "user",
-          fields: [
-            "userId",
-            "email",
-            "displayName",
-            "avatar",
-            "isEmailVerified",
-            "platformRole",
-          ],
+          operation: "me",
+          fields: ["displayName", "avatar", "platformRole"],
         }),
         withAuth: true,
       })
-    ).user as T_User;
+    ).me as T_User;
   } catch (error: any) {
     console.error(`[/app] Error fetching user data`, error);
 
@@ -58,12 +49,9 @@ export default async function Page() {
     );
   }
 
-  // get user timezone
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
   return (
     <div className={styles.pageWrapper}>
-      <MenuBar user={user} />
+      <MenuBar me={me} />
       <main className={styles.mainContainer}>
         <div>No upcoming events!</div>
       </main>

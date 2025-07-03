@@ -29,7 +29,8 @@ body {
 
   --sp-background-color-2: #dddddd;
 
-  --sp-dangerous-color: rgb(255, 63, 63);
+  --sp-dangerous-color: rgb(205, 43, 43);
+  --sp-dangerous-color-background: rgba(222, 88, 88, 0.526);
   --sp-dangerous-color-shadow: rgba(255, 63, 63, 0.5);
 }
 
@@ -41,6 +42,10 @@ body {
     --sp-header-border-color: #3f3f46;
 
     --sp-background-color-2: #303135;
+
+    --sp-dangerous-color: rgb(255, 63, 63);
+    --sp-dangerous-color-background: #492020;
+    --sp-dangerous-color-shadow: rgba(255, 63, 63, 0.5);
   }
 }
 

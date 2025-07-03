@@ -22,6 +22,12 @@ enum PlatformRole {
   USER
 }
 
+enum EventRole {
+  HOST
+  COHOST
+  ATTENDEE
+}
+
 type Token {
   token: JWT!
 }
@@ -38,8 +44,6 @@ type User {
   avatar: URL!
   isEmailVerified: Boolean!
   platformRole: PlatformRole!
-
-  events: [Event!]!
 }
 
 type Platform {
@@ -47,24 +51,45 @@ type Platform {
 }
 
 type Event {
-  hostId: UUID!
   eventId: UUID!
   name: String!
   description: String!
 
   startsAt: DateTimeISO!
   endsAt: DateTimeISO!
+  isDraft: Boolean!
   isArchived: Boolean!
 
   createdAt: DateTimeISO!
+
+  host: EventMembership!
+  privateHost: User! @auth(requires: ADMIN)
+
+  memberships: [EventMembership!]!
+
+  myMembership(eventId: UUID!): EventMembership
+}
+
+type EventMembership {
+  memberId: UUID!
+  eventId: UUID!
+
+  eventRole: EventRole!
+
+  displayNameAlt: String!
+  avatarAlt: URL!
+
+  joinedAt: DateTimeISO!
+  isApproved: Boolean!
 }
 
 ## Query #########################
 
 type Query {
   hello: String!
-  user: User! @auth(requires: USER)
+  me: User! @auth(requires: USER)
   platform: Platform!
+  event(eventId: UUID!): Event! @auth(requires: USER)
 }
 
 ## Mutation ######################

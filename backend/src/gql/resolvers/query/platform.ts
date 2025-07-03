@@ -34,6 +34,8 @@ export default class query_platform {
 
     // console.log("platformInfo", platformInfo);
 
+    // console.log("platformInfo", platformInfo);
+
     // lib_cache.set("platform_info", platformInfo, 60 * 60 * 24);
 
     return platformInfo;

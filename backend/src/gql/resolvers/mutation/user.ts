@@ -6,8 +6,7 @@ import { GraphQLError } from "graphql";
 
 import prisma from "@/db/prisma";
 import { PlatformRole } from "@/generated/prisma";
-
-// import db_user from "@/db/user";
+import type { Session, SuspendedToken, User } from "@/generated/prisma";
 
 import lib_logger from "@/modules/logger";
 import lib_captcha from "@/modules/captcha";
@@ -85,26 +84,30 @@ export default class mutation_user {
 
     let platformSetupCompleted: boolean | undefined;
 
-    const cacheResult = await lib_cache.get("platform_is_setup_completed");
+    // // const cacheResult = await lib_cache.get("platform_is_setup_completed");
 
-    if (cacheResult.data && cacheResult.data.platformSetupCompleted === true) {
-      // Will never save to cache if it's not setup
-      platformSetupCompleted = true;
-    } else {
-      const platformInfo = await query_platform.getInfo();
+    // if (cacheResult.data && cacheResult.data.platformSetupCompleted === true) {
+    //   // Will never save to cache if it's not setup
+    //   platformSetupCompleted = true;
+    // } else {
+    //   const platformInfo = await query_platform.getInfo();
 
-      platformSetupCompleted = platformInfo.isSetupCompleted;
+    //   platformSetupCompleted = platformInfo.isSetupCompleted;
 
-      if (platformSetupCompleted === true) {
-        await lib_cache.set(
-          "platform_setup_completed",
-          {
-            platformSetupCompleted,
-          },
-          60 * 60 * 24
-        );
-      }
-    }
+    //   if (platformSetupCompleted === true) {
+    //     await lib_cache.set(
+    //       "platform_setup_completed",
+    //       {
+    //         platformSetupCompleted,
+    //       },
+    //       60 * 60 * 24
+    //     );
+    //   }
+    // }
+
+    const platformInfo = await query_platform.getInfo();
+
+    platformSetupCompleted = platformInfo.isSetupCompleted;
 
     if (!platformSetupCompleted) {
       if (!setupKey) {
@@ -135,14 +138,29 @@ export default class mutation_user {
       algorithm: "argon2id",
     });
 
-    return prisma.user
-      .create({
-        data: {
-          email: sanitizedEmail,
-          displayName,
-          password: hashedPassword,
-          platformRole,
-        },
+    return await prisma
+      .$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            email: sanitizedEmail,
+            displayName,
+            password: hashedPassword,
+            platformRole,
+          },
+        });
+
+        if (!platformSetupCompleted) {
+          await tx.platform.update({
+            where: {
+              key: "isSetupCompleted",
+            },
+            data: {
+              value: "true",
+            },
+          });
+        }
+
+        return user;
       })
       .then(async (user) => {
         return await lib_token.genAuthTokenWithRefresh(
@@ -151,7 +169,7 @@ export default class mutation_user {
           user.accountSession
         );
       })
-      .catch((error) => {
+      .catch((error: any) => {
         switch (error.code) {
           case "P2002":
             throw lib_error.bad_request(
@@ -233,9 +251,25 @@ export default class mutation_user {
       throw lib_error.unauthorized("Unauthorized", `password vet failed`);
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: sanitizedEmail },
-    });
+    let user: User | null = null;
+
+    try {
+      user = await prisma.user.findUnique({
+        where: { email: sanitizedEmail },
+      });
+    } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("mutation_user/login")} [${refId}] Failed to fetch user`,
+        error
+      );
+
+      throw lib_error.unauthorized(
+        "Unauthorized",
+        `refId: ${refId}. unexpected error: ${error}`
+      );
+    }
 
     if (!user) {
       throw lib_error.unauthorized("Unauthorized", `email not found`);
@@ -318,7 +352,12 @@ export default class mutation_user {
     const { userId, sessionId, sessionKey } =
       extractedRefreshToken.data as T_RefreshTokenPayload;
 
-    let user = null;
+    let user:
+      | (User & {
+          sessions: Session[];
+          suspendedTokens: SuspendedToken[];
+        })
+      | null = null;
 
     try {
       user = await prisma.user.findUnique({
@@ -331,9 +370,16 @@ export default class mutation_user {
         },
       });
     } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("mutation_user/refreshToken")} [${refId}] Failed to fetch user`,
+        error
+      );
+
       throw lib_error.unauthorized(
         "Unauthorized",
-        `unexpected error: ${error}`
+        `refId: ${refId}. unexpected error: ${error}`
       );
     }
 

@@ -159,12 +159,13 @@
 }
 
 .createEventFormInvalid {
-  background-color: #492020;
+  background-color: var(--sp-dangerous-color-background);
   border-bottom: 2px solid var(--sp-dangerous-color) !important;
 }
 
 .createEventFormInvalidText {
   color: var(--sp-dangerous-color);
+  /* font-weight: 500;z */
 }
 
 .createEventFormEventName::placeholder {

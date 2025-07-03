@@ -6,7 +6,8 @@ import { redirect, RedirectType } from "next/navigation";
 
 import * as z from "zod/v4";
 
-import gql from "@/gql";
+import requester from "@/gql/requester";
+import * as gql_builder from "gql-query-builder";
 
 import {
   Z_Email,
@@ -50,7 +51,35 @@ export default async function register(formData: FormData): Promise<void> {
 
   try {
     result = (
-      await gql.mutation.register("d", email, password, displayName, setupKey)
+      await requester.request({
+        data: gql_builder.mutation({
+          operation: "register",
+          fields: ["token", "refreshToken"],
+          variables: {
+            captchaToken: {
+              value: "123",
+              required: true,
+            },
+            email: {
+              value: email,
+              type: "EmailAddress",
+              required: true,
+            },
+            password: {
+              value: password,
+              required: true,
+            },
+            displayName: {
+              value: displayName,
+              required: true,
+            },
+            setupKey: {
+              value: setupKey,
+              required: false,
+            },
+          },
+        }),
+      })
     ).register;
   } catch (error) {
     console.error("Register query failed:", error);
@@ -60,5 +89,5 @@ export default async function register(formData: FormData): Promise<void> {
   cookieStore.set("token", result.token, tokenCookieOpt);
   cookieStore.set("refresh_token", result.refreshToken, refreshTokenCookieOpt);
 
-  redirect("/app", RedirectType.push);
+  redirect("/app/me", RedirectType.push);
 }

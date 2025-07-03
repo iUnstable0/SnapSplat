@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef, useActionState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+import { useRouter } from "next/navigation";
 
 import Image from "next/image";
 
 import clsx from "clsx";
-
-import * as gql_builder from "gql-query-builder";
 
 import { AnimatePresence, motion } from "motion/react";
 
@@ -18,21 +18,14 @@ import type { T_User } from "@/gql/types";
 
 import { Z_EventName, Z_EventDescription } from "@/modules/parser";
 
-import _createEvent from "@/actions/event/createEvent";
+import createEvent from "@/actions/event/createEvent";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { TextMorph } from "@/components/ui/mp_text-morph";
 import Spinner from "@/components/spinner";
 
-const initialCreateEventState = {
-  message: "",
-};
-
-export default function MenuBar({ user }: { user: T_User }) {
-  const [createEventState, createEventAction] = useActionState(
-    _createEvent,
-    initialCreateEventState
-  );
+export default function MenuBar({ me }: { me: T_User }) {
+  const router = useRouter();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -46,12 +39,26 @@ export default function MenuBar({ user }: { user: T_User }) {
   const eventNameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
-  const [issues, setIssues] = useState<
-    {
-      field: string;
+  // const [issues, setIssues] = useState<
+  //   {
+  //     field: string;
+  //     reasons: string[];
+  //   }[]
+  // >([]);
+
+  const [issues, setIssues] = useState<{
+    eventName: {
+      success: boolean;
       reasons: string[];
-    }[]
-  >([]);
+    };
+    description: {
+      success: boolean;
+      reasons: string[];
+    };
+  }>({
+    eventName: { success: true, reasons: [] },
+    description: { success: true, reasons: [] },
+  });
 
   const [createEventDisabled, setCreateEventDisabled] = useState(false);
 
@@ -74,120 +81,177 @@ export default function MenuBar({ user }: { user: T_User }) {
       setShowForm(false);
       eventNameRef.current?.focus();
     } else {
+      setIssues({
+        eventName: { success: true, reasons: [] },
+        description: { success: true, reasons: [] },
+      });
+
       setTimeout(() => {
         setShowForm(true);
       }, 50);
     }
   }, [overlayOpen]);
 
-  const checkFormIssues = () => {
-    const eventName = eventNameRef.current?.value;
-    const description = descriptionRef.current?.value;
+  useEffect(() => {
+    // Only focus on the first issue
 
-    const formIssues = [];
+    if (!issues.eventName.success) {
+      eventNameRef.current?.focus();
+      return;
+    }
+
+    if (!issues.description.success) {
+      descriptionRef.current?.focus();
+      return;
+    }
+  }, [issues]);
+
+  const checkEventNameIssues = () => {
+    const eventName = eventNameRef.current?.value;
 
     const eventNameResult = Z_EventName.safeParse(eventName);
-    const descriptionResult = Z_EventDescription.safeParse(description);
 
     if (!eventNameResult.success) {
+      let reasons = [];
+
       if (!eventName) {
-        formIssues.push({
-          field: "eventName",
-          reasons: ["Event name is required"],
-        });
+        reasons = ["Event name is required"];
       } else {
-        formIssues.push({
-          field: "eventName",
-          reasons: eventNameResult.error.issues.map((issue) => issue.message),
-        });
+        reasons = eventNameResult.error.issues.map((issue) => issue.message);
       }
-    }
 
-    if (!descriptionResult.success) {
-      formIssues.push({
-        field: "description",
-        reasons: descriptionResult.error.issues.map((issue) => issue.message),
+      setIssues({
+        ...issues,
+        eventName: {
+          success: false,
+          reasons: reasons,
+        },
       });
-    }
-
-    if (formIssues.length > 0) {
-      setIssues(formIssues);
-
-      setCreateEventDisabled(false);
-
-      if (formIssues.some((issue) => issue.field === "eventName")) {
-        eventNameRef.current?.focus();
-      }
-
-      if (formIssues.some((issue) => issue.field === "description")) {
-        descriptionRef.current?.focus();
-      }
 
       return {
+        success: false,
+        data: eventNameResult.data,
+      };
+    }
+
+    setIssues({
+      ...issues,
+      eventName: {
+        success: true,
+        reasons: [],
+      },
+    });
+
+    return {
+      success: true,
+      data: eventNameResult.data,
+    };
+  };
+
+  const checkDescriptionIssues = () => {
+    const description = descriptionRef.current?.value;
+
+    const descriptionResult = Z_EventDescription.safeParse(description);
+
+    if (!descriptionResult.success) {
+      let reasons = [];
+
+      if (!description) {
+        // Shouldn't be possible as Zod should
+        // provide a default value
+        reasons = ["Description is required"];
+      } else {
+        reasons = descriptionResult.error.issues.map((issue) => issue.message);
+      }
+
+      setIssues({
+        ...issues,
+        description: {
+          success: false,
+          reasons: reasons,
+        },
+      });
+
+      return {
+        success: false,
+        data: descriptionResult.data,
+      };
+    }
+
+    setIssues({
+      ...issues,
+      description: {
+        success: true,
+        reasons: [],
+      },
+    });
+
+    return {
+      success: true,
+      data: descriptionResult.data,
+    };
+  };
+
+  const checkFormIssues = () => {
+    // const description = descriptionRef.current?.value;
+
+    // const formIssues = [];
+
+    const eventNameResult = checkEventNameIssues();
+    const descriptionResult = checkDescriptionIssues();
+
+    if (!eventNameResult.success || !descriptionResult.success) {
+      return {
+        success: false,
         eventName: eventNameResult.data,
         description: descriptionResult.data,
       };
     }
 
-    setIssues([]);
-
     return {
+      success: true,
       eventName: eventNameResult.data,
       description: descriptionResult.data,
     };
   };
 
-  const createEvent = () => {
+  const _createEvent = async () => {
     // Just for extra safety
     if (createEventDisabled) {
       return;
     }
 
-    setCreateEventDisabled(true);
+    // setCreateEventDisabled(true);
 
-    const { eventName, description } = checkFormIssues();
+    const { success: checkSuccess, eventName, description } = checkFormIssues();
 
-    if (issues.length > 0) {
+    if (!checkSuccess) {
+      // setCreateEventDisabled(false);
       // alert("theres an issue");
       return;
     }
 
-    _createEvent("d", eventName!, description!);
+    setCreateEventDisabled(true);
 
-    _createEvent.bind(null, "d", eventName, description);
+    const result = await createEvent("d", eventName!, description!);
 
-    // alert(eventName);
-    // alert(description);
+    if (!result.success) {
+      setTimeout(() => {
+        setCreateEventDisabled(false);
+      }, 1000);
 
-    let createdEvent;
+      // alert(result.message);
 
-    try {
-      // createdEvent = await requester.request({
-      //   data: gql_builder.mutation({
-      //     operation: "createEvent",
-      //     fields: ["captchaToken", "name", "description"],
-      //     variables: {
-      //       captchaToken: {
-      //         value: "123",
-      //         required: true,
-      //       },
-      //       name: {
-      //         value: ,
-      //         required: true,
-      //       },
-      //       description: {
-      //         value: descriptionRef.current?.value,
-      //         required: false,
-      //       },
-      //     },
-      //   }),
-      // });
-    } catch (error) {
-      console.error("Error creating event", error);
+      return;
     }
 
-    // alert(eventName);
-    // alert(description);
+    router.push(`/app/event/${result.data.eventId}`);
+
+    // setOverlayOpen(false);
+
+    // setTimeout(() => {
+    //   setCreateEventDisabled(false);
+    // }, 1000);
   };
 
   return (
@@ -211,7 +275,7 @@ export default function MenuBar({ user }: { user: T_User }) {
             </div>
             <div className={styles.profile}>
               <Image
-                src={user.avatar}
+                src={me.avatar}
                 alt="avatar"
                 width={42}
                 height={42}
@@ -279,14 +343,13 @@ export default function MenuBar({ user }: { user: T_User }) {
                 <input
                   className={clsx(
                     styles.createEventFormEventName,
-                    issues.some((issue) => issue.field === "eventName") &&
-                      styles.createEventFormInvalid
+                    !issues.eventName.success && styles.createEventFormInvalid
                   )}
                   onChange={() => {
-                    checkFormIssues();
+                    checkEventNameIssues();
                   }}
                   onBlur={() => {
-                    checkFormIssues();
+                    checkEventNameIssues();
                   }}
                   disabled={createEventDisabled}
                   maxLength={50}
@@ -328,23 +391,22 @@ export default function MenuBar({ user }: { user: T_User }) {
                   required={true}
                 />
                 <AnimatePresence mode="popLayout">
-                  {issues.map(
-                    (issue, index) =>
-                      issue.field === "eventName" && (
-                        <motion.div
-                          key={index}
-                          className={styles.createEventFormInvalidText}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{
-                            duration: 0.2,
-                            ease: "easeInOut",
-                          }}
-                        >
-                          <TextMorph>{issue.reasons.join(", ")}</TextMorph>
-                        </motion.div>
-                      )
+                  {!issues.eventName.success && (
+                    <motion.div
+                      key="eventNameIssues"
+                      className={styles.createEventFormInvalidText}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.2,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <TextMorph>
+                        {issues.eventName.reasons.join(", ")}
+                      </TextMorph>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -352,16 +414,15 @@ export default function MenuBar({ user }: { user: T_User }) {
                 <textarea
                   className={clsx(
                     styles.createEventFormDescription,
-                    issues.some((issue) => issue.field === "description") &&
-                      styles.createEventFormInvalid
+                    !issues.description.success && styles.createEventFormInvalid
                   )}
                   disabled={createEventDisabled}
                   maxLength={500}
                   onChange={() => {
-                    checkFormIssues();
+                    checkDescriptionIssues();
                   }}
                   onBlur={() => {
-                    checkFormIssues();
+                    checkDescriptionIssues();
                   }}
                   style={{
                     height: "100%",
@@ -397,23 +458,22 @@ export default function MenuBar({ user }: { user: T_User }) {
                   required={false}
                 />
                 <AnimatePresence mode="popLayout">
-                  {issues.map(
-                    (issue, index) =>
-                      issue.field === "description" && (
-                        <motion.div
-                          key={index}
-                          className={styles.createEventFormInvalidText}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{
-                            duration: 0.2,
-                            ease: "easeInOut",
-                          }}
-                        >
-                          <TextMorph>{issue.reasons.join(", ")}</TextMorph>
-                        </motion.div>
-                      )
+                  {!issues.description.success && (
+                    <motion.div
+                      key="descriptionIssues"
+                      className={styles.createEventFormInvalidText}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        duration: 0.2,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      <TextMorph>
+                        {issues.description.reasons.join(", ")}
+                      </TextMorph>
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -433,6 +493,12 @@ export default function MenuBar({ user }: { user: T_User }) {
                       styles.createEventFormButton,
                       styles.createEventFormButtonCancel
                     )}
+                    onClick={() => {
+                      // Just to be safe, disabled can be modified by inspect element
+                      if (!createEventDisabled) {
+                        setOverlayOpen(false);
+                      }
+                    }}
                     disabled={createEventDisabled}
                   >
                     <Keybind
@@ -469,9 +535,7 @@ export default function MenuBar({ user }: { user: T_User }) {
                 >
                   <button
                     className={styles.createEventFormButton}
-                    onClick={() => {
-                      createEvent();
-                    }}
+                    onClick={_createEvent}
                     disabled={createEventDisabled}
                   >
                     <Spinner loading={createEventDisabled} size={24} />
@@ -491,7 +555,7 @@ export default function MenuBar({ user }: { user: T_User }) {
                       className={styles.createEventFormKeybind}
                       onPress={() => {
                         // alert("Create event");
-                        createEvent();
+                        _createEvent();
                         // setOverlayOpen(false);
                       }}
                       disabled={createEventDisabled}
