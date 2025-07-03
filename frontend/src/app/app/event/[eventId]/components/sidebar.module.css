@@ -156,20 +156,20 @@
 /* } */
 
 .eventMenuLeaveButton {
-  color: rgb(255, 63, 63);
+  color: var(--sp-dangerous-color);
 }
 
-.eventMenuLeaveButtonDisabled {
+/* .eventMenuLeaveButtonDisabled {
   color: rgb(168, 39, 39);
-}
+} */
 
 .eventMenuLeaveButton:hover {
   .sidebarOverlayButtonText {
-    text-shadow: 0 0 10px rgba(255, 63, 63, 0.5);
+    text-shadow: 0 0 10px var(--sp-dangerous-color-shadow);
   }
 
   .sidebarOverlayButtonIcon {
-    filter: drop-shadow(0 0 10px rgb(255, 63, 63));
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color));
   }
 }
 

@@ -1,0 +1,17 @@
+.spinner {
+  display: none;
+}
+
+/* .spinner_black {
+  display: inline-block;
+} */
+
+@media (prefers-color-scheme: dark) {
+  .spinner {
+    display: inline-block !important;
+  }
+
+  .spinner_black {
+    display: none !important;
+  }
+}

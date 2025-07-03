@@ -37,6 +37,7 @@ export async function GET(request: Request) {
       await requester.request({
         data: gql_builder.mutation({
           operation: "refreshToken",
+          fields: ["token"],
           variables: {
             token: {
               value: token,
@@ -47,7 +48,6 @@ export async function GET(request: Request) {
               required: true,
             },
           },
-          fields: ["token"],
         }),
       })
     ).refreshToken;

@@ -84,12 +84,12 @@ type Mutation {
   refreshToken(token: String!, refreshToken: String!): Token!
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
+  # startsAt: DateTimeISO!
+  # endsAt: DateTimeISO!
   createEvent(
     captchaToken: String!
     name: String!
     description: String
-    startsAt: DateTimeISO!
-    endsAt: DateTimeISO!
   ): Event!
     @auth(requires: USER)
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
