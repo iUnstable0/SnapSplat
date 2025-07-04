@@ -2,15 +2,24 @@ import React, { useEffect, useState } from "react";
 // import useSound from "use-sound";
 import clsx from "clsx";
 
-import { ArrowBigUp, CircleArrowOutUpLeft, CornerDownLeft } from "lucide-react";
+import {
+  ArrowBigUp,
+  CircleArrowOutUpLeft,
+  CornerDownLeft,
+  Delete,
+} from "lucide-react";
 
-import styles from "./keybind.module.css";
+import stylesDynamic from "./keybind-dyn.module.css";
+import stylesLight from "./keybind-light.module.css";
+import stylesDark from "./keybind-dark.module.css";
+
 import { Magnetic } from "./ui/mp_magnetic";
 
 export enum T_Keybind {
   shift = "shift",
   enter = "enter",
   escape = "escape",
+  backspace = "backspace",
 }
 
 export default function Keybind({
@@ -20,6 +29,7 @@ export default function Keybind({
   dangerous,
   onPress,
   disabled,
+  forcetheme,
 }: {
   keybinds: T_Keybind[];
   className?: string;
@@ -27,7 +37,16 @@ export default function Keybind({
   dangerous?: boolean;
   onPress?: () => void;
   disabled?: boolean;
+  forcetheme?: "light" | "dark";
 }) {
+  let styles = stylesDynamic;
+
+  if (forcetheme === "light") {
+    styles = stylesLight;
+  } else if (forcetheme === "dark") {
+    styles = stylesDark;
+  }
+
   // Set of currently held keys
   const [heldKeys, setHeldKeys] = useState<Set<string>>(new Set());
   const [animatedKeys, setAnimatedKeys] = useState<Set<string>>(new Set());
@@ -109,8 +128,9 @@ export default function Keybind({
       intensity={0.1}
       springOptions={{ bounce: 0.1 }}
       actionArea="global"
-      className={clsx(styles.buttonKeybindMagnet)}
+      className={styles.buttonKeybindMagnet}
       range={75}
+      data-theme={forcetheme}
     >
       {keybinds.map((keybind, index) => (
         <div
@@ -136,6 +156,9 @@ export default function Keybind({
             <CircleArrowOutUpLeft
               className={clsx(styles.buttonKeybindIcon, className)}
             />
+          )}
+          {keybind === T_Keybind.backspace && (
+            <Delete className={clsx(styles.buttonKeybindIcon, className)} />
           )}
         </div>
       ))}

@@ -1,0 +1,43 @@
+.buttonKeybindMagnet {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.buttonKeybind {
+  padding: 4px 8px;
+
+  border-radius: 4px;
+
+  background-color: #70707056;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.buttonKeybindIcon {
+  width: 18px;
+  height: 18px;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.buttonKeybind_active {
+  background-color: #707070a4;
+  scale: 1.1;
+
+  .buttonKeybindIcon {
+    filter: drop-shadow(0 0 10px #f9f9f997) !important;
+  }
+}
+
+.buttonKeybindDangerous_active {
+  background-color: var(--sp-dangerous-color-dark) !important;
+  scale: 1.1;
+  color: #492020;
+
+  .buttonKeybindIcon {
+    filter: drop-shadow(
+      0 0 10px var(--sp-dangerous-color-dark-shadow)
+    ) !important;
+  }
+}

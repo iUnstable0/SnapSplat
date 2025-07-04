@@ -2,6 +2,9 @@ import axios from "axios";
 
 import { cookies } from "next/headers";
 
+// import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
+
 type axiosOptions = {
   // headers?: Record<string, string>;
   data?: unknown;
@@ -50,15 +53,33 @@ export default class requester {
       })
       .catch((error) => {
         if ("response" in error) {
+          if (error.response.status === 401) {
+            if (error.response.headers["x-refresh-token-needed"] === "true") {
+              throw {
+                redirect: "/refreshtest",
+              };
+            }
+
+            throw {
+              redirect: "/logouttest",
+            };
+          }
+
+          if (error.response.status === 403) {
+            throw {
+              redirect: "/forbiddentest",
+            };
+          }
+
           throw {
-            gql: true,
-            data: error.response.data.errors,
+            status: error.response.status,
+            errors: error.response.data.errors,
           };
         }
 
         throw {
-          gql: false,
-          data: error,
+          status: 0,
+          errors: [error],
         };
       });
   }

@@ -31,6 +31,18 @@ export default function authDirectiveTransformer(schema: GraphQLSchema) {
           const { resolve = defaultFieldResolver } = fieldConfig;
 
           fieldConfig.resolve = function (source, args, context, info) {
+            // throw new GraphQLError("Unauthorized", {
+            //   extensions: {
+            //     code: "UNAUTHORIZED",
+            //     http: {
+            //       status: 500,
+            //       headers: {
+            //         "x-refresh-token-needed": "true",
+            //       },
+            //     },
+            //   },
+            // });
+
             if (!context.authenticated) {
               throw new GraphQLError("Unauthorized", {
                 extensions: {
@@ -47,7 +59,7 @@ export default function authDirectiveTransformer(schema: GraphQLSchema) {
               });
             }
 
-            if (!lib_role.hasRole(context.user, requires)) {
+            if (!lib_role.platform_hasRole(context.user, requires)) {
               throw new GraphQLError("Unauthorized", {
                 extensions: {
                   code: "UNAUTHORIZED",

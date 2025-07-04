@@ -17,7 +17,7 @@ import {
   ArrowLeft,
   UsersRound,
   Cog,
-  Link as LinkIcon,
+  LinkIcon,
   Wrench,
   Icon,
 } from "lucide-react";

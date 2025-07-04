@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 
 import {
+  Archive,
   CalendarDays,
   ChevronDown,
   Crown,
@@ -19,6 +20,8 @@ import {
 
 import clsx from "clsx";
 
+import { useBlurContext } from "./blur-context";
+
 import styles from "./navbar.module.css";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
@@ -28,6 +31,8 @@ import { TextMorph } from "@/components/ui/mp_text-morph";
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+
+  const { isBlurred, setIsBlurred } = useBlurContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
@@ -52,8 +57,10 @@ export default function Navbar() {
 
   useEffect(() => {
     if (overlayOpen) {
+      setIsBlurred(true);
       setShowMenu(false);
     } else {
+      setIsBlurred(false);
       setTimeout(() => {
         setShowMenu(true);
       }, 50);
@@ -77,6 +84,12 @@ export default function Navbar() {
       label: "Drafts",
       icon: <Pencil />,
       href: "/app/me/drafts",
+      className: styles.menuNormalButton,
+    },
+    {
+      label: "Archived",
+      icon: <Archive />,
+      href: "/app/me/archived",
       className: styles.menuNormalButton,
     },
     {

@@ -35,6 +35,18 @@ export default class lib_error {
     );
   }
 
+  public static not_found(normal?: string, dev?: string) {
+    return new GraphQLError(
+      lib_error.parseMessage(normal ? normal : "Not Found", dev),
+      {
+        extensions: {
+          code: "NOT_FOUND",
+          http: { status: 404 },
+        },
+      }
+    );
+  }
+
   public static internal_server_error(normal?: string, dev?: string) {
     return new GraphQLError(
       lib_error.parseMessage(normal ? normal : "Internal Server Error", dev),

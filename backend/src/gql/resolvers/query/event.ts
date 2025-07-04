@@ -9,8 +9,6 @@ import type { T_EventMembership } from "@/db/types";
 
 export default class query_event {
   public static async getInfo(args: any, context: any) {
-    // graphql alr parse for us with scalars
-
     const eventId = args.eventId;
 
     if (!eventId) {
@@ -32,23 +30,32 @@ export default class query_event {
       );
 
       throw lib_error.internal_server_error(
-        "Internal server error",
-        `Error fetching event: ${error}`
+        "Internal Server Error. refId: ${refId}",
+        `500 failed to fetch event info: ${error}`
       );
     }
 
     if (!event) {
-      throw lib_error.bad_request(
+      throw lib_error.not_found(
         "Event not found",
         `Event with id ${eventId} not found`
       );
     }
 
+    console.log(event);
+
     return event;
   }
 
-  public static async getHost(args: any) {
-    const eventId = args.eventId;
+  public static async getHostMember(args: any) {
+    const [parent, body, context] = args;
+
+    if (parent) {
+      // console.log(`parent: ${JSON.stringify(parent)}`);
+      return parent.hostMember;
+    }
+
+    const eventId = body.eventId;
 
     if (!eventId) {
       throw lib_error.bad_request("Missing required fields", "Missing eventId");
@@ -73,12 +80,12 @@ export default class query_event {
 
       throw lib_error.internal_server_error(
         "Internal Server Error. refId: ${refId}",
-        `500 failed to fetch event: ${error}`
+        `500 failed to fetch event host: ${error}`
       );
     }
 
     if (!event) {
-      throw lib_error.bad_request(
+      throw lib_error.not_found(
         "Event not found",
         `Event with id ${eventId} not found`
       );
@@ -110,7 +117,7 @@ export default class query_event {
 
       throw lib_error.internal_server_error(
         "Internal Server Error. refId: ${refId}",
-        `500 failed to fetch memberships: ${error}`
+        `500 failed to fetch event memberships: ${error}`
       );
     }
 
@@ -148,12 +155,12 @@ export default class query_event {
 
       throw lib_error.internal_server_error(
         "Internal Server Error. refId: ${refId}",
-        `500 failed to fetch my membership: ${error}`
+        `500 failed to fetch my event membership: ${error}`
       );
     }
 
     if (!membership) {
-      throw lib_error.bad_request(
+      throw lib_error.not_found(
         "Membership not found",
         `Membership for event ${eventId} with user id ${context.user.userId} not found`
       );

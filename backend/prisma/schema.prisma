@@ -54,8 +54,9 @@ model User {
 
   sessions        Session[]
   suspendedTokens SuspendedToken[]
-  memberships     EventMembership[]
-  hostedEvents    Event[]           @relation("EventHostUser")
+
+  memberships  EventMembership[]
+  hostedEvents Event[]           @relation("EventHostUser")
 }
 
 model Session {

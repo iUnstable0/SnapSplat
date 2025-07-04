@@ -1,6 +1,6 @@
 import Navbar from "../components/navbar";
 
-import styles from "../page.module.css";
+import styles from "./page.module.css";
 
 import { DateTime } from "luxon";
 
