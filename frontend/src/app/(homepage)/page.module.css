@@ -104,8 +104,8 @@
 }
 
 .ctaButton {
-  background-color: var(--sp-button-bg-color);
-  color: var(--sp-button-text-color);
+  background-color: var(--homepage-button-bg-color);
+  color: var(--homepage-button-text-color);
   border: none;
   padding: 12px 24px;
   font-size: 17px;
@@ -188,7 +188,7 @@
 
 .footerLink {
   font-size: 12px;
-  color: var(--sp-link-color);
+  color: var(--homepage-link-color);
   text-decoration: none;
 }
 
