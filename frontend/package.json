@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "doppler run -- next dev --turbopack -p 3049",
-    "build": "doppler run -- next build -p 3049",
+    "build": "doppler run -- next build",
     "start": "doppler run -- next start -p 3049",
-    "lint": "doppler run -- next lint -p 3049"
+    "lint": "doppler run -- next lint"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
