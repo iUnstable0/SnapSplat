@@ -29,7 +29,7 @@ import Spinner from "@/components/spinner";
 export default function MenuBar({ me }: { me: T_User }) {
   const router = useRouter();
 
-  const { isBlurred, setIsBlurred } = useBlurContext();
+  const { setIsBlurred } = useBlurContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);

@@ -1,7 +1,8 @@
+import { redirect } from "next/navigation";
 import * as gql_builder from "gql-query-builder";
 
 import MenuBar from "../_components/menubar";
-import EventCard from "../_components/event-card";
+import EventContainer from "../_components/event-container";
 
 import Error from "@/components/error";
 
@@ -12,49 +13,53 @@ import requester from "@/gql/requester";
 import type { T_Event, T_User } from "@/gql/types";
 
 import lib_role from "@/modules/role";
-import { AnimatePresence } from "motion/react";
-import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function Page() {
+  const cookieStore = await cookies();
+
   let me: T_User | null = null;
 
   try {
     me = (
-      await requester.request({
-        data: gql_builder.query({
-          operation: "me",
-          fields: [
-            "displayName",
-            "avatar",
-            "platformRole",
-            {
-              events: [
-                "eventId",
-                "name",
-                "description",
-                "isDraft",
-                "isArchived",
-                {
-                  hostMember: ["displayNameAlt"],
-                  myMembership: ["eventRole"],
-                },
-              ],
-              myEvents: [
-                "eventId",
-                "name",
-                "description",
-                "isDraft",
-                "isArchived",
-                {
-                  hostMember: ["displayNameAlt"],
-                  myMembership: ["eventRole"],
-                },
-              ],
-            },
-          ],
-        }),
-        withAuth: true,
-      })
+      await requester.request(
+        {
+          data: gql_builder.query({
+            operation: "me",
+            fields: [
+              "displayName",
+              "avatar",
+              "platformRole",
+              {
+                events: [
+                  "eventId",
+                  "name",
+                  "description",
+                  "isDraft",
+                  "isArchived",
+                  {
+                    hostMember: ["displayNameAlt"],
+                    myMembership: ["eventRole"],
+                  },
+                ],
+                myEvents: [
+                  "eventId",
+                  "name",
+                  "description",
+                  "isDraft",
+                  "isArchived",
+                  {
+                    hostMember: ["displayNameAlt"],
+                    myMembership: ["eventRole"],
+                  },
+                ],
+              },
+            ],
+          }),
+          withAuth: true,
+        },
+        cookieStore.get("token")?.value
+      )
     ).me as T_User;
   } catch (error: any) {
     console.error(`[/app/me/drafts] Error fetching data`, error);
@@ -100,18 +105,7 @@ export default async function Page() {
           </h1>
         )}
 
-        {draftsCount > 0 && (
-          <div className={styles.eventsContainer}>
-            <AnimatePresence>
-              {myDrafts.map((event: T_Event) => (
-                <EventCard key={event.eventId} event={event} />
-              ))}
-              {drafts.map((event: T_Event) => (
-                <EventCard key={event.eventId} event={event} />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
+        {draftsCount > 0 && <EventContainer events={[myDrafts, drafts]} />}
 
         {draftsCount === 0 && (
           <h1 className={styles.pageMiddleText}>No drafts found</h1>

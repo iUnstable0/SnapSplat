@@ -1,9 +1,9 @@
 import axios from "axios";
 
-import { cookies } from "next/headers";
+// import { cookies } from "next/headers";
 
 // import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
+// import { NextResponse } from "next/server";
 
 type axiosOptions = {
   // headers?: Record<string, string>;
@@ -13,10 +13,10 @@ type axiosOptions = {
 
 export default class requester {
   // public static async;
-  public static async request(options: axiosOptions) {
-    const cookieStore = await cookies();
+  public static async request(options: axiosOptions, token?: string) {
+    // const cookieStore = await cookies();
 
-    const token = cookieStore.get("token")?.value;
+    // const token = cookieStore.get("token")?.value;
 
     // return axios.request({
     //   method: "POST",

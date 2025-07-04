@@ -5,12 +5,19 @@ import * as gql_builder from "gql-query-builder";
 import requester from "@/gql/requester";
 
 import { Z_EventName, Z_EventDescription } from "@/modules/parser";
+import { cookies } from "next/headers";
 
 export default async function createEvent(
   captchaToken: string,
   eventName: string,
   eventDescription: string
-): Promise<any> {
+): Promise<{
+  success: boolean;
+  message: string;
+  data?: { eventId: string } | null;
+}> {
+  const cookieStore = await cookies();
+
   console.log("received data", captchaToken, eventName, eventDescription);
 
   const eventNameResult = Z_EventName.safeParse(eventName);
@@ -34,27 +41,30 @@ export default async function createEvent(
 
   try {
     result = (
-      await requester.request({
-        data: gql_builder.mutation({
-          operation: "createEvent",
-          fields: ["eventId"],
-          variables: {
-            captchaToken: {
-              value: "123",
-              required: true,
+      await requester.request(
+        {
+          data: gql_builder.mutation({
+            operation: "createEvent",
+            fields: ["eventId"],
+            variables: {
+              captchaToken: {
+                value: "123",
+                required: true,
+              },
+              name: {
+                value: eventNameResult.data,
+                required: true,
+              },
+              description: {
+                value: descriptionResult.data,
+                required: false,
+              },
             },
-            name: {
-              value: eventNameResult.data,
-              required: true,
-            },
-            description: {
-              value: descriptionResult.data,
-              required: false,
-            },
-          },
-        }),
-        withAuth: true,
-      })
+          }),
+          withAuth: true,
+        },
+        cookieStore.get("token")?.value
+      )
     ).createEvent;
   } catch (error) {
     console.error("Create event query failed:", error);

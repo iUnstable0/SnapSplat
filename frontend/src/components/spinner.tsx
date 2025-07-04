@@ -2,8 +2,6 @@
 
 import { HashLoader } from "react-spinners";
 
-import styles from "./spinner.module.css";
-
 import { useMediaQuery } from "./useMediaQuery";
 
 export default function Spinner({

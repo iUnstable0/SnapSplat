@@ -24,7 +24,7 @@ export default class lib_error {
     }
 
     return Error({
-      message: lib_error.parseMessage(normal ? normal : "Unauthorized", dev),
+      title: lib_error.parseMessage(normal ? normal : "Unauthorized", dev),
     });
   }
 
@@ -41,7 +41,7 @@ export default class lib_error {
     }
 
     return Error({
-      message: lib_error.parseMessage(normal ? normal : "Bad Request", dev),
+      title: lib_error.parseMessage(normal ? normal : "Bad Request", dev),
     });
   }
 
@@ -58,7 +58,7 @@ export default class lib_error {
     }
 
     return Error({
-      message: lib_error.parseMessage(
+      title: lib_error.parseMessage(
         normal ? normal : "Internal Server Error",
         dev
       ),

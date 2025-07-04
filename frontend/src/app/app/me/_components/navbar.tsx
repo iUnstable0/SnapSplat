@@ -10,11 +10,8 @@ import {
   Archive,
   CalendarDays,
   ChevronDown,
-  Crown,
   Pencil,
   RotateCcw,
-  TicketCheck,
-  Trash,
   Trash2,
 } from "lucide-react";
 
@@ -32,7 +29,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const { isBlurred, setIsBlurred } = useBlurContext();
+  const { setIsBlurred } = useBlurContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
@@ -53,6 +50,7 @@ export default function Navbar() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -65,6 +63,7 @@ export default function Navbar() {
         setShowMenu(true);
       }, 50);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [overlayOpen]);
 
   const menuItems = [

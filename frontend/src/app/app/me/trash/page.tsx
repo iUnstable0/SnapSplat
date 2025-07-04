@@ -1,63 +1,67 @@
 import * as gql_builder from "gql-query-builder";
-import { DateTime } from "luxon";
-import { AnimatePresence } from "motion/react";
+// import { DateTime } from "luxon";
 
 import MenuBar from "../_components/menubar";
-import EventCard from "../_components/event-card";
 
 import styles from "../page.module.css";
 
 import requester from "@/gql/requester";
 
-import type { T_Event, T_User } from "@/gql/types";
+import type { T_User } from "@/gql/types";
 
 import { redirect } from "next/navigation";
 import Error from "@/components/error";
+import { cookies } from "next/headers";
 
 export default async function Page() {
+  const cookieStore = await cookies();
+
   let me: T_User | null = null;
 
   try {
     me = (
-      await requester.request({
-        data: gql_builder.query({
-          operation: "me",
-          fields: [
-            "displayName",
-            "avatar",
-            "platformRole",
-            {
-              events: [
-                "eventId",
-                "name",
-                "description",
-                "isDraft",
-                "isArchived",
-                "startsAt",
-                "endsAt",
-                {
-                  hostMember: ["displayNameAlt"],
-                  myMembership: ["eventRole"],
-                },
-              ],
-              myEvents: [
-                "eventId",
-                "name",
-                "description",
-                "isDraft",
-                "isArchived",
-                "startsAt",
-                "endsAt",
-                {
-                  hostMember: ["displayNameAlt"],
-                  myMembership: ["eventRole"],
-                },
-              ],
-            },
-          ],
-        }),
-        withAuth: true,
-      })
+      await requester.request(
+        {
+          data: gql_builder.query({
+            operation: "me",
+            fields: [
+              "displayName",
+              "avatar",
+              "platformRole",
+              {
+                events: [
+                  "eventId",
+                  "name",
+                  "description",
+                  "isDraft",
+                  "isArchived",
+                  "startsAt",
+                  "endsAt",
+                  {
+                    hostMember: ["displayNameAlt"],
+                    myMembership: ["eventRole"],
+                  },
+                ],
+                myEvents: [
+                  "eventId",
+                  "name",
+                  "description",
+                  "isDraft",
+                  "isArchived",
+                  "startsAt",
+                  "endsAt",
+                  {
+                    hostMember: ["displayNameAlt"],
+                    myMembership: ["eventRole"],
+                  },
+                ],
+              },
+            ],
+          }),
+          withAuth: true,
+        },
+        cookieStore.get("token")?.value
+      )
     ).me as T_User;
   } catch (error: any) {
     console.error(`[/app/me/trash] Error fetching data`, error);
@@ -82,17 +86,17 @@ export default async function Page() {
     }
   }
 
-  const pastEvents = me.events.filter(
-    (event: T_Event) =>
-      !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
-  );
+  // const pastEvents = me.events.filter(
+  //   (event: T_Event) =>
+  //     !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
+  // );
 
-  const myPastEvents = me.myEvents.filter(
-    (event: T_Event) =>
-      !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
-  );
+  // const myPastEvents = me.myEvents.filter(
+  //   (event: T_Event) =>
+  //     !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
+  // );
 
-  const pastEventsCount = pastEvents.length + myPastEvents.length;
+  // const pastEventsCount = pastEvents.length + myPastEvents.length;
 
   return (
     <div className={styles.pageWrapper}>

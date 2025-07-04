@@ -1,7 +1,9 @@
 export default async function Page({
   params,
 }: {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
 }) {
-  return <h1>Public Gallery</h1>;
+  const { eventId } = await params;
+
+  return <h1>Public Gallery {eventId}</h1>;
 }

@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 
+import type { T_Event } from "@/gql/types";
+
 // import { useState } from "react";
 import { motion } from "motion/react";
 // import { GlowEffect } from "@/components/ui/glow-effect";
@@ -12,7 +14,7 @@ export default function EventCard({
   event,
   index,
 }: {
-  event: any;
+  event: T_Event;
   index: number;
 }) {
   //   const [isGlowVisible, setIsGlowVisible] = useState(false);

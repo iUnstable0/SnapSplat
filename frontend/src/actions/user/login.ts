@@ -6,7 +6,8 @@ import { redirect, RedirectType } from "next/navigation";
 
 import * as z from "zod/v4";
 
-import gql from "@/gql";
+import requester from "@/gql/requester";
+import * as gql_builder from "gql-query-builder";
 
 import { Z_Email } from "@/modules/parser";
 
@@ -46,13 +47,35 @@ export default async function login(formData: FormData): Promise<void> {
   let result = null;
 
   try {
-    result = (await gql.mutation.login("d", email, password)).login;
+    result = (
+      await requester.request({
+        data: gql_builder.mutation({
+          operation: "login",
+          fields: ["token", "refreshToken"],
+          variables: {
+            captchaToken: {
+              value: "123",
+              required: true,
+            },
+            email: {
+              value: email,
+              type: "EmailAddress",
+              required: true,
+            },
+            password: {
+              value: password,
+              required: true,
+            },
+          },
+        }),
+      })
+    ).login;
   } catch (error) {
     console.error("Login query failed:", error);
     throw new Error("Login failed, please try again later.");
   }
 
-  console.log(result);
+  // console.log(result);
 
   cookieStore.set("token", result.token, tokenCookieOpt);
   cookieStore.set("refresh_token", result.refreshToken, refreshTokenCookieOpt);

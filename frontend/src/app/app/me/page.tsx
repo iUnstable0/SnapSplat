@@ -1,11 +1,9 @@
 import { redirect } from "next/navigation";
 
-import { AnimatePresence } from "motion/react";
-
 import * as gql_builder from "gql-query-builder";
 
 import MenuBar from "./_components/menubar";
-import EventCard from "./_components/event-card";
+import EventContainer from "./_components/event-container";
 
 import Error from "@/components/error";
 
@@ -14,45 +12,52 @@ import styles from "./page.module.css";
 import requester from "@/gql/requester";
 import type { T_Event, T_User } from "@/gql/types";
 
+import { cookies } from "next/headers";
+
 export default async function Page() {
+  const cookieStore = await cookies();
+
   let data: { me: T_User } = { me: null };
 
   try {
-    data = await requester.request({
-      data: gql_builder.query({
-        operation: "me",
-        fields: [
-          "displayName",
-          "avatar",
-          "platformRole",
-          {
-            events: [
-              "eventId",
-              "name",
-              "description",
-              "isDraft",
-              "isArchived",
-              {
-                hostMember: ["displayNameAlt"],
-                myMembership: ["eventRole"],
-              },
-            ],
-            myEvents: [
-              "eventId",
-              "name",
-              "description",
-              "isDraft",
-              "isArchived",
-              {
-                hostMember: ["displayNameAlt"],
-                myMembership: ["eventRole"],
-              },
-            ],
-          },
-        ],
-      }),
-      withAuth: true,
-    });
+    data = await requester.request(
+      {
+        data: gql_builder.query({
+          operation: "me",
+          fields: [
+            "displayName",
+            "avatar",
+            "platformRole",
+            {
+              events: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                {
+                  hostMember: ["displayNameAlt"],
+                  myMembership: ["eventRole"],
+                },
+              ],
+              myEvents: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                {
+                  hostMember: ["displayNameAlt"],
+                  myMembership: ["eventRole"],
+                },
+              ],
+            },
+          ],
+        }),
+        withAuth: true,
+      },
+      cookieStore.get("token")?.value
+    );
   } catch (error: any) {
     console.error(`[/app/me] Error fetching data`, error);
 
@@ -96,16 +101,7 @@ export default async function Page() {
         )}
 
         {activeEventsCount > 0 && (
-          <div className={styles.eventsContainer}>
-            <AnimatePresence>
-              {myPublishedEvents.map((event: T_Event) => (
-                <EventCard key={event.eventId} event={event} />
-              ))}
-              {activeEvents.map((event: T_Event) => (
-                <EventCard key={event.eventId} event={event} />
-              ))}
-            </AnimatePresence>
-          </div>
+          <EventContainer events={[myPublishedEvents, activeEvents]} />
         )}
 
         {activeEventsCount === 0 && (
