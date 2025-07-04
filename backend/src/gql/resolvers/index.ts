@@ -43,6 +43,7 @@ export default {
     refreshToken: (...args: argsType) => mutation_user.refreshToken(args[1]),
     createEvent: (...args: argsType) =>
       mutation_event.createEvent(args[1], args[2]),
+    deleteEvent: (...args: argsType) => mutation_event.deleteEvent(args),
   },
   User: {
     events: (...args: argsType) => {
@@ -64,8 +65,15 @@ export default {
 
       return query_event.getHostMember(args);
     },
-    memberships: (...args: argsType) => query_event.getMemberships(args[1]),
-    myMembership: (...args: argsType) =>
-      query_event.getMyMembership(args[1], args[2]),
+    memberships: (...args: argsType) => {
+      console.log("event resolver memberships query");
+
+      return query_event.getMemberships(args);
+    },
+    myMembership: (...args: argsType) => {
+      console.log("event resolver myMembership query");
+
+      return query_event.getMyMembership(args);
+    },
   },
 };

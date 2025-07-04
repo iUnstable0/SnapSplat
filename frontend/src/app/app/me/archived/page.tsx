@@ -1,10 +1,6 @@
-import { redirect } from "next/navigation";
-
 import * as gql_builder from "gql-query-builder";
 import { DateTime } from "luxon";
 import { AnimatePresence } from "motion/react";
-
-import Error from "@/components/error";
 
 import MenuBar from "../_components/menubar";
 import EventCard from "../_components/event-card";
@@ -14,6 +10,9 @@ import styles from "../page.module.css";
 import requester from "@/gql/requester";
 
 import type { T_Event, T_User } from "@/gql/types";
+
+import { redirect } from "next/navigation";
+import Error from "@/components/error";
 
 export default async function Page() {
   let me: T_User | null = null;
@@ -61,7 +60,7 @@ export default async function Page() {
       })
     ).me as T_User;
   } catch (error: any) {
-    console.error(`[/app/me/past-events] Error fetching data`, error);
+    console.error(`[/app/me/drafts] Error fetching data`, error);
 
     if ("redirect" in error) {
       return redirect(error.redirect);
@@ -83,43 +82,39 @@ export default async function Page() {
     }
   }
 
-  const pastEvents = me.events.filter(
-    (event: T_Event) =>
-      !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
+  const archivedEvents = me.events.filter((event: T_Event) => event.isArchived);
+
+  const myArchivedEvents = me.myEvents.filter(
+    (event: T_Event) => event.isArchived
   );
 
-  const myPastEvents = me.myEvents.filter(
-    (event: T_Event) =>
-      !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
-  );
-
-  const pastEventsCount = pastEvents.length + myPastEvents.length;
+  const archivedEventsCount = archivedEvents.length + myArchivedEvents.length;
 
   return (
     <div className={styles.pageWrapper}>
       <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        {/* {pastEventsCount > 0 && (
+        {/* {archivedEventsCount > 0 && (
           <h1 className={styles.pageTitle}>
-            {pastEventsCount} event{pastEventsCount === 1 ? "" : "s"}
+            {archivedEventsCount} event{archivedEventsCount === 1 ? "" : "s"}
           </h1>
-        )} */}
+        )}
 
-        {/* {pastEventsCount > 0 && (
+        {archivedEventsCount > 0 && (
           <div className={styles.eventsContainer}>
             <AnimatePresence>
-              {myPastEvents.map((event: T_Event) => (
+              {myArchivedEvents.map((event: T_Event) => (
                 <EventCard key={event.eventId} event={event} />
               ))}
-              {pastEvents.map((event: T_Event) => (
+              {archivedEvents.map((event: T_Event) => (
                 <EventCard key={event.eventId} event={event} />
               ))}
             </AnimatePresence>
           </div>
-        )} */}
+        )}
 
-        {/* {pastEventsCount === 0 && (
-          <h1 className={styles.pageMiddleText}>No past events found</h1>
+        {archivedEventsCount === 0 && (
+          <h1 className={styles.pageMiddleText}>No archived events found</h1>
         )} */}
 
         <h1 className={styles.pageMiddleText}>Under construction</h1>

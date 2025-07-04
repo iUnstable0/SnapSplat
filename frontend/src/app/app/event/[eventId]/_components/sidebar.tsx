@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 import clsx from "clsx";
 
-import { AnimatePresence, delay, motion } from "motion/react";
+import deleteEvent from "@/actions/event/deleteEvent";
 
 import {
   FolderLock,
@@ -20,9 +21,12 @@ import {
   LinkIcon,
   Wrench,
   Icon,
+  Check,
+  Trash2,
 } from "lucide-react";
 
 import { layoutGridPlus } from "@lucide/lab";
+import { AnimatePresence, motion } from "motion/react";
 
 import {
   Sidebar as Ace_Sidebar,
@@ -40,20 +44,28 @@ import lib_role from "@/modules/role";
 import styles from "./sidebar.module.css";
 
 import { T_User, T_Event } from "@/gql/types";
+import Keybind, { T_Keybind } from "@/components/keybind";
 
 export default function Sidebar({
   children,
   data,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   data: {
-    me: T_User;
     event: T_Event;
   };
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [open, setOpen] = useState(true);
+  // const pathname = usePathname();
+
+  // const rootPath = pathname.split("/").slice(0, 4).join("/");
+  // const pathDirec = `/${pathname.split("/")[4] ?? ""}`;
+
+  // const [page, setPage] = useState(pathDirec);
+
+  const [open, setOpen] = useState(false);
   const [eventMenuOpen, setEventMenuOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(true);
@@ -82,44 +94,110 @@ export default function Sidebar({
     }
   }, [eventMenuOpen]);
 
-  const eventMenuItems = [
+  const goBack = () => {
+    router.push(searchParams.get("back") ?? "/app/me");
+  };
+
+  const eventMenuItems: {
+    label: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+    className: string;
+    keybinds?: T_Keybind[];
+    dangerous?: boolean;
+  }[] = [
     {
       label: "Back to My Events",
       icon: <ArrowLeft />,
-      href: "/app",
+      onClick: goBack,
       className: styles.eventMenuNormalButton,
+      keybinds: [T_Keybind.enter],
+      dangerous: false,
     },
     {
       label: "Members",
       icon: <UsersRound />,
-      href: "#",
+      onClick: () => {
+        alert("Under construction");
+      },
       className: styles.eventMenuNormalButton,
+      keybinds: [T_Keybind.m],
+      dangerous: false,
     },
     {
       label: "Invite / Share",
       icon: <LinkIcon />,
-      href: "#",
+      onClick: () => {
+        alert("Under construction");
+      },
       className: styles.eventMenuNormalButton,
-    },
-    {
-      label: "Manage Event",
-      icon: <Wrench />,
-      href: "#",
-      className: styles.eventMenuNormalButton,
+      keybinds: [T_Keybind.e],
+      dangerous: false,
     },
     {
       label: "Preferences",
       icon: <Cog />,
-      href: "#",
+      onClick: () => {
+        alert("Under construction");
+      },
       className: styles.eventMenuNormalButton,
-    },
-    {
-      label: "Leave Event",
-      icon: <LogOut />,
-      href: "#",
-      className: styles.eventMenuLeaveButton,
+      keybinds: [T_Keybind.p],
+      dangerous: false,
     },
   ];
+
+  // COHOST & HOST
+  if (lib_role.event_hasRole(data.event.myMembership, "COHOST")) {
+    eventMenuItems.push({
+      label: "Manage Event",
+      icon: <Wrench />,
+      onClick: goBack,
+      className: styles.eventMenuNormalButton,
+      keybinds: [T_Keybind.shift, T_Keybind.m],
+      dangerous: false,
+    });
+
+    if (data.event.isDraft) {
+      eventMenuItems.push({
+        label: "Publish Event",
+        icon: <Check />,
+        onClick: () => {
+          alert("Under construction");
+        },
+        className: styles.eventMenuNormalButton,
+      });
+    }
+  }
+
+  // NOT HOST
+  if (!lib_role.event_hasRole(data.event.myMembership, "HOST")) {
+    eventMenuItems.push({
+      label: "Leave Event",
+      icon: <LogOut />,
+      onClick: () => {
+        alert("Under construction");
+      },
+      className: styles.eventMenuLeaveButton,
+    });
+  }
+
+  // HOST
+  if (lib_role.event_hasRole(data.event.myMembership, "HOST")) {
+    if (data.event.isDraft) {
+      eventMenuItems.push({
+        label: "Delete Event",
+        icon: <Trash2 />,
+        onClick: async () => {
+          await deleteEvent("123", data.event.eventId);
+
+          router.push(searchParams.get("back") ?? "/app/me");
+        },
+        className: styles.eventMenuLeaveButton,
+        // keybinds: [T_Keybind.shift, T_Keybind.backspace],
+        // dangerous: true,
+      });
+    }
+  }
 
   // if (!) {
   //   eventMenuItems.push({
@@ -130,28 +208,51 @@ export default function Sidebar({
   //   });
   // }
 
+  const navigate = (path: string) => {
+    const searchParamsString = searchParams.toString();
+
+    router.push(`${path}?${searchParamsString}`);
+  };
+
   const sidebarItems = [
     {
       label: "Home",
       icon: <House className={styles.sidebarLinkIcon} />,
-      href: "#",
+      href: "/home",
+      onClick: () => {
+        // setPage("/home");
+        // change url bar without reloading
+        navigate(`/app/event/${data.event.eventId}/home`);
+      },
     },
     {
       label: "My Gallery",
       icon: <FolderLock className={styles.sidebarLinkIcon} />,
-      href: "#",
+      href: "/my-gallery",
+      onClick: () => {
+        // setPage("/my-gallery");
+        navigate(`/app/event/${data.event.eventId}/my-gallery`);
+      },
     },
     {
       label: "Public Gallery",
       icon: <Images className={styles.sidebarLinkIcon} />,
-      href: "#",
+      href: "/gallery",
+      onClick: () => {
+        // setPage("/gallery");
+        navigate(`/app/event/${data.event.eventId}/gallery`);
+      },
     },
     {
       label: "Public Board",
       icon: (
         <Icon iconNode={layoutGridPlus} className={styles.sidebarLinkIcon} />
       ),
-      href: "#",
+      href: "/board",
+      onClick: () => {
+        // setPage("/board");
+        navigate(`/app/event/${data.event.eventId}/board`);
+      },
     },
     // {
     //   label: "Members",
@@ -237,15 +338,15 @@ export default function Sidebar({
                     exit={{ opacity: 0, x: "0", scale: 0.95 }}
                     transition={{
                       delay: isMobile
-                        ? index * 0.1 + 0.2
+                        ? index * 0.07 + 0.2
                         : showMenu
-                          ? index * 0.1 + 0.2
+                          ? index * 0.07 + 0.2
                           : 0,
                     }}
                     onClick={() => {
                       setActiveEventMenuItem(item.label);
 
-                      router.push(item.href);
+                      item.onClick();
 
                       setTimeout(() => {
                         setActiveEventMenuItem("");
@@ -272,6 +373,18 @@ export default function Sidebar({
                       <span className={styles.sidebarOverlayButtonText}>
                         {item.label}
                       </span>
+                      {item.keybinds && (
+                        <Keybind
+                          keybinds={item.keybinds}
+                          className={styles.createEventFormKeybind}
+                          onPress={() => {
+                            item.onClick();
+                          }}
+                          disabled={false}
+                          dangerous={item.dangerous}
+                          // forcetheme={"dark"}
+                        />
+                      )}
                     </Magnetic>
                   </motion.div>
                 ))}
@@ -285,10 +398,12 @@ export default function Sidebar({
             >
               {/* <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" /> */}
               <Image
-                src="/snapsplat-transparent-removebg.png"
+                src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+                  data.event.name
+                )}`}
                 alt="SnapSplat"
-                width={28}
-                height={28}
+                width={24}
+                height={24}
                 className={styles.logoImage}
               />
 

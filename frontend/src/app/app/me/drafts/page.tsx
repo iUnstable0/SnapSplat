@@ -1,7 +1,9 @@
 import * as gql_builder from "gql-query-builder";
 
-import MenuBar from "../components/menubar";
-import EventCard from "../components/event-card";
+import MenuBar from "../_components/menubar";
+import EventCard from "../_components/event-card";
+
+import Error from "@/components/error";
 
 import styles from "../page.module.css";
 
@@ -9,8 +11,9 @@ import requester from "@/gql/requester";
 
 import type { T_Event, T_User } from "@/gql/types";
 
-import lib_error from "@/modules/error";
+import lib_role from "@/modules/role";
 import { AnimatePresence } from "motion/react";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
   let me: T_User | null = null;
@@ -25,6 +28,17 @@ export default async function Page() {
             "avatar",
             "platformRole",
             {
+              events: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                {
+                  hostMember: ["displayNameAlt"],
+                  myMembership: ["eventRole"],
+                },
+              ],
               myEvents: [
                 "eventId",
                 "name",
@@ -33,6 +47,7 @@ export default async function Page() {
                 "isArchived",
                 {
                   hostMember: ["displayNameAlt"],
+                  myMembership: ["eventRole"],
                 },
               ],
             },
@@ -42,55 +57,64 @@ export default async function Page() {
       })
     ).me as T_User;
   } catch (error: any) {
-    console.error(`[/app] Error fetching user data`, error);
+    console.error(`[/app/me/drafts] Error fetching data`, error);
 
-    if ("gql" in error) {
-      if (error.gql) {
-        return lib_error.unauthorized(
-          "client",
-          "Unauthorized",
-          `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
-        );
-      }
-
-      return lib_error.unauthorized(
-        "client",
-        "Unauthorized",
-        `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
-      );
+    if ("redirect" in error) {
+      return redirect(error.redirect);
     }
 
-    return lib_error.unauthorized(
-      "client",
-      "Unauthorized",
-      `unexpected error: ${JSON.stringify(error)}`
-    );
+    if ("status" in error) {
+      switch (error.status) {
+        case 500:
+          console.log(error.errors);
+          return <Error title="Internal server error" />;
+      }
+
+      return (
+        <Error
+          title="Unexpected error"
+          link={{ label: "Go to home", href: "/app/me" }}
+        />
+      );
+    }
   }
+
+  const drafts = me.events.filter(
+    (event: T_Event) =>
+      event.isDraft === true && lib_role.event_isCohost(event.myMembership)
+  );
 
   const myDrafts = me.myEvents.filter(
     (event: T_Event) => event.isDraft === true
   );
 
-  const myDraftsCount = myDrafts.length;
+  const draftsCount = myDrafts.length + drafts.length;
 
   return (
     <div className={styles.pageWrapper}>
       <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        <h1 className={styles.pageTitle}>
-          {myDraftsCount > 0
-            ? `${myDraftsCount} draft${myDraftsCount === 1 ? "" : "s"} found`
-            : "No drafts found"}
-        </h1>
+        {draftsCount > 0 && (
+          <h1 className={styles.pageTitle}>
+            {`${draftsCount} draft${draftsCount === 1 ? "" : "s"} found`}
+          </h1>
+        )}
 
-        {myDraftsCount > 0 && (
+        {draftsCount > 0 && (
           <div className={styles.eventsContainer}>
             <AnimatePresence>
               {myDrafts.map((event: T_Event) => (
                 <EventCard key={event.eventId} event={event} />
               ))}
+              {drafts.map((event: T_Event) => (
+                <EventCard key={event.eventId} event={event} />
+              ))}
             </AnimatePresence>
           </div>
+        )}
+
+        {draftsCount === 0 && (
+          <h1 className={styles.pageMiddleText}>No drafts found</h1>
         )}
       </main>
     </div>

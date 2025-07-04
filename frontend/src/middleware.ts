@@ -127,6 +127,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/app/me", request.url));
   }
 
+  if (pathname.startsWith("/app/event/")) {
+    const splittedPath = pathname.split("/");
+
+    // /app/event/123/my-gallery
+    // /app/event/123/gallery
+    // /app/event/123/board
+
+    const eventId = splittedPath[3];
+    const page = splittedPath[4];
+
+    if (!page) {
+      return NextResponse.redirect(
+        new URL(`/app/event/${eventId}/home`, request.url)
+      );
+    }
+  }
+
   return options.onSuccess(request);
 }
 

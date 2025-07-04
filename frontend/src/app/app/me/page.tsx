@@ -1,59 +1,60 @@
 import { redirect } from "next/navigation";
 
-import Error from "@/components/error";
+import { AnimatePresence } from "motion/react";
 
 import * as gql_builder from "gql-query-builder";
 
-import MenuBar from "./components/menubar";
+import MenuBar from "./_components/menubar";
+import EventCard from "./_components/event-card";
+
+import Error from "@/components/error";
 
 import styles from "./page.module.css";
 
 import requester from "@/gql/requester";
 import type { T_Event, T_User } from "@/gql/types";
 
-import lib_error from "@/modules/error";
-
 export default async function Page() {
-  let me: T_User = null;
+  let data: { me: T_User } = { me: null };
 
   try {
-    me = (
-      await requester.request({
-        data: gql_builder.query({
-          operation: "me",
-          fields: [
-            "displayName",
-            "avatar",
-            "platformRole",
-            {
-              events: [
-                "eventId",
-                "name",
-                "description",
-                "isDraft",
-                "isArchived",
-                {
-                  hostMember: ["displayNameAlt"],
-                },
-              ],
-              myEvents: [
-                "eventId",
-                "name",
-                "description",
-                "isDraft",
-                "isArchived",
-                {
-                  hostMember: ["displayNameAlt"],
-                },
-              ],
-            },
-          ],
-        }),
-        withAuth: true,
-      })
-    ).me as T_User;
+    data = await requester.request({
+      data: gql_builder.query({
+        operation: "me",
+        fields: [
+          "displayName",
+          "avatar",
+          "platformRole",
+          {
+            events: [
+              "eventId",
+              "name",
+              "description",
+              "isDraft",
+              "isArchived",
+              {
+                hostMember: ["displayNameAlt"],
+                myMembership: ["eventRole"],
+              },
+            ],
+            myEvents: [
+              "eventId",
+              "name",
+              "description",
+              "isDraft",
+              "isArchived",
+              {
+                hostMember: ["displayNameAlt"],
+                myMembership: ["eventRole"],
+              },
+            ],
+          },
+        ],
+      }),
+      withAuth: true,
+    });
   } catch (error: any) {
-    console.error(`[/app] Error fetching data`, error);
+    console.error(`[/app/me] Error fetching data`, error);
 
     if ("redirect" in error) {
       return redirect(error.redirect);
@@ -75,8 +76,10 @@ export default async function Page() {
     }
   }
 
-  const activeEvents = me.events.filter((event: T_Event) => !event.isArchived);
-  const myPublishedEvents = me.myEvents.filter(
+  const activeEvents = data.me.events.filter(
+    (event: T_Event) => !event.isArchived
+  );
+  const myPublishedEvents = data.me.myEvents.filter(
     (event: T_Event) => !event.isDraft
   );
 
@@ -84,17 +87,29 @@ export default async function Page() {
 
   return (
     <div className={styles.pageWrapper}>
-      <MenuBar me={me} />
+      <MenuBar me={data.me} />
       <main className={styles.mainContainer}>
-        {activeEventsCount === 0 && (
-          <div className={styles.emptyState}>
-            <p>No upcoming events found</p>
-          </div>
+        {activeEventsCount > 0 && (
+          <h1 className={styles.pageTitle}>
+            {activeEventsCount} event{activeEventsCount === 1 ? "" : "s"}
+          </h1>
         )}
+
         {activeEventsCount > 0 && (
           <div className={styles.eventsContainer}>
-            <h2>{activeEventsCount} events</h2>
+            <AnimatePresence>
+              {myPublishedEvents.map((event: T_Event) => (
+                <EventCard key={event.eventId} event={event} />
+              ))}
+              {activeEvents.map((event: T_Event) => (
+                <EventCard key={event.eventId} event={event} />
+              ))}
+            </AnimatePresence>
           </div>
+        )}
+
+        {activeEventsCount === 0 && (
+          <h1 className={styles.pageMiddleText}>No upcoming events found</h1>
         )}
       </main>
     </div>

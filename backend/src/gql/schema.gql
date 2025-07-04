@@ -70,7 +70,8 @@ type Event {
 
   memberships: [EventMembership!]!
 
-  myMembership(eventId: UUID!): EventMembership
+  myMembership(eventId: UUID): EventMembership
+  # myMembership: EventMembership
 }
 
 type EventMembership {

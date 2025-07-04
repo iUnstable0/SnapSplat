@@ -1,0 +1,100 @@
+import { redirect } from "next/navigation";
+
+import EventBanner from "./_component/event-banner";
+
+import Error from "@/components/error";
+
+import * as gql_builder from "gql-query-builder";
+import requester from "@/gql/requester";
+import type { T_User, T_Event } from "@/gql/types";
+
+import styles from "./page.module.css";
+
+export default async function Page({
+  params,
+}: {
+  params: { eventId: string };
+}) {
+  const eventId = (await params).eventId;
+
+  let data: { event: T_Event } = { event: null };
+
+  try {
+    data = await requester.request({
+      data: gql_builder.query({
+        operation: "event",
+        fields: [
+          "eventId",
+          "name",
+          "description",
+          "isDraft",
+          "isArchived",
+          {
+            myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
+            // variables: {
+            //   eventId: { value: eventId, type: "UUID", required: true },
+            // },
+          },
+        ],
+        variables: {
+          eventId: { value: eventId, type: "UUID", required: true },
+        },
+      }),
+      withAuth: true,
+    });
+  } catch (error: any) {
+    console.error(`[/app/event/${eventId}] Error fetching data`, error);
+
+    if ("redirect" in error) {
+      return redirect(error.redirect);
+    }
+
+    if ("status" in error) {
+      switch (error.status) {
+        case 400:
+          return (
+            <Error
+              title="Event not found"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
+        case 404:
+          return (
+            <Error
+              title="Event not found"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
+        case 500:
+          console.log(error.errors);
+          return (
+            <Error
+              title="Internal server error"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
+      }
+    }
+
+    return (
+      <Error
+        title="Unexpected error"
+        link={{ label: "Go to home", href: "/app/me" }}
+      />
+    );
+  }
+
+  return (
+    <div className={styles.pageWrapper}>
+      <div className={styles.mainContent}>
+        <EventBanner data={data} />
+
+        <div className={styles.liveFeed}>
+          <div className={styles.liveFeedHeader}>
+            <h1 className={styles.liveFeedTitle}>Live Feed</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

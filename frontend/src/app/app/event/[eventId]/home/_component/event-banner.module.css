@@ -1,0 +1,158 @@
+.eventBannerContainer {
+  /* make width not too big but fill the parent */
+  height: 400px;
+
+  /* background: red; */
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.eventBannerImageSkeleton {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  background-color: var(--sp-skeleton-color);
+}
+
+.eventBannerImageContainer {
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.eventImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.eventBannerBlur {
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 50%;
+
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+}
+
+.eventDetails {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  gap: 32px;
+
+  padding-left: 24px;
+  padding-bottom: 24px;
+  padding-right: 24px;
+
+  width: 100%;
+
+  /* background: blue; */
+}
+
+.eventIconContainer {
+  position: relative;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.eventIconSkeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 128px;
+  height: 128px;
+
+  min-width: 128px;
+  min-height: 128px;
+
+  border-radius: 10px;
+  overflow: hidden;
+
+  background-color: var(--sp-skeleton-color);
+}
+
+.eventIcon {
+  position: relative;
+
+  width: 128px;
+  height: 128px;
+
+  min-width: 128px;
+  min-height: 128px;
+
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.eventIconImage {
+  width: 100%;
+  height: 100%;
+}
+
+.eventTitleContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  width: auto;
+
+  /* background: red; */
+}
+
+.eventTitle {
+  font-size: 64px;
+  font-weight: 600;
+  color: #f9f9f9;
+  width: auto;
+}
+
+.eventDescription {
+  font-size: 16px;
+  color: #d4d4d4;
+
+  padding-right: 24px;
+
+  width: 100%;
+  max-width: 600px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  margin-top: -8px;
+
+  /* max 2 lines */
+  /* display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  overflow: hidden; */
+}

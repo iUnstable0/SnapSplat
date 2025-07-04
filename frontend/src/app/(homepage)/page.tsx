@@ -5,7 +5,7 @@ import styles from "./page.module.css";
 
 // import gql from "@/gql";
 
-import EventCard from "./components/event-card";
+import EventCard from "./_components/event-card";
 
 import { InfiniteSlider } from "@/components/ui/mp_infinite-slider";
 

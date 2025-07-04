@@ -113,4 +113,66 @@ export default class mutation_event {
         );
       });
   }
+
+  public static async deleteEvent(args: any) {
+    const [parent, body, context] = args;
+
+    const { captchaToken, eventId } = body;
+
+    if (!captchaToken) {
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captchaToken is missing"
+      );
+    }
+
+    const captchaValid = await lib_captcha.verify(
+      captchaToken,
+      context.request.headers["CF-Connecting-IP"] || null
+    );
+
+    if (!captchaValid) {
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captcha is not valid"
+      );
+    }
+
+    if (!eventId) {
+      throw lib_error.bad_request("Missing required fields", "missing eventId");
+    }
+
+    // So many ways to check
+    // Either get the event and check the hostUserId
+    // Get the user events and check the hostUserId
+    // Etc
+    // Sob
+
+    const event = await prisma.event.findUnique({
+      where: {
+        eventId: eventId,
+      },
+    });
+
+    if (!event) {
+      throw lib_error.not_found("Event not found", "eventId not found");
+    }
+
+    if (event.hostUserId !== context.user.userId) {
+      throw lib_error.forbidden("Forbidden", "not the host");
+    }
+
+    if (!event.isDraft && !event.isArchived) {
+      throw lib_error.bad_request(
+        "Published events must be archived first",
+        "event is not a draft or archived"
+      );
+    }
+
+    return await prisma.event.delete({
+      where: {
+        eventId: eventId,
+      },
+    });
+  }
 }

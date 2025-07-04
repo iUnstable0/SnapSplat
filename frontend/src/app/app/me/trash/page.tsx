@@ -1,55 +1,129 @@
-import Navbar from "../components/navbar";
+import * as gql_builder from "gql-query-builder";
+import { DateTime } from "luxon";
+import { AnimatePresence } from "motion/react";
+
+import MenuBar from "../_components/menubar";
+import EventCard from "../_components/event-card";
 
 import styles from "../page.module.css";
 
-import { DateTime } from "luxon";
+import requester from "@/gql/requester";
 
-import gql from "@/gql";
+import type { T_Event, T_User } from "@/gql/types";
 
-import type { T_User } from "@/gql/types";
-
-import lib_error from "@/modules/error";
+import { redirect } from "next/navigation";
+import Error from "@/components/error";
 
 export default async function Page() {
-  let user: T_User | null = null;
+  let me: T_User | null = null;
 
   try {
-    user = (await gql.query.user()).user;
+    me = (
+      await requester.request({
+        data: gql_builder.query({
+          operation: "me",
+          fields: [
+            "displayName",
+            "avatar",
+            "platformRole",
+            {
+              events: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                "startsAt",
+                "endsAt",
+                {
+                  hostMember: ["displayNameAlt"],
+                  myMembership: ["eventRole"],
+                },
+              ],
+              myEvents: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                "startsAt",
+                "endsAt",
+                {
+                  hostMember: ["displayNameAlt"],
+                  myMembership: ["eventRole"],
+                },
+              ],
+            },
+          ],
+        }),
+        withAuth: true,
+      })
+    ).me as T_User;
   } catch (error: any) {
-    console.error(`[/app] Error fetching user data`, error);
+    console.error(`[/app/me/trash] Error fetching data`, error);
 
-    if ("gql" in error) {
-      if (error.gql) {
-        return lib_error.unauthorized(
-          "client",
-          "Unauthorized",
-          `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
-        );
-      }
-
-      return lib_error.unauthorized(
-        "client",
-        "Unauthorized",
-        `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
-      );
+    if ("redirect" in error) {
+      return redirect(error.redirect);
     }
 
-    return lib_error.unauthorized(
-      "client",
-      "Unauthorized",
-      `unexpected error: ${JSON.stringify(error)}`
-    );
+    if ("status" in error) {
+      switch (error.status) {
+        case 500:
+          console.log(error.errors);
+          return <Error title="Internal server error" />;
+      }
+
+      return (
+        <Error
+          title="Unexpected error"
+          link={{ label: "Go to home", href: "/app/me" }}
+        />
+      );
+    }
   }
 
-  // get user timezone
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const pastEvents = me.events.filter(
+    (event: T_Event) =>
+      !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
+  );
+
+  const myPastEvents = me.myEvents.filter(
+    (event: T_Event) =>
+      !event.isArchived && DateTime.fromISO(event.endsAt) < DateTime.now()
+  );
+
+  const pastEventsCount = pastEvents.length + myPastEvents.length;
 
   return (
     <div className={styles.pageWrapper}>
+      <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        {DateTime.now()
-          .setZone(timezone)
-          .toLocaleString(DateTime.DATETIME_FULL)}
+        {/* {pastEventsCount > 0 && (
+          <h1 className={styles.pageTitle}>
+            {pastEventsCount} event{pastEventsCount === 1 ? "" : "s"}
+          </h1>
+        )}
+
+        {pastEventsCount > 0 && (
+          <div className={styles.eventsContainer}>
+            <AnimatePresence>
+              {myPastEvents.map((event: T_Event) => (
+                <EventCard key={event.eventId} event={event} />
+              ))}
+              {pastEvents.map((event: T_Event) => (
+                <EventCard key={event.eventId} event={event} />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {pastEventsCount === 0 && (
+          <h1 className={styles.pageMiddleText}>
+            No recently deleted events found
+          </h1>
+        )} */}
+
+        <h1 className={styles.pageMiddleText}>Under construction</h1>
       </main>
     </div>
   );

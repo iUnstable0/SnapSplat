@@ -6,6 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useState, createContext, useContext } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 // import { IconMenu2, IconX } from "@tabler/icons-react";
 
@@ -16,6 +17,7 @@ import styles from "./ace_sidebar.module.css";
 interface Links {
   label: string;
   href: string;
+  onClick?: () => void;
   avatar?: boolean;
   icon: React.JSX.Element | React.ReactNode;
 }
@@ -213,11 +215,22 @@ export const SidebarLink = ({
   link: Links;
   className?: string;
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { open, animate } = useSidebar();
+
+  const pathDirec = `/${pathname.split("/")[4] ?? ""}`;
+  const rootPath = pathname.split("/").slice(0, 4).join("/");
+
   return (
-    <Link
-      href={info.href}
-      className={clsx(styles.sidebarLink, className)}
+    <div
+      onClick={info.onClick}
+      className={clsx(
+        styles.sidebarLink,
+        className,
+        pathDirec === info.href &&
+          (open ? styles.sidebarLinkFull_active : styles.sidebarLink_active)
+      )}
       {...props}
     >
       {info.avatar && info.icon}
@@ -245,6 +258,6 @@ export const SidebarLink = ({
       </span>
       {/* </motion.span> */}
       {/* )} */}
-    </Link>
+    </div>
   );
 };

@@ -19,12 +19,12 @@ export const Z_Event: z.ZodType<any> = z.lazy(() =>
 
     createdAt: z.date(),
 
-    hostMember: Z_EventMembership,
-    hostUser: Z_User,
+    hostMember: z.promise(Z_EventMembership),
+    hostUser: z.promise(Z_User),
 
-    memberships: z.array(Z_EventMembership),
+    memberships: z.array(z.promise(Z_EventMembership)),
 
-    myMembership: Z_EventMembership,
+    myMembership: z.promise(Z_EventMembership),
   })
 );
 
@@ -40,7 +40,7 @@ export const Z_User: z.ZodType<any> = z.lazy(() =>
     platformRole: z.enum(["SUPER_ADMIN", "ADMIN", "USER"]),
 
     events: z.array(z.promise(Z_Event)),
-    myEvents: z.array(Z_Event),
+    myEvents: z.array(z.promise(Z_Event)),
   })
 );
 
@@ -59,7 +59,7 @@ export const Z_EventMembership: z.ZodType<any> = z.lazy(() =>
     joinedAt: z.date(),
     isApproved: z.boolean(),
 
-    user: Z_User,
+    user: z.promise(Z_User),
   })
 );
 

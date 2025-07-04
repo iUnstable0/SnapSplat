@@ -42,7 +42,7 @@ export default class query_event {
       );
     }
 
-    console.log(event);
+    // console.log(event);
 
     return event;
   }
@@ -124,8 +124,16 @@ export default class query_event {
     return memberships;
   }
 
-  public static async getMyMembership(args: any, context: any) {
-    const eventId = args.eventId;
+  public static async getMyMembership(args: any) {
+    const [parent, body, context] = args;
+
+    let eventId = null;
+
+    if (parent) {
+      eventId = parent.eventId;
+    } else {
+      eventId = body.eventId;
+    }
 
     if (!eventId) {
       throw lib_error.bad_request(
