@@ -374,8 +374,10 @@
   flex-shrink: 0;
   margin-left: 4px;
 
-  min-width: 28px;
-  min-height: 28px;
+  min-width: 24px;
+  min-height: 24px;
+
+  border-radius: 6px;
 }
 
 .logoText {

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
-import Sidebar from "./components/sidebar";
+import Sidebar from "./_components/sidebar";
 
-import styles from "./page.module.css";
+import styles from "./layout.module.css";
 
 import Error from "@/components/error";
 
@@ -13,25 +13,30 @@ import type { T_User, T_Event } from "@/gql/types";
 
 export default async function Page({
   params,
+  children,
 }: {
   params: { eventId: string };
+  children: React.ReactNode;
 }) {
   const eventId = (await params).eventId;
 
-  let data: { me: T_User; event: T_Event } = { me: null, event: null };
+  let data: { event: T_Event } = { event: null };
 
   try {
-    data = (await requester.request({
+    data = await requester.request({
       data: gql_builder.query({
         operation: "event",
         fields: [
+          "eventId",
           "name",
+          "description",
+          "isDraft",
+          "isArchived",
           {
-            operation: "myMembership",
-            fields: ["eventRole", "displayNameAlt", "avatarAlt"],
-            variables: {
-              eventId: { value: eventId, type: "UUID", required: true },
-            },
+            myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
+            // variables: {
+            //   eventId: { value: eventId, type: "UUID", required: true },
+            // },
           },
         ],
         variables: {
@@ -39,7 +44,7 @@ export default async function Page({
         },
       }),
       withAuth: true,
-    })) as { me: T_User; event: T_Event };
+    });
   } catch (error: any) {
     console.error(`[/app/event/${eventId}] Error fetching data`, error);
 
@@ -85,15 +90,7 @@ export default async function Page({
   return (
     <div className={styles.pageWrapper}>
       <main className={styles.mainContainer}>
-        <Sidebar data={data}>
-          <h1>Hello world! {JSON.stringify(data?.me)}</h1>
-
-          <div style={{ padding: 32, fontSize: 24 }}>
-            <p>
-              Event ID: <strong>{eventId}</strong>
-            </p>
-          </div>
-        </Sidebar>
+        <Sidebar data={data}>{children}</Sidebar>
       </main>
     </div>
   );

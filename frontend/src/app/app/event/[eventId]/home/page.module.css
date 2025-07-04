@@ -1,0 +1,26 @@
+.pageWrapper {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.liveFeed {
+  display: flex;
+}
+
+.liveFeedHeader {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.liveFeedTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+}

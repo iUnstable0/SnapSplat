@@ -11,12 +11,28 @@
 
   background-color: #0000001a;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   transition: all 0.2s ease-in-out;
 }
 
 .buttonKeybindIcon {
   width: 18px;
   height: 18px;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.buttonKeybindText {
+  font-size: 14px;
+  font-weight: 500;
+  /* color: #1d1d1d; */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   transition: all 0.2s ease-in-out;
 }

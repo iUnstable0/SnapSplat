@@ -23,6 +23,18 @@ export default class lib_error {
     );
   }
 
+  public static forbidden(normal?: string, dev?: string) {
+    return new GraphQLError(
+      lib_error.parseMessage(normal ? normal : "Forbidden", dev),
+      {
+        extensions: {
+          code: "FORBIDDEN",
+          http: { status: 403 },
+        },
+      }
+    );
+  }
+
   public static bad_request(normal?: string, dev?: string) {
     return new GraphQLError(
       lib_error.parseMessage(normal ? normal : "Bad Request", dev),

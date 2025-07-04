@@ -27,6 +27,17 @@
   scale: 1.02;
 } */
 
+.eventImageSkeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: var(--sp-skeleton-color);
+}
+
 .eventImage {
   position: absolute;
   top: 0;
@@ -71,13 +82,13 @@
 .eventTitle {
   font-size: 24px;
   font-weight: 500;
-  color: white;
+  color: #f9f9f9;
 }
 
 .eventDescription {
   font-size: 16px;
   font-weight: 400;
-  color: white;
+  color: #f9f9f9;
 
   /* add overflow ellipsis to the event description */
   max-width: 100%;
@@ -97,7 +108,7 @@
 
   backdrop-filter: blur(8px);
 
-  /* background: red; */
+  background: rgba(0, 0, 0, 0.5);
 
   transition: all 0.2s ease-in-out;
 

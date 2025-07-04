@@ -3,14 +3,23 @@
 import { useState, useEffect } from "react";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import clsx from "clsx";
 import { motion, AnimatePresence } from "motion/react";
-import { FolderOpen, LayoutDashboard, Trash2 } from "lucide-react";
+import {
+  FolderOpen,
+  LayoutDashboard,
+  LogOut,
+  Trash2,
+  Wrench,
+} from "lucide-react";
+
+import deleteEvent from "@/actions/event/deleteEvent";
 
 import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 import Keybind, { T_Keybind } from "@/components/keybind";
+import Spinner from "@/components/spinner";
 
 import { useBlurContext } from "./blur-context";
 
@@ -18,12 +27,18 @@ import styles from "./event-card.module.css";
 
 import type { T_Event } from "@/gql/types";
 import { Magnetic } from "@/components/ui/mp_magnetic";
+import { TextMorph } from "@/components/ui/mp_text-morph";
+
+import lib_role from "@/modules/role";
+import { Skeleton } from "@/components/ui/scn_skeleton";
 
 export default function EventCard({ event }: { event: T_Event }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { isBlurred } = useBlurContext();
 
+  const [isLoaded, setIsLoaded] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -37,25 +52,72 @@ export default function EventCard({ event }: { event: T_Event }) {
     }
   }, [overlayOpen]);
 
+  // const rootPath = pathname.split("/").slice(0, 4).join("/");
+
   const menuItems = [
     {
       label: "Open",
       dangerous: false,
       icon: <FolderOpen />,
       onClick: () => {
-        router.push(`/app/event/${event.eventId}`);
+        router.push(
+          `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`
+        );
       },
       keybinds: [T_Keybind.enter],
     },
-    {
-      label: "Delete",
-      dangerous: true,
-      icon: <Trash2 />,
-      onClick: () => {
-        alert("delete");
-      },
-      keybinds: [T_Keybind.shift, T_Keybind.backspace],
-    },
+
+    // COHOST & HOST
+    ...(lib_role.event_hasRole(event.myMembership, "COHOST")
+      ? [
+          {
+            label: "Manage",
+            dangerous: false,
+            icon: <Wrench />,
+            onClick: () => {
+              // router.push(
+              //   `/app/event/${event.eventId}/manage?back=${encodeURIComponent(
+              //     pathname
+              //   )}`
+              // );
+              alert("manage event");
+            },
+            keybinds: [T_Keybind.shift, T_Keybind.m],
+          },
+        ]
+      : []),
+
+    // NOT HOST
+    ...(!lib_role.event_hasRole(event.myMembership, "HOST")
+      ? [
+          {
+            label: "Leave",
+            dangerous: true,
+            icon: <LogOut />,
+            onClick: () => {
+              alert("leave event");
+            },
+            keybinds: [T_Keybind.shift, T_Keybind.backspace],
+          },
+        ]
+      : []),
+
+    // HOST
+    ...(lib_role.event_hasRole(event.myMembership, "HOST")
+      ? [
+          {
+            label: "Delete",
+            dangerous: true,
+            icon: <Trash2 />,
+            onClick: async () => {
+              // alert("delete event");
+              await deleteEvent("123", event.eventId);
+              router.refresh();
+            },
+            keybinds: [T_Keybind.shift, T_Keybind.backspace],
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -81,16 +143,35 @@ export default function EventCard({ event }: { event: T_Event }) {
       layout="position"
       layoutId={event.eventId}
     >
-      <Image
-        src={`https://picsum.photos/seed/${encodeURIComponent(
-          event.name
-        )}-${event.eventId}/420/300`}
-        alt={event.name}
-        width={420}
-        height={300}
-        objectFit="cover"
-        className={styles.eventImage}
-      />
+      <AnimatePresence>
+        {!isLoaded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Skeleton className={styles.eventImageSkeleton} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        className={styles.eventImageContainer}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Image
+          src={`https://picsum.photos/seed/eventBanner-${event.eventId}/420/300`}
+          alt={event.name}
+          width={420}
+          height={300}
+          className={styles.eventImage}
+          onLoad={() => {
+            setIsLoaded(true);
+          }}
+        />
+      </motion.div>
 
       <div
         className={styles.eventCardBlurOverlay}

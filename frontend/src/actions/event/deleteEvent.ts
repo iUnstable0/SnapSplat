@@ -1,32 +1,19 @@
 "use server";
 
+import * as z from "zod/v4";
+
 import * as gql_builder from "gql-query-builder";
 
 import requester from "@/gql/requester";
 
-import { Z_EventName, Z_EventDescription } from "@/modules/parser";
-
-export default async function createEvent(
+export default async function deleteEvent(
   captchaToken: string,
-  eventName: string,
-  eventDescription: string
+  eventId: string
 ): Promise<any> {
-  console.log("received data", captchaToken, eventName, eventDescription);
-
-  const eventNameResult = Z_EventName.safeParse(eventName);
-  const descriptionResult = Z_EventDescription.safeParse(eventDescription);
-
-  if (!eventNameResult.success) {
+  if (!z.uuidv4().safeParse(eventId).success) {
     return {
       success: false,
-      message: "Invalid event name",
-    };
-  }
-
-  if (!descriptionResult.success) {
-    return {
-      success: false,
-      message: "Invalid description",
+      message: "Invalid eventId",
     };
   }
 
@@ -36,20 +23,16 @@ export default async function createEvent(
     result = (
       await requester.request({
         data: gql_builder.mutation({
-          operation: "createEvent",
-          fields: ["eventId"],
+          operation: "deleteEvent",
+          //   fields: ["eventId"],
           variables: {
             captchaToken: {
               value: "123",
               required: true,
             },
-            name: {
-              value: eventNameResult.data,
+            eventId: {
+              value: eventId,
               required: true,
-            },
-            description: {
-              value: descriptionResult.data,
-              required: false,
             },
           },
         }),
@@ -57,7 +40,7 @@ export default async function createEvent(
       })
     ).createEvent;
   } catch (error) {
-    console.error("Create event query failed:", error);
+    console.error("Delete event query failed:", error);
 
     return {
       success: false,
@@ -67,7 +50,7 @@ export default async function createEvent(
 
   return {
     success: true,
-    message: "Event created successfully",
+    message: "Event deleted successfully",
     data: result,
   };
 

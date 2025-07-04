@@ -15,11 +15,17 @@ import stylesDark from "./keybind-dark.module.css";
 
 import { Magnetic } from "./ui/mp_magnetic";
 
+const letters = "abcdefghijklmnopqrstuvwxyz.";
+
 export enum T_Keybind {
   shift = "shift",
   enter = "enter",
   escape = "escape",
   backspace = "backspace",
+  m = "m",
+  p = "p",
+  e = "e",
+  period = ".",
 }
 
 export default function Keybind({
@@ -159,6 +165,11 @@ export default function Keybind({
           )}
           {keybind === T_Keybind.backspace && (
             <Delete className={clsx(styles.buttonKeybindIcon, className)} />
+          )}
+          {letters.includes(keybind) && (
+            <span className={clsx(styles.buttonKeybindText, className)}>
+              {keybind.toString()}
+            </span>
           )}
         </div>
       ))}
