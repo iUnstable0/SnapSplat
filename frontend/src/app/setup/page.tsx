@@ -1,5 +1,7 @@
 import { redirect, RedirectType } from "next/navigation";
 
+import { cookies } from "next/headers";
+
 import * as gql_builder from "gql-query-builder";
 
 import setup from "@/actions/user/register";
@@ -11,16 +13,24 @@ import requester from "@/gql/requester";
 import type { T_Platform } from "@/gql/types";
 
 export default async function Page() {
+  const cookieStore = await cookies();
+
   let platform: T_Platform | null = null;
 
   try {
     platform = (
-      await requester.request({
-        data: gql_builder.query({
-          operation: "platform",
-          fields: ["isSetupCompleted"],
-        }),
-      })
+      await requester.request(
+        {
+          data: gql_builder.query({
+            operation: "platform",
+            fields: ["isSetupCompleted"],
+          }),
+        },
+        // We dont need token here
+        // but if i dont useCOokie then nextJS
+        // thinks its a static page which is not good
+        cookieStore.get("token")?.value
+      )
     ).platform;
   } catch (error: any) {
     console.error(`[/setup] Error fetching platform`, error);
