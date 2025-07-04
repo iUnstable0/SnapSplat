@@ -25,10 +25,17 @@ export default {
 
   Query: {
     hello: () => "Hi!",
-    me: (...args: argsType) =>
-      query_user.getAuthenticatedInfo(args[1], args[2]),
+    me: (...args: argsType) => {
+      console.log("me query");
+
+      return query_user.getAuthenticatedInfo(args[1], args[2]);
+    },
     platform: (...args: argsType) => query_platform.getInfo(),
-    event: (...args: argsType) => query_event.getInfo(args[1], args[2]),
+    event: (...args: argsType) => {
+      console.log("event query");
+
+      return query_event.getInfo(args[1], args[2]);
+    },
   },
   Mutation: {
     register: (...args: argsType) => mutation_user.register(args[1], args[2]),
@@ -37,8 +44,26 @@ export default {
     createEvent: (...args: argsType) =>
       mutation_event.createEvent(args[1], args[2]),
   },
+  User: {
+    events: (...args: argsType) => {
+      console.log("user resolver events query");
+
+      return query_user.getEvents(args);
+    },
+    myEvents: (...args: argsType) => {
+      console.log("user resolver myEvents query");
+
+      return query_user.getMyEvents(args);
+    },
+  },
   Event: {
-    host: (...args: argsType) => query_event.getHost(args[1]),
+    hostMember: (...args: argsType) => {
+      console.log("event resolver hostMember query");
+
+      // console.log(args[0]);
+
+      return query_event.getHostMember(args);
+    },
     memberships: (...args: argsType) => query_event.getMemberships(args[1]),
     myMembership: (...args: argsType) =>
       query_event.getMyMembership(args[1], args[2]),

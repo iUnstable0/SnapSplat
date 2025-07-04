@@ -1,20 +1,46 @@
-import Navbar from "../components/navbar";
+import * as gql_builder from "gql-query-builder";
 
-import styles from "./page.module.css";
+import MenuBar from "../components/menubar";
+import EventCard from "../components/event-card";
 
-import { DateTime } from "luxon";
+import styles from "../page.module.css";
 
-import gql from "@/gql";
+import requester from "@/gql/requester";
 
-import type { T_User } from "@/gql/types";
+import type { T_Event, T_User } from "@/gql/types";
 
 import lib_error from "@/modules/error";
+import { AnimatePresence } from "motion/react";
 
 export default async function Page() {
-  let user: T_User | null = null;
+  let me: T_User | null = null;
 
   try {
-    user = (await gql.query.user()).user;
+    me = (
+      await requester.request({
+        data: gql_builder.query({
+          operation: "me",
+          fields: [
+            "displayName",
+            "avatar",
+            "platformRole",
+            {
+              myEvents: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                {
+                  hostMember: ["displayNameAlt"],
+                },
+              ],
+            },
+          ],
+        }),
+        withAuth: true,
+      })
+    ).me as T_User;
   } catch (error: any) {
     console.error(`[/app] Error fetching user data`, error);
 
@@ -41,15 +67,31 @@ export default async function Page() {
     );
   }
 
-  // get user timezone
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const myDrafts = me.myEvents.filter(
+    (event: T_Event) => event.isDraft === true
+  );
+
+  const myDraftsCount = myDrafts.length;
 
   return (
     <div className={styles.pageWrapper}>
+      <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        {DateTime.now()
-          .setZone(timezone)
-          .toLocaleString(DateTime.DATETIME_FULL)}
+        <h1 className={styles.pageTitle}>
+          {myDraftsCount > 0
+            ? `${myDraftsCount} draft${myDraftsCount === 1 ? "" : "s"} found`
+            : "No drafts found"}
+        </h1>
+
+        {myDraftsCount > 0 && (
+          <div className={styles.eventsContainer}>
+            <AnimatePresence>
+              {myDrafts.map((event: T_Event) => (
+                <EventCard key={event.eventId} event={event} />
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
       </main>
     </div>
   );

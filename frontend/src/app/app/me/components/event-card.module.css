@@ -1,0 +1,195 @@
+.eventCard {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  justify-content: flex-end;
+  align-items: flex-start;
+
+  gap: 16px;
+
+  width: 420px;
+  height: 300px;
+
+  border-radius: 28px;
+
+  overflow: hidden;
+
+  background: linear-gradient(
+    to bottom,
+    var(--sp-background-color),
+    transparent
+  );
+
+  /* background: blue; */
+}
+
+/* .eventCard:hover {
+  scale: 1.02;
+} */
+
+.eventImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  opacity: 0.9;
+
+  width: 100%;
+  height: 100%;
+}
+
+.eventTitleBlur {
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 50%;
+
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.5));
+}
+
+.eventDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+
+  gap: 8px;
+
+  padding-left: 24px;
+  padding-bottom: 24px;
+  padding-right: 24px;
+
+  width: 100%;
+
+  z-index: 0;
+}
+
+.eventTitle {
+  font-size: 24px;
+  font-weight: 500;
+  color: white;
+}
+
+.eventDescription {
+  font-size: 16px;
+  font-weight: 400;
+  color: white;
+
+  /* add overflow ellipsis to the event description */
+  max-width: 100%;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventCardBlurOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  backdrop-filter: blur(8px);
+
+  /* background: red; */
+
+  transition: all 0.2s ease-in-out;
+
+  /* z-index: 1; */
+}
+
+.eventCardMenu {
+  /* background: transparent; */
+
+  position: relative;
+  top: 0;
+  left: 0;
+
+  /* set in middle */
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1;
+
+  gap: 16px;
+}
+
+.eventCardMenuButton {
+  /* centered */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  user-select: none;
+
+  /* shift to the left a bit */
+  transform: translateX(-16px) !important;
+
+  /* background: red; */
+}
+
+.overlayMagnet {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  color: #ffffff;
+
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.overlayMagnet:hover {
+  cursor: pointer;
+
+  scale: 1.1 !important;
+
+  .overlayButtonText {
+    text-shadow: 0 0 10px #f9f9f997;
+  }
+
+  .overlayButtonIcon {
+    filter: drop-shadow(0 0 10px #f9f9f997);
+  }
+}
+
+.overlayMagnetDangerous {
+  color: var(--sp-dangerous-color);
+}
+
+.overlayMagnetDangerous:hover {
+  .overlayButtonText {
+    text-shadow: 0 0 10px var(--sp-dangerous-color-shadow);
+  }
+
+  .overlayButtonIcon {
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color-shadow));
+  }
+}
+
+.overlayMagnet:active {
+  scale: 1.05 !important;
+}
+
+.overlayButtonIcon {
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.overlayButtonText {
+  font-size: 20px;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}

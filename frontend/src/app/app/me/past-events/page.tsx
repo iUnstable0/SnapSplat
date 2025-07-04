@@ -1,20 +1,60 @@
-import Navbar from "../components/navbar";
+import * as gql_builder from "gql-query-builder";
 
-import styles from "./page.module.css";
+import MenuBar from "../components/menubar";
 
-import { DateTime } from "luxon";
+import styles from "../page.module.css";
 
-import gql from "@/gql";
+import requester from "@/gql/requester";
 
-import type { T_User } from "@/gql/types";
+import type { T_Event, T_User } from "@/gql/types";
 
 import lib_error from "@/modules/error";
+import Link from "next/link";
+import { DateTime } from "luxon";
 
 export default async function Page() {
-  let user: T_User | null = null;
+  let me: T_User | null = null;
 
   try {
-    user = (await gql.query.user()).user;
+    me = (
+      await requester.request({
+        data: gql_builder.query({
+          operation: "me",
+          fields: [
+            "displayName",
+            "avatar",
+            "platformRole",
+            {
+              events: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                "startsAt",
+                "endsAt",
+                {
+                  hostMember: ["displayNameAlt"],
+                },
+              ],
+              myEvents: [
+                "eventId",
+                "name",
+                "description",
+                "isDraft",
+                "isArchived",
+                "startsAt",
+                "endsAt",
+                {
+                  hostMember: ["displayNameAlt"],
+                },
+              ],
+            },
+          ],
+        }),
+        withAuth: true,
+      })
+    ).me as T_User;
   } catch (error: any) {
     console.error(`[/app] Error fetching user data`, error);
 
@@ -41,15 +81,32 @@ export default async function Page() {
     );
   }
 
-  // get user timezone
-  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const pastEvents = me.events.filter(
+    (event: T_Event) =>
+      event.isArchived || DateTime.fromISO(event.endsAt) < DateTime.now()
+  );
+
+  const myPastEvents = me.myEvents.filter(
+    (event: T_Event) =>
+      event.isArchived || DateTime.fromISO(event.endsAt) < DateTime.now()
+  );
+
+  const pastEventsCount = pastEvents.length + myPastEvents.length;
 
   return (
     <div className={styles.pageWrapper}>
+      <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        {DateTime.now()
-          .setZone(timezone)
-          .toLocaleString(DateTime.DATETIME_FULL)}
+        {pastEventsCount === 0 && (
+          <div className={styles.emptyState}>
+            <p>No past events found</p>
+          </div>
+        )}
+        {pastEventsCount > 0 && (
+          <div className={styles.eventsContainer}>
+            <h2>{pastEventsCount} events</h2>
+          </div>
+        )}
       </main>
     </div>
   );

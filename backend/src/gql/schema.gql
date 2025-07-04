@@ -44,6 +44,9 @@ type User {
   avatar: URL!
   isEmailVerified: Boolean!
   platformRole: PlatformRole!
+
+  events: [Event!]!
+  myEvents: [Event!]!
 }
 
 type Platform {
@@ -62,8 +65,8 @@ type Event {
 
   createdAt: DateTimeISO!
 
-  host: EventMembership!
-  privateHost: User! @auth(requires: ADMIN)
+  hostMember: EventMembership!
+  hostUser: User! @auth(requires: ADMIN)
 
   memberships: [EventMembership!]!
 
@@ -81,6 +84,8 @@ type EventMembership {
 
   joinedAt: DateTimeISO!
   isApproved: Boolean!
+
+  user: User! @auth(requires: ADMIN)
 }
 
 ## Query #########################

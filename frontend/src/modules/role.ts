@@ -1,6 +1,6 @@
-import type { T_User } from "@/gql/types";
+// SHARED WITH FRONTEND!
 
-// SHARED WITH BACKEND!
+import { T_Event, T_User } from "@/gql/types";
 
 const platformRoleHierarchy = {
   SUPER_ADMIN: 2,
@@ -8,23 +8,26 @@ const platformRoleHierarchy = {
   USER: 0,
 };
 
+const eventRoleHierarchy = {
+  HOST: 2,
+  COHOST: 1,
+  ATTENDEE: 0,
+};
+
 export default class lib_role {
-  public static isSuperAdmin(user: T_User) {
+  public static async platform_isSuperAdmin(user: T_User) {
     return user.platformRole === "SUPER_ADMIN";
   }
 
-  public static isAdmin(user: T_User) {
+  public static async platform_isAdmin(user: T_User) {
     return user.platformRole === "ADMIN";
   }
 
-  public static isUser(user: T_User) {
+  public static async platform_isUser(user: T_User) {
     return user.platformRole === "USER";
   }
 
-  public static hasRole(
-    user: T_User,
-    role: keyof typeof platformRoleHierarchy
-  ) {
+  public static async platform_hasRole(user: T_User, role: string) {
     const userPlatformRole =
       user.platformRole as keyof typeof platformRoleHierarchy;
     const requiredPlatformRole = role as keyof typeof platformRoleHierarchy;
@@ -32,6 +35,27 @@ export default class lib_role {
     return (
       platformRoleHierarchy[userPlatformRole] >=
       platformRoleHierarchy[requiredPlatformRole]
+    );
+  }
+
+  public static async event_isHost(event: T_Event) {
+    return event.eventRole === "HOST";
+  }
+
+  public static async event_isCohost(event: T_Event) {
+    return event.eventRole === "COHOST";
+  }
+
+  public static async event_isAttendee(event: T_Event) {
+    return event.eventRole === "ATTENDEE";
+  }
+
+  public static async event_hasRole(event: T_Event, role: string) {
+    const eventRole = event.eventRole as keyof typeof eventRoleHierarchy;
+    const requiredEventRole = role as keyof typeof eventRoleHierarchy;
+
+    return (
+      eventRoleHierarchy[eventRole] >= eventRoleHierarchy[requiredEventRole]
     );
   }
 }

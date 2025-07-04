@@ -1,8 +1,10 @@
+import { redirect } from "next/navigation";
+
 import Sidebar from "./components/sidebar";
 
 import styles from "./page.module.css";
 
-import lib_error from "@/modules/error";
+import Error from "@/components/error";
 
 import * as gql_builder from "gql-query-builder";
 import requester from "@/gql/requester";
@@ -16,7 +18,7 @@ export default async function Page({
 }) {
   const eventId = (await params).eventId;
 
-  let data: { me: T_User; event: T_Event } | null = null;
+  let data: { me: T_User; event: T_Event } = { me: null, event: null };
 
   try {
     data = (await requester.request({
@@ -39,38 +41,52 @@ export default async function Page({
       withAuth: true,
     })) as { me: T_User; event: T_Event };
   } catch (error: any) {
-    console.error(`[/app] Error fetching data`, error);
+    console.error(`[/app/event/${eventId}] Error fetching data`, error);
 
-    if ("gql" in error) {
-      if (error.gql) {
-        return lib_error.unauthorized(
-          "client",
-          "Unauthorized",
-          `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
-        );
-      }
-
-      return lib_error.unauthorized(
-        "client",
-        "Unauthorized",
-        `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
-      );
+    if ("redirect" in error) {
+      return redirect(error.redirect);
     }
 
-    return lib_error.unauthorized(
-      "client",
-      "Unauthorized",
-      `unexpected error: ${JSON.stringify(error)}`
+    if ("status" in error) {
+      switch (error.status) {
+        case 400:
+          return (
+            <Error
+              title="Event not found"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
+        case 404:
+          return (
+            <Error
+              title="Event not found"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
+        case 500:
+          console.log(error.errors);
+          return (
+            <Error
+              title="Internal server error"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
+      }
+    }
+
+    return (
+      <Error
+        title="Unexpected error"
+        link={{ label: "Go to home", href: "/app/me" }}
+      />
     );
   }
-
-  const user = data?.me;
 
   return (
     <div className={styles.pageWrapper}>
       <main className={styles.mainContainer}>
         <Sidebar data={data}>
-          <h1>Hello world! {JSON.stringify(user)}</h1>
+          <h1>Hello world! {JSON.stringify(data?.me)}</h1>
 
           <div style={{ padding: 32, fontSize: 24 }}>
             <p>

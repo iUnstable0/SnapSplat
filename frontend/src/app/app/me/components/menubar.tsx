@@ -10,15 +10,17 @@ import clsx from "clsx";
 
 import { AnimatePresence, motion } from "motion/react";
 
-import Keybind, { T_Keybind } from "@/components/keybind";
+import { useBlurContext } from "./blur-context";
 
 import styles from "./menubar.module.css";
+
+import createEvent from "@/actions/event/createEvent";
 
 import type { T_User } from "@/gql/types";
 
 import { Z_EventName, Z_EventDescription } from "@/modules/parser";
 
-import createEvent from "@/actions/event/createEvent";
+import Keybind, { T_Keybind } from "@/components/keybind";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { TextMorph } from "@/components/ui/mp_text-morph";
@@ -26,6 +28,8 @@ import Spinner from "@/components/spinner";
 
 export default function MenuBar({ me }: { me: T_User }) {
   const router = useRouter();
+
+  const { isBlurred, setIsBlurred } = useBlurContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -38,6 +42,7 @@ export default function MenuBar({ me }: { me: T_User }) {
 
   const eventNameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  // const descriptionRef = useRef<HTMLInputElement>(null);
 
   // const [issues, setIssues] = useState<
   //   {
@@ -78,9 +83,13 @@ export default function MenuBar({ me }: { me: T_User }) {
 
   useEffect(() => {
     if (overlayOpen) {
+      setIsBlurred(true);
+
       setShowForm(false);
       eventNameRef.current?.focus();
     } else {
+      setIsBlurred(false);
+
       setIssues({
         eventName: { success: true, reasons: [] },
         description: { success: true, reasons: [] },
@@ -235,23 +244,32 @@ export default function MenuBar({ me }: { me: T_User }) {
 
     const result = await createEvent("d", eventName!, description!);
 
-    if (!result.success) {
-      setTimeout(() => {
-        setCreateEventDisabled(false);
-      }, 1000);
+    // if (!result.success) {
+    //   setTimeout(() => {
+    //     setCreateEventDisabled(false);
+    //   }, 1000);
 
-      // alert(result.message);
+    //   // alert(result.message);
 
-      return;
-    }
+    //   return;
+    // }
 
-    router.push(`/app/event/${result.data.eventId}`);
+    // router.push(`/app/event/${result.data.eventId}`);
+    // router.push(`/app/me/drafts`);
 
-    // setOverlayOpen(false);
+    setTimeout(() => {
+      setCreateEventDisabled(false);
 
-    // setTimeout(() => {
-    //   setCreateEventDisabled(false);
-    // }, 1000);
+      if (result.success) {
+        setOverlayOpen(false);
+        // router.push(`/app/event/${result.data.eventId}`);
+        router.push(`/app/me/drafts`);
+      }
+    }, 1000);
+
+    // alert(result.message);
+
+    // return;
   };
 
   return (

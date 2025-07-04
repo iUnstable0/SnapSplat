@@ -56,6 +56,7 @@ export const Z_EventName = z
     message: "Event name can't be longer than 50 characters",
   })
   .trim();
+
 export const Z_EventDescription = z
   .string()
   // .min(3, {
