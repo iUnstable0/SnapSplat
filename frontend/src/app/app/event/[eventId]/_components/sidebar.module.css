@@ -1,18 +1,3 @@
-:root {
-  --sp-sidebar-background-color: var(--sp-background-color);
-  --sp-sidebar-item-hover-color: var(--sp-background-color);
-  --sp-sidebar-seperator-shadow-color: #d2d2d7;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* --sp-sidebar-background-color: #1a1a1a; */
-    --sp-sidebar-content-background-color: #1a1a1a;
-    --sp-sidebar-item-hover-color: #252527;
-    --sp-sidebar-seperator-shadow-color: #131313;
-  }
-}
-
 .mainContent {
   padding-top: 10px;
   padding-bottom: 10px;

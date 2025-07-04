@@ -15,10 +15,33 @@ import type { User, Session, SuspendedToken } from "@/generated/prisma";
 import { Z_JWTAuthPayload, Z_RefreshTokenPayload } from "@/modules/parser";
 import type { T_JWTAuthPayload, T_RefreshTokenPayload } from "@/modules/parser";
 
-const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
-const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
+// const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
+// const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
 
 export default class lib_token {
+  private static publicKey: jose.KeyObject | null = null;
+  private static privateKey: jose.KeyObject | null = null;
+
+  private static async getPublicKey() {
+    if (!lib_token.publicKey) {
+      lib_token.publicKey = await jose.importSPKI(
+        process.env.PUBLIC_KEY,
+        "EdDSA"
+      );
+    }
+    return lib_token.publicKey;
+  }
+
+  private static async getPrivateKey() {
+    if (!lib_token.privateKey) {
+      lib_token.privateKey = await jose.importPKCS8(
+        process.env.PRIVATE_KEY,
+        "EdDSA"
+      );
+    }
+    return lib_token.privateKey;
+  }
+
   public static async genAuthTokenWithRefresh(
     userId: string,
     passwordSession: string,
@@ -117,7 +140,7 @@ export default class lib_token {
       .setExpirationTime("2h")
       .setJti(jti)
       // .setJti(crypto.randomUUID())
-      .sign(privateKey);
+      .sign(await lib_token.getPrivateKey());
   }
 
   public static extractRefreshToken(refreshToken: string): {
@@ -285,7 +308,7 @@ export default class lib_token {
       }: {
         payload: T_JWTAuthPayload;
         // protectedHeader: jose.ProtectedHeaderParameters;
-      } = await jose.jwtVerify(token, publicKey, {
+      } = await jose.jwtVerify(token, await lib_token.getPublicKey(), {
         audience: "auth",
       });
 

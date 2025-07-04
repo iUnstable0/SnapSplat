@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import clsx from "clsx";
 
@@ -43,7 +43,7 @@ import lib_role from "@/modules/role";
 
 import styles from "./sidebar.module.css";
 
-import { T_User, T_Event } from "@/gql/types";
+import { T_Event } from "@/gql/types";
 import Keybind, { T_Keybind } from "@/components/keybind";
 
 export default function Sidebar({

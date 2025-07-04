@@ -9,7 +9,9 @@ import Error from "@/components/error";
 import * as gql_builder from "gql-query-builder";
 import requester from "@/gql/requester";
 
-import type { T_User, T_Event } from "@/gql/types";
+import type { T_Event } from "@/gql/types";
+
+import { cookies } from "next/headers";
 
 export default async function Page({
   params,
@@ -18,33 +20,38 @@ export default async function Page({
   params: { eventId: string };
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+
   const eventId = (await params).eventId;
 
   let data: { event: T_Event } = { event: null };
 
   try {
-    data = await requester.request({
-      data: gql_builder.query({
-        operation: "event",
-        fields: [
-          "eventId",
-          "name",
-          "description",
-          "isDraft",
-          "isArchived",
-          {
-            myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
-            // variables: {
-            //   eventId: { value: eventId, type: "UUID", required: true },
-            // },
+    data = await requester.request(
+      {
+        data: gql_builder.query({
+          operation: "event",
+          fields: [
+            "eventId",
+            "name",
+            "description",
+            "isDraft",
+            "isArchived",
+            {
+              myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
+              // variables: {
+              //   eventId: { value: eventId, type: "UUID", required: true },
+              // },
+            },
+          ],
+          variables: {
+            eventId: { value: eventId, type: "UUID", required: true },
           },
-        ],
-        variables: {
-          eventId: { value: eventId, type: "UUID", required: true },
-        },
-      }),
-      withAuth: true,
-    });
+        }),
+        withAuth: true,
+      },
+      cookieStore.get("token")?.value
+    );
   } catch (error: any) {
     console.error(`[/app/event/${eventId}] Error fetching data`, error);
 

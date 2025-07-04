@@ -1,14 +1,9 @@
 "use client";
 
-// import Image from "next/image";
-import Link from "next/link";
-
-import { cn } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useState, createContext, useContext } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-// import { IconMenu2, IconX } from "@tabler/icons-react";
 
 import { Menu, X } from "lucide-react";
 
@@ -46,8 +41,8 @@ export const SidebarProvider = ({
   children,
   open: openProp,
   setOpen: setOpenProp,
-  eventMenuOpen,
-  setEventMenuOpen,
+  eventMenuOpen: eventMenuOpenProp,
+  setEventMenuOpen: setEventMenuOpenProp,
   animate = true,
 }: {
   children: React.ReactNode;
@@ -61,6 +56,11 @@ export const SidebarProvider = ({
 
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
+
+  const eventMenuOpen =
+    eventMenuOpenProp !== undefined ? eventMenuOpenProp : false;
+  const setEventMenuOpen =
+    setEventMenuOpenProp !== undefined ? setEventMenuOpenProp : () => {};
 
   return (
     <SidebarContext.Provider
@@ -115,12 +115,11 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
 };
 
 export const DesktopSidebar = ({
-  className,
+  // className,
   children,
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate, eventMenuOpen, setEventMenuOpen } =
-    useSidebar();
+  const { open, setOpen, animate, setEventMenuOpen } = useSidebar();
 
   return (
     <>
@@ -154,11 +153,11 @@ export const DesktopSidebar = ({
 };
 
 export const MobileSidebar = ({
-  className,
+  // className,
   children,
   ...props
 }: React.ComponentProps<"div">) => {
-  const { open, setOpen, eventMenuOpen, setEventMenuOpen } = useSidebar();
+  const { open, setOpen, setEventMenuOpen } = useSidebar();
   return (
     <>
       <div className={styles.mobileSidebar} {...props}>
@@ -215,12 +214,12 @@ export const SidebarLink = ({
   link: Links;
   className?: string;
 }) => {
-  const router = useRouter();
+  // const router = useRouter();
   const pathname = usePathname();
   const { open, animate } = useSidebar();
 
   const pathDirec = `/${pathname.split("/")[4] ?? ""}`;
-  const rootPath = pathname.split("/").slice(0, 4).join("/");
+  // const rootPath = pathname.split("/").slice(0, 4).join("/");
 
   return (
     <div

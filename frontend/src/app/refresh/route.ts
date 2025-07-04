@@ -9,7 +9,7 @@ import lib_error from "@/modules/error";
 
 import { tokenCookieOpt } from "@/modules/cookie";
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<Response> {
   // No checks here because middleware already checked
   // Doesnt really matter anyway becasue backend also checks
 
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
       "server",
       "Unauthorized",
       "missing cookie token/refreshToken"
-    );
+    ) as Response;
   }
 
   const redirectUrl = decodeURIComponent(request.url.split("?redir=")[1]);
@@ -60,21 +60,21 @@ export async function GET(request: Request) {
           "server",
           "Unauthorized",
           `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
-        );
+        ) as Response;
       }
 
       return lib_error.unauthorized(
         "server",
         "Unauthorized",
         `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
-      );
+      ) as Response;
     }
 
     return lib_error.unauthorized(
       "server",
       "Unauthorized",
       `unexpected error: ${JSON.stringify(error)}`
-    );
+    ) as Response;
   }
 
   // console.log(result);

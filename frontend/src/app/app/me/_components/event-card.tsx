@@ -7,19 +7,12 @@ import { usePathname, useRouter } from "next/navigation";
 
 import clsx from "clsx";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  FolderOpen,
-  LayoutDashboard,
-  LogOut,
-  Trash2,
-  Wrench,
-} from "lucide-react";
+import { FolderOpen, LogOut, Trash2, Wrench } from "lucide-react";
 
 import deleteEvent from "@/actions/event/deleteEvent";
 
 import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 import Keybind, { T_Keybind } from "@/components/keybind";
-import Spinner from "@/components/spinner";
 
 import { useBlurContext } from "./blur-context";
 
@@ -27,7 +20,6 @@ import styles from "./event-card.module.css";
 
 import type { T_Event } from "@/gql/types";
 import { Magnetic } from "@/components/ui/mp_magnetic";
-import { TextMorph } from "@/components/ui/mp_text-morph";
 
 import lib_role from "@/modules/role";
 import { Skeleton } from "@/components/ui/scn_skeleton";

@@ -8,9 +8,6 @@ import {
   type SpringOptions,
 } from "motion/react";
 
-import { cn } from "@/lib/utils";
-import { Caladea } from "next/font/google";
-
 const SPRING_CONFIG = { stiffness: 26.7, damping: 4.1, mass: 0.2 };
 
 export type MagneticProps = {
@@ -66,6 +63,7 @@ export function Magnetic({
     return () => {
       document.removeEventListener("mousemove", calculateDistance);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref, isHovered, intensity, range]);
 
   useEffect(() => {

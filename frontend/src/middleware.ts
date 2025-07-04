@@ -12,13 +12,13 @@ const guardedPaths = {
     onFailed: (request: NextRequest) => {
       return NextResponse.redirect(new URL("/login", request.url));
     },
-    onSuccess: (request: NextRequest) => {
+    onSuccess: () => {
       return NextResponse.next();
     },
   },
   "/login": {
     type: "token",
-    onFailed: (request: NextRequest) => {
+    onFailed: () => {
       return NextResponse.next();
     },
     onSuccess: (request: NextRequest) => {
@@ -27,7 +27,7 @@ const guardedPaths = {
   },
   "/register": {
     type: "token",
-    onFailed: (request: NextRequest) => {
+    onFailed: () => {
       return NextResponse.next();
     },
     onSuccess: (request: NextRequest) => {
@@ -39,13 +39,13 @@ const guardedPaths = {
     onFailed: (request: NextRequest) => {
       return NextResponse.redirect(new URL("/login", request.url));
     },
-    onSuccess: (request: NextRequest) => {
+    onSuccess: () => {
       return NextResponse.next();
     },
   },
   "/setup": {
     type: "token",
-    onFailed: (request: NextRequest) => {
+    onFailed: () => {
       return NextResponse.next();
     },
     onSuccess: (request: NextRequest) => {
@@ -101,7 +101,7 @@ export async function middleware(request: NextRequest) {
 
   if (options.type === "refresh_token") {
     try {
-      let refreshTokenCookie: any = request.cookies.get("refresh_token");
+      const refreshTokenCookie: any = request.cookies.get("refresh_token");
 
       if (!refreshTokenCookie) {
         return options.onFailed(request);
@@ -118,7 +118,7 @@ export async function middleware(request: NextRequest) {
       z.uuidv4().parse(userId);
       z.uuidv4().parse(sessionId);
       z.string().parse(sessionKey);
-    } catch (error) {
+    } catch {
       return options.onFailed(request);
     }
   }

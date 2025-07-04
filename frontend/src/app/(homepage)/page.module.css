@@ -1,17 +1,3 @@
-:root {
-  --sp-button-bg-color: #0071e3;
-  --sp-button-text-color: #ffffff;
-  --sp-link-color: #0066cc;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --sp-button-bg-color: #0071e3;
-    --sp-button-text-color: #ffffff;
-    --sp-link-color: #0066cc;
-  }
-}
-
 .pageWrapper {
   background-color: var(--sp-background-color);
   color: var(--sp-text-color);
