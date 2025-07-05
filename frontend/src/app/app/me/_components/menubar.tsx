@@ -502,9 +502,10 @@ export default function MenuBar({ me }: { me: T_User }) {
                   actionArea="global"
                   className={clsx(
                     styles.createEventFormMagnet,
-                    styles.createEventFormMagnetCancel
+                    styles.createEventFormMagnetCancel,
+                    createEventDisabled && styles.createEventFormMagnetDisabled
                   )}
-                  range={200}
+                  range={createEventDisabled ? 0 : 200}
                 >
                   <button
                     className={clsx(
@@ -535,7 +536,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                       springOptions={{ bounce: 0.1 }}
                       actionArea="global"
                       className={styles.createEventFormButtonText}
-                      range={100}
+                      range={createEventDisabled ? 0 : 100}
                     >
                       Cancel
                     </Magnetic>
@@ -546,10 +547,11 @@ export default function MenuBar({ me }: { me: T_User }) {
                   springOptions={{ bounce: 0.1 }}
                   actionArea="global"
                   className={clsx(
-                    styles.createEventFormMagnet
+                    styles.createEventFormMagnet,
+                    createEventDisabled && styles.createEventFormMagnetDisabled
                     // styles.createEventFormMagnetCreate,
                   )}
-                  range={200}
+                  range={createEventDisabled ? 0 : 200}
                 >
                   <button
                     className={styles.createEventFormButton}
@@ -562,7 +564,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                       springOptions={{ bounce: 0.1 }}
                       actionArea="global"
                       className={styles.createEventFormButtonText}
-                      range={100}
+                      range={createEventDisabled ? 0 : 100}
                     >
                       <TextMorph>
                         {createEventDisabled ? "Creating..." : "Create Event"}

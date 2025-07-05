@@ -23,15 +23,27 @@ import { Magnetic } from "@/components/ui/mp_magnetic";
 
 import lib_role from "@/modules/role";
 import { Skeleton } from "@/components/ui/scn_skeleton";
+import { TextMorph } from "@/components/ui/mp_text-morph";
+import Spinner from "@/components/spinner";
 
-export default function EventCard({ event }: { event: T_Event }) {
+export default function EventCard({
+  event,
+  setManageEvent,
+  setManageEventVisible,
+}: {
+  event: T_Event;
+  setManageEvent: (event: T_Event) => void;
+  setManageEventVisible: (visible: boolean) => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { isBlurred } = useBlurContext();
+  const { isBlurred, setIsBlurred } = useBlurContext();
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [overlayDisabled, setOverlayDisabled] = useState(false);
+  const [overlayLoading, setOverlayLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
@@ -52,6 +64,8 @@ export default function EventCard({ event }: { event: T_Event }) {
       dangerous: false,
       icon: <FolderOpen />,
       onClick: () => {
+        if (overlayDisabled) return;
+        setOverlayDisabled(true);
         router.push(
           `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`
         );
@@ -67,12 +81,16 @@ export default function EventCard({ event }: { event: T_Event }) {
             dangerous: false,
             icon: <Wrench />,
             onClick: () => {
+              if (overlayDisabled) return;
               // router.push(
               //   `/app/event/${event.eventId}/manage?back=${encodeURIComponent(
               //     pathname
               //   )}`
               // );
-              alert("manage event");
+              // alert("manage event");
+              setIsBlurred(true);
+              setManageEvent(event);
+              setManageEventVisible(true);
             },
             keybinds: [T_Keybind.shift, T_Keybind.m],
           },
@@ -87,6 +105,7 @@ export default function EventCard({ event }: { event: T_Event }) {
             dangerous: true,
             icon: <LogOut />,
             onClick: () => {
+              if (overlayDisabled) return;
               alert("leave event");
             },
             keybinds: [T_Keybind.shift, T_Keybind.backspace],
@@ -95,15 +114,23 @@ export default function EventCard({ event }: { event: T_Event }) {
       : []),
 
     // HOST
-    ...(lib_role.event_hasRole(event.myMembership, "HOST")
+    ...(lib_role.event_hasRole(event.myMembership, "HOST") && event.isDraft
       ? [
           {
             label: "Delete",
             dangerous: true,
             icon: <Trash2 />,
             onClick: async () => {
+              if (overlayDisabled) return;
+              if (overlayLoading) return;
+
+              setOverlayDisabled(true);
+              setOverlayLoading(true);
               // alert("delete event");
               await deleteEvent("123", event.eventId);
+              setOverlayOpen(false);
+              setOverlayLoading(false);
+              setOverlayDisabled(false);
               router.refresh();
             },
             keybinds: [T_Keybind.shift, T_Keybind.backspace],
@@ -124,12 +151,13 @@ export default function EventCard({ event }: { event: T_Event }) {
         damping: 20,
       }}
       onHoverStart={() => {
-        console.log("hover start");
         setOverlayOpen(true);
       }}
       onHoverEnd={() => {
-        console.log("hover end");
         setOverlayOpen(false);
+      }}
+      onClick={() => {
+        setOverlayOpen(true);
       }}
       whileHover={{ scale: 1.02 }}
       layout="position"
@@ -188,9 +216,14 @@ export default function EventCard({ event }: { event: T_Event }) {
             {menuItems.map((item, index) => (
               <motion.div
                 key={`ecmitem_${item.label}_index`}
-                onClick={item.onClick}
+                onClick={() => {
+                  item.onClick();
+                }}
                 initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
+                animate={{
+                  opacity: overlayDisabled ? 0.5 : 1,
+                  scale: 1,
+                }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{
                   type: "spring",
@@ -198,6 +231,11 @@ export default function EventCard({ event }: { event: T_Event }) {
                   damping: 20,
                   delay: showMenu ? index * 0.1 + 0.2 : 0,
                 }}
+                style={
+                  {
+                    // pointerEvents: overlayDisabled ? "none" : "auto",
+                  }
+                }
                 className={styles.eventCardMenuButton}
               >
                 <Magnetic
@@ -206,22 +244,45 @@ export default function EventCard({ event }: { event: T_Event }) {
                   actionArea="global"
                   className={clsx(
                     styles.overlayMagnet,
-                    item.dangerous && styles.overlayMagnetDangerous
+                    item.dangerous && styles.overlayMagnetDangerous,
+                    overlayDisabled && styles.overlayMagnetDisabled
                   )}
-                  range={130}
+                  range={overlayDisabled ? 0 : 130}
                 >
+                  {overlayDisabled &&
+                    overlayLoading &&
+                    item.dangerous === true && (
+                      <Spinner
+                        loading={overlayLoading}
+                        size={24}
+                        forcetheme={"dangerous"}
+                      />
+                    )}
                   <div className={styles.overlayButtonIcon}>{item.icon}</div>
-                  <span className={styles.overlayButtonText}>{item.label}</span>
-                  <Keybind
-                    keybinds={item.keybinds}
-                    className={styles.createEventFormKeybind}
-                    onPress={() => {
-                      item.onClick();
-                    }}
-                    disabled={false}
-                    dangerous={item.dangerous}
-                    forcetheme={"dark"}
-                  />
+                  {/* <span className={styles.overlayButtonText}>{item.label}</span> */}
+
+                  <div className={styles.overlayButtonText}>
+                    <TextMorph>{item.label}</TextMorph>
+                  </div>
+
+                  <Magnetic
+                    intensity={0.1}
+                    springOptions={{ bounce: 0.1 }}
+                    actionArea="global"
+                    className={clsx(styles.overlayButtonKeybind)}
+                    range={overlayDisabled ? 0 : 90}
+                  >
+                    <Keybind
+                      keybinds={item.keybinds}
+                      className={styles.createEventFormKeybind}
+                      onPress={() => {
+                        item.onClick();
+                      }}
+                      disabled={overlayDisabled}
+                      dangerous={item.dangerous}
+                      forcetheme={"dark"}
+                    />
+                  </Magnetic>
                 </Magnetic>
               </motion.div>
             ))}

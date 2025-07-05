@@ -14,6 +14,7 @@ import lib_vet from "@/modules/vet";
 import lib_token from "@/modules/token";
 import lib_error from "@/modules/error";
 import lib_cache from "@/modules/cache";
+import lib_storage from "@/modules/storage";
 
 import { Z_JWTAuthPayload, Z_RefreshTokenPayload } from "@/modules/parser";
 import type { T_JWTAuthPayload, T_RefreshTokenPayload } from "@/modules/parser";
@@ -163,6 +164,15 @@ export default class mutation_user {
         return user;
       })
       .then(async (user) => {
+        try {
+          await lib_storage.createFolder(`users/${user.userId}`);
+        } catch (error) {
+          console.error(
+            `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user folder`,
+            error
+          );
+        }
+
         return await lib_token.genAuthTokenWithRefresh(
           user.userId,
           user.passwordSession,

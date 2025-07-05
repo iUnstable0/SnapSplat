@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import * as gql_builder from "gql-query-builder";
 
 import MenuBar from "../_components/menubar";
-import EventContainer from "../_components/event-container";
 
 import Error from "@/components/error";
 
@@ -14,6 +13,7 @@ import type { T_Event, T_User } from "@/gql/types";
 
 import lib_role from "@/modules/role";
 import { cookies } from "next/headers";
+import Draft from "./_component/draft";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -93,23 +93,11 @@ export default async function Page() {
     (event: T_Event) => event.isDraft === true
   );
 
-  const draftsCount = myDrafts.length + drafts.length;
-
   return (
     <div className={styles.pageWrapper}>
       <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        {draftsCount > 0 && (
-          <h1 className={styles.pageTitle}>
-            {`${draftsCount} draft${draftsCount === 1 ? "" : "s"} found`}
-          </h1>
-        )}
-
-        {draftsCount > 0 && <EventContainer events={[myDrafts, drafts]} />}
-
-        {draftsCount === 0 && (
-          <h1 className={styles.pageMiddleText}>No drafts found</h1>
-        )}
+        <Draft drafts={drafts} myDrafts={myDrafts} />
       </main>
     </div>
   );
