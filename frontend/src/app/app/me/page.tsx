@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import * as gql_builder from "gql-query-builder";
 
 import MenuBar from "./_components/menubar";
-import EventContainer from "./_components/event-container";
+
+import UpcomingEvents from "./_components/upcoming-events";
 
 import Error from "@/components/error";
 
@@ -88,25 +89,14 @@ export default async function Page() {
     (event: T_Event) => !event.isDraft
   );
 
-  const activeEventsCount = activeEvents.length + myPublishedEvents.length;
-
   return (
     <div className={styles.pageWrapper}>
       <MenuBar me={data.me} />
       <main className={styles.mainContainer}>
-        {activeEventsCount > 0 && (
-          <h1 className={styles.pageTitle}>
-            {activeEventsCount} event{activeEventsCount === 1 ? "" : "s"}
-          </h1>
-        )}
-
-        {activeEventsCount > 0 && (
-          <EventContainer events={[myPublishedEvents, activeEvents]} />
-        )}
-
-        {activeEventsCount === 0 && (
-          <h1 className={styles.pageMiddleText}>No upcoming events found</h1>
-        )}
+        <UpcomingEvents
+          activeEvents={activeEvents}
+          myPublishedEvents={myPublishedEvents}
+        />
       </main>
     </div>
   );

@@ -219,15 +219,6 @@
   transition: all 0.2s ease-in-out;
 }
 
-.createEventFormButtonText {
-  font-size: 20px;
-  font-weight: 500;
-
-  transition: color 0.2s ease-in-out;
-
-  /* transition: all 0.2s ease-in-out; */
-}
-
 .createEventFormMagnet:hover {
   scale: 1.1;
 
@@ -242,6 +233,10 @@
   }
 }
 
+.createEventFormMagnet:active {
+  scale: 1.05;
+}
+
 .createEventFormMagnetCancel:hover {
   .createEventFormKeybind {
     filter: drop-shadow(0 0 10px var(--sp-dangerous-color-shadow));
@@ -254,8 +249,29 @@
   }
 }
 
-.createEventFormMagnet:active {
-  scale: 1.05;
+.createEventFormMagnetDisabled {
+  cursor: not-allowed !important;
+}
+
+.createEventFormMagnetDisabled:hover {
+  scale: 1 !important;
+
+  .createEventFormKeybind {
+    filter: none !important;
+  }
+}
+
+.createEventFormMagnetDisabled:active {
+  scale: 1 !important;
+}
+
+.createEventFormButtonText {
+  font-size: 20px;
+  font-weight: 500;
+
+  transition: color 0.2s ease-in-out;
+
+  /* transition: all 0.2s ease-in-out; */
 }
 
 .createEventFormButton {

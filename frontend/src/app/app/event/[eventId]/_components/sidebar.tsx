@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import Image from "next/image";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 import clsx from "clsx";
 
@@ -23,6 +23,7 @@ import {
   Icon,
   Check,
   Trash2,
+  Archive,
 } from "lucide-react";
 
 import { layoutGridPlus } from "@lucide/lab";
@@ -58,7 +59,7 @@ export default function Sidebar({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // const pathname = usePathname();
+  const pathname = usePathname();
 
   // const rootPath = pathname.split("/").slice(0, 4).join("/");
   // const pathDirec = `/${pathname.split("/")[4] ?? ""}`;
@@ -69,6 +70,8 @@ export default function Sidebar({
   const [eventMenuOpen, setEventMenuOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
   const [showMobileMenu, setShowMobileMenu] = useState(true);
+  const [renderChildren, setRenderChildren] = useState(true);
+  const [targetPath, setTargetPath] = useState<string>(pathname);
 
   const [activeEventMenuItem, setActiveEventMenuItem] = useState("");
 
@@ -94,6 +97,14 @@ export default function Sidebar({
     }
   }, [eventMenuOpen]);
 
+  useEffect(() => {
+    if (targetPath !== pathname) {
+      setRenderChildren(false);
+    } else {
+      setRenderChildren(true);
+    }
+  }, [targetPath, pathname]);
+
   const goBack = () => {
     router.push(searchParams.get("back") ?? "/app/me");
   };
@@ -102,7 +113,6 @@ export default function Sidebar({
     label: string;
     icon: React.ReactNode;
     onClick: () => void;
-    className: string;
     keybinds?: T_Keybind[];
     dangerous?: boolean;
   }[] = [
@@ -110,9 +120,7 @@ export default function Sidebar({
       label: "Back to My Events",
       icon: <ArrowLeft />,
       onClick: goBack,
-      className: styles.eventMenuNormalButton,
       keybinds: [T_Keybind.enter],
-      dangerous: false,
     },
     {
       label: "Members",
@@ -120,9 +128,7 @@ export default function Sidebar({
       onClick: () => {
         alert("Under construction");
       },
-      className: styles.eventMenuNormalButton,
       keybinds: [T_Keybind.m],
-      dangerous: false,
     },
     {
       label: "Invite / Share",
@@ -130,9 +136,7 @@ export default function Sidebar({
       onClick: () => {
         alert("Under construction");
       },
-      className: styles.eventMenuNormalButton,
       keybinds: [T_Keybind.e],
-      dangerous: false,
     },
     {
       label: "Preferences",
@@ -140,9 +144,7 @@ export default function Sidebar({
       onClick: () => {
         alert("Under construction");
       },
-      className: styles.eventMenuNormalButton,
       keybinds: [T_Keybind.p],
-      dangerous: false,
     },
   ];
 
@@ -152,9 +154,7 @@ export default function Sidebar({
       label: "Manage Event",
       icon: <Wrench />,
       onClick: goBack,
-      className: styles.eventMenuNormalButton,
       keybinds: [T_Keybind.shift, T_Keybind.m],
-      dangerous: false,
     });
 
     if (data.event.isDraft) {
@@ -164,7 +164,6 @@ export default function Sidebar({
         onClick: () => {
           alert("Under construction");
         },
-        className: styles.eventMenuNormalButton,
       });
     }
   }
@@ -177,7 +176,7 @@ export default function Sidebar({
       onClick: () => {
         alert("Under construction");
       },
-      className: styles.eventMenuLeaveButton,
+      dangerous: true,
     });
   }
 
@@ -192,9 +191,17 @@ export default function Sidebar({
 
           router.push(searchParams.get("back") ?? "/app/me");
         },
-        className: styles.eventMenuLeaveButton,
         // keybinds: [T_Keybind.shift, T_Keybind.backspace],
-        // dangerous: true,
+        dangerous: true,
+      });
+    } else {
+      eventMenuItems.push({
+        label: "Archive Event",
+        icon: <Archive />,
+        onClick: () => {
+          alert("Under construction");
+        },
+        dangerous: true,
       });
     }
   }
@@ -209,9 +216,13 @@ export default function Sidebar({
   // }
 
   const navigate = (path: string) => {
-    const searchParamsString = searchParams.toString();
+    setTargetPath(path);
 
-    router.push(`${path}?${searchParamsString}`);
+    setTimeout(() => {
+      const searchParamsString = searchParams.toString();
+
+      router.push(`${path}?${searchParamsString}`);
+    }, 250);
   };
 
   const sidebarItems = [
@@ -222,6 +233,7 @@ export default function Sidebar({
       onClick: () => {
         // setPage("/home");
         // change url bar without reloading
+
         navigate(`/app/event/${data.event.eventId}/home`);
       },
     },
@@ -359,13 +371,13 @@ export default function Sidebar({
                       actionArea="global"
                       className={clsx(
                         styles.sidebarOverlayMagnet,
-                        item.className,
+                        item.dangerous && styles.sidebarOverlayMagnetDangerous,
                         activeEventMenuItem === item.label &&
                           styles.sidebarOverlayMagnet_active,
                         activeEventMenuItem !== item.label &&
                           styles.sidebarOverlayMagnet_free
                       )}
-                      range={200}
+                      range={175}
                     >
                       <div className={styles.sidebarOverlayButtonIcon}>
                         {item.icon}
@@ -373,18 +385,28 @@ export default function Sidebar({
                       <span className={styles.sidebarOverlayButtonText}>
                         {item.label}
                       </span>
-                      {item.keybinds && (
-                        <Keybind
-                          keybinds={item.keybinds}
-                          className={styles.createEventFormKeybind}
-                          onPress={() => {
-                            item.onClick();
-                          }}
-                          disabled={false}
-                          dangerous={item.dangerous}
-                          // forcetheme={"dark"}
-                        />
-                      )}
+                      {/* Keybinds is bugged for some reason */}
+                      {/* {item.keybinds && (
+                        <Magnetic
+                          intensity={0.1}
+                          springOptions={{ bounce: 0.1 }}
+                          actionArea="global"
+                          className={clsx(styles.overlayButtonKeybind)}
+                          range={90}
+                        >
+                          {alert(`loaded keybind ${item.keybinds}`)}
+                          <Keybind
+                            keybinds={item.keybinds}
+                            className={styles.createEventFormKeybind}
+                            onPress={() => {
+                              item.onClick();
+                            }}
+                            disabled={false}
+                            dangerous={item.dangerous}
+                            // forcetheme={"dark"}
+                          />
+                        </Magnetic>
+                      )} */}
                     </Magnetic>
                   </motion.div>
                 ))}
@@ -497,7 +519,26 @@ export default function Sidebar({
           restSpeed: 10,
         }}
       >
-        {children}
+        <AnimatePresence>
+          {renderChildren && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.99 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.99 }}
+              transition={{
+                type: "spring",
+                stiffness: 210,
+                damping: 20,
+                opacity: {
+                  duration: 0.2,
+                },
+              }}
+              className={styles.mainContentChildren}
+            >
+              {children}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
       {/* <Dashboard /> */}
     </div>

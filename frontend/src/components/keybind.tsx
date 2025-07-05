@@ -75,9 +75,14 @@ export default function Keybind({
           keybinds.every((key) => heldKeys.has(key)) &&
           keybinds[keybinds.length - 1] === key
         ) {
-          // alert(`keybind removed ${key}`);
-          if (!disabled) {
-            onPress();
+          // If heldKeys has a key that doesnt exist in keybind
+          if (heldKeys.size === keybinds.length) {
+            // alert(`keybind removed ${key}`);
+            if (!disabled) {
+              onPress();
+            }
+          } else {
+            // alert("kys sybau");
           }
         }
 
@@ -93,15 +98,21 @@ export default function Keybind({
       // e.preventDefault();
       // e.stopPropagation();
 
+      if (disabled) return;
+
       const key = e.key.toLowerCase();
 
       console.log(key);
 
       // check if key is in keybinds (keybinds type is T_Keybind[])
-      if (keybinds.includes(key as T_Keybind)) {
-        setHeldKeys((prev) => new Set(prev).add(key));
-        addToAnimatedKeys(key);
-      }
+      // if (keybinds.includes(key as T_Keybind)) {
+      // If it alr contain key then abort!
+
+      console.log("key added", key, keybinds.join(","));
+
+      setHeldKeys((prev) => new Set(prev).add(key));
+      addToAnimatedKeys(key);
+      // }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
@@ -128,7 +139,7 @@ export default function Keybind({
       window.removeEventListener("keyup", handleKeyUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heldKeys]);
+  }, [heldKeys, animatedKeys]);
 
   return (
     <Magnetic
@@ -136,7 +147,7 @@ export default function Keybind({
       springOptions={{ bounce: 0.1 }}
       actionArea="global"
       className={styles.buttonKeybindMagnet}
-      range={75}
+      range={disabled ? 0 : 75}
       data-theme={forcetheme}
     >
       {keybinds.map((keybind, index) => (
