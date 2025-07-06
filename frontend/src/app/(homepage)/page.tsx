@@ -82,7 +82,7 @@ export default async function Home() {
             Create a beautiful photo gallery for all your events. Anyone can
             join and contribute.
           </p>
-          <Link href="/login" className={styles.ctaButton}>
+          <Link href="/app/me/login" className={styles.ctaButton}>
             {/* {user ? "Open App" : "Get Started"} */}
             Get Started
           </Link>

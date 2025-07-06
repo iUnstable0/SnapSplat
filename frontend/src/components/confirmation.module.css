@@ -34,13 +34,11 @@
   /* font size based on the parent size */
   font-size: calc(100% * 1.5);
   font-weight: 600;
-  color: var(--sp-text-color);
   text-align: center;
 }
 
 .description {
   font-size: calc(100% * 1);
-  color: var(--sp-text-color);
   text-align: center;
 }
 

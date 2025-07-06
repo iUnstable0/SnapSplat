@@ -57,12 +57,15 @@ export const KeybindButton = ({
   loadingText?: string;
   // loadingTheme?: "light" | "dark" | "dangerous";
 }) => {
-  let styles = stylesDynamic;
+  let styles;
 
   if (forcetheme === "light") {
     styles = stylesLight;
   } else if (forcetheme === "dark") {
+    console.log("forcetheme", forcetheme);
     styles = stylesDark;
+  } else {
+    styles = stylesDynamic;
   }
 
   return (
@@ -71,7 +74,6 @@ export const KeybindButton = ({
       springOptions={{ bounce: 0.1 }}
       actionArea="global"
       range={disabled ? 0 : 75}
-      data-theme={forcetheme}
     >
       <button
         className={clsx(
