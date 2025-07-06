@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 
-import clsx from "clsx";
 import { motion, AnimatePresence } from "motion/react";
 import { FolderOpen, LogOut, Trash2, Wrench, X } from "lucide-react";
 
@@ -20,12 +19,9 @@ import { useBlurContext } from "@/components/blur-context";
 import styles from "./event-card.module.css";
 
 import type { T_Event } from "@/gql/types";
-import { Magnetic } from "@/components/ui/mp_magnetic";
 
 import lib_role from "@/modules/role";
 import { Skeleton } from "@/components/ui/scn_skeleton";
-import { TextMorph } from "@/components/ui/mp_text-morph";
-import Spinner from "@/components/spinner";
 
 export default function EventCard({
   event,
@@ -204,6 +200,7 @@ export default function EventCard({
             confirmLoadingText="Deleting..."
             // confirmIcon={<Trash2 />}
             // cancelIcon={<X />}
+            forcetheme="dark"
             onConfirm={async () => {
               await deleteEvent("captchaDemo", event.eventId);
 

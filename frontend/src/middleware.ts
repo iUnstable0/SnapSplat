@@ -17,12 +17,7 @@ const LEGACY_PATH_MAP: { [key: string]: string } = {
   "/setup": "/app/me/setup",
 };
 
-function handleAuthFailure(
-  request: NextRequest,
-  deleteRefreshToken: boolean = false
-): NextResponse {
-  console.log("Invalid auth, redirecting to login");
-
+function handleAuthFailure(request: NextRequest, reqId: string): NextResponse {
   const { pathname } = request.nextUrl;
 
   //   if (pathname.startsWith("/api/")) {
@@ -40,7 +35,21 @@ function handleAuthFailure(
     }
   }
 
-  return NextResponse.redirect(loginUrl);
+  const response = NextResponse.redirect(loginUrl);
+
+  response.cookies.set("token", "", {
+    ...tokenCookieOpt,
+    maxAge: 0,
+  });
+
+  response.cookies.set("refresh_token", "", {
+    ...refreshTokenCookieOpt,
+    maxAge: 0,
+  });
+
+  console.log(`[${reqId}] REDIRECT -> ${pathname} --|--> ${loginUrl.pathname}`);
+
+  return response;
 }
 
 function validateRefreshToken(request: NextRequest): boolean {
@@ -56,33 +65,34 @@ function validateRefreshToken(request: NextRequest): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  console.log("Guarding", request.url);
+  const reqId = crypto.randomUUID().split("-")[0];
 
   const { pathname } = request.nextUrl;
 
-  if (LEGACY_PATH_MAP[pathname]) {
-    console.log("Redirecting legacy path:", pathname);
+  console.log(`[${reqId}] REQUEST -> ${pathname}`);
 
+  if (LEGACY_PATH_MAP[pathname]) {
     const newUrl = new URL(
       LEGACY_PATH_MAP[pathname],
       lib_url.getPublicUrl(request.url)
     );
 
+    console.log(`[${reqId}] REDIRECT -> ${pathname} -> ${newUrl.pathname}`);
+
     return NextResponse.redirect(newUrl);
   }
 
   if (pathname === "/refresh") {
-    console.log("Handling refresh token request");
     if (!validateRefreshToken(request)) {
-      return handleAuthFailure(request, true);
+      return handleAuthFailure(request, reqId);
     }
+
+    console.log(`[${reqId}] ALLOW -> ${pathname}`);
 
     return NextResponse.next();
   }
 
   if (pathname === "/logout") {
-    console.log("Handling logout request");
-
     const response = NextResponse.redirect(
       new URL("/app/me/login", lib_url.getPublicUrl(request.url))
     );
@@ -96,7 +106,7 @@ export async function middleware(request: NextRequest) {
       maxAge: 0,
     });
 
-    console.log("Logout response", response.cookies.getAll());
+    console.log(`[${reqId}] REDIRECT -> ${pathname} --|--> /app/me/login`);
 
     return response;
   }
@@ -104,58 +114,102 @@ export async function middleware(request: NextRequest) {
   const tokenCookie = request.cookies.get("token");
   const hasAuthToken = !!tokenCookie;
 
-  if (hasAuthToken && GUEST_PATHS.includes(pathname)) {
-    console.log("Autism");
-    const appUrl = new URL(
-      PROTECTED_APP_PATH_PREFIX,
-      lib_url.getPublicUrl(request.url)
-    );
-    console.log("Autism redirect", appUrl);
+  // if (hasAuthToken && GUEST_PATHS.includes(pathname)) {
+  //   console.log("Autism");
 
-    return NextResponse.redirect(appUrl);
-  }
+  //   const appUrl = new URL(
+  //     PROTECTED_APP_PATH_PREFIX,
+  //     lib_url.getPublicUrl(request.url)
+  //   );
+
+  //   console.log("Autism redirect", appUrl);
+
+  //   return NextResponse.redirect(appUrl);
+  // }
 
   // 4. Handle Protected Application Paths
   if (pathname.startsWith(PROTECTED_APP_PATH_PREFIX)) {
-    console.log("Handling protected app path:", pathname);
-
     // If it's a protected path but not a guest-only one (like /app/me)
-    if (!GUEST_PATHS.includes(pathname)) {
-      if (!hasAuthToken) {
-        return handleAuthFailure(request);
+    // if (!GUEST_PATHS.includes(pathname)) {
+    if (!hasAuthToken) {
+      if (GUEST_PATHS.includes(pathname)) {
+        console.log(`[${reqId}] ALLOW -> ${pathname}`);
+
+        return NextResponse.next();
       }
 
-      // Validate the token
-      const token = tokenCookie.value.replace("Bearer ", "");
-      const result = await lib_token.validateAuthToken(token);
-
-      if (!result.valid) {
-        // If the token is invalid but renewable, redirect to the refresh path.
-        if (result.renew) {
-          const refreshUrl = new URL(
-            "/refresh",
-            lib_url.getPublicUrl(request.url)
-          );
-          refreshUrl.searchParams.set("redir", encodeURIComponent(pathname));
-          return NextResponse.redirect(refreshUrl);
-        }
-        // Otherwise, authentication fails.
-        return handleAuthFailure(request);
-      }
+      return handleAuthFailure(request, reqId);
     }
+
+    // Validate the token
+    const token = tokenCookie?.value.replace("Bearer ", "");
+    const result = await lib_token.validateAuthToken(token);
+
+    if (!result.valid) {
+      if (result.renew) {
+        const refreshUrl = new URL(
+          "/refresh",
+          lib_url.getPublicUrl(request.url)
+        );
+
+        refreshUrl.searchParams.set("redir", encodeURIComponent(pathname));
+
+        console.log(
+          `[${reqId}] REDIRECT -> ${pathname} -> ${refreshUrl.pathname}`
+        );
+
+        return NextResponse.redirect(refreshUrl);
+      }
+
+      if (GUEST_PATHS.includes(pathname)) {
+        const response = NextResponse.next();
+
+        response.cookies.set("token", "", {
+          ...tokenCookieOpt,
+          maxAge: 0,
+        });
+
+        response.cookies.set("refresh_token", "", {
+          ...refreshTokenCookieOpt,
+          maxAge: 0,
+        });
+
+        console.log(`[${reqId}] ALLOW --|--> ${pathname}`);
+
+        return response;
+      }
+
+      return handleAuthFailure(request, reqId);
+    }
+    // }
   }
 
   if (pathname === "/app") {
+    console.log(`[${reqId}] REDIRECT -> ${pathname} -> /app/me`);
+
     return NextResponse.redirect(
       new URL("/app/me", lib_url.getPublicUrl(request.url))
     );
   }
 
   if (/^\/app\/event\/[^/]+$/.test(pathname)) {
+    console.log(`[${reqId}] REDIRECT -> ${pathname} -> ${pathname}/home`);
+
     return NextResponse.redirect(
       new URL(`${pathname}/home`, lib_url.getPublicUrl(request.url))
     );
   }
+
+  // if pathname is in GUEST_PATHS, redirect to /app/me
+  if (GUEST_PATHS.includes(pathname)) {
+    console.log(`[${reqId}] REDIRECT -> ${pathname} -> /app/me`);
+
+    return NextResponse.redirect(
+      new URL("/app/me", lib_url.getPublicUrl(request.url))
+    );
+  }
+
+  console.log(`[${reqId}] ALLOW -> ${pathname}`);
 
   return NextResponse.next();
 }

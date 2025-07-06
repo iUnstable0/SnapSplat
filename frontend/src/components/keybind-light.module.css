@@ -3,6 +3,8 @@
   flex-direction: row;
 
   gap: 8px;
+
+  color: #1d1d1f;
 }
 
 .keybindContainer {
@@ -42,6 +44,8 @@
 }
 
 .keybindButton {
+  color: #1d1d1f;
+
   display: flex;
   flex-direction: row;
   align-items: center;

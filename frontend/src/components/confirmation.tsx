@@ -22,6 +22,7 @@ export default function Confirmation({
   cancelIcon,
   confirmationLoading,
   setConfirmationLoading,
+  forcetheme,
 }: {
   title: string;
   description: string;
@@ -36,6 +37,7 @@ export default function Confirmation({
   cancelIcon?: React.ReactNode;
   confirmationLoading?: boolean;
   setConfirmationLoading?: (loading: boolean) => void;
+  forcetheme?: "light" | "dark";
 }) {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -60,6 +62,13 @@ export default function Confirmation({
         type: "spring",
         stiffness: 120,
         damping: 20,
+      }}
+      style={{
+        color: forcetheme
+          ? forcetheme === "dark"
+            ? "#f9f9f9"
+            : "#1d1d1f"
+          : "var(--sp-text-color)",
       }}
     >
       <div className={styles.confirmationContainer}>
@@ -91,7 +100,7 @@ export default function Confirmation({
             disabled={confirmationLoading}
             loading={cancelLoading}
             loadingText={cancelLoadingText}
-            forcetheme="dark"
+            forcetheme={forcetheme}
             icon={cancelIcon}
             iconClassName={styles.actionIcon}
             textClassName={styles.actionText}
@@ -121,7 +130,7 @@ export default function Confirmation({
               }
             }}
             dangerous={dangerous}
-            forcetheme="dark"
+            forcetheme={forcetheme}
             disabled={confirmationLoading}
             loading={confirmLoading}
             loadingText={confirmLoadingText}

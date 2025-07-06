@@ -20,11 +20,17 @@ export async function GET(request: Request): Promise<Response> {
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!token || !refreshToken) {
-    return lib_error.unauthorized(
-      "server",
-      "Unauthorized",
-      "missing cookie token/refreshToken"
-    ) as Response;
+    // redirect
+
+    return NextResponse.redirect(
+      new URL("/logout", lib_url.getPublicUrl(request.url))
+    );
+
+    // return lib_error.unauthorized(
+    //   "server",
+    //   "Unauthorized",
+    //   "missing cookie token/refreshToken"
+    // ) as Response;
   }
 
   const searchParams = new URL(request.url).searchParams;
