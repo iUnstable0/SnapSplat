@@ -12,7 +12,15 @@
 
   z-index: 100;
 
-  padding: 164px;
+  padding: 96px;
+}
+
+.manageEventEscapeButtonContainer {
+  position: absolute;
+  bottom: 32px;
+  left: 32px;
+
+  z-index: 100;
 }
 
 .manageEventContainer {
@@ -22,24 +30,21 @@
   border-radius: 16px;
   overflow: hidden;
 
+  background-color: var(--sp-background-color);
+
   position: relative;
 }
 
-.topBlur {
+.bottomBlur {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
 
   width: 100%;
-  height: 164px;
-  /* background-color: red; */
+  height: 90px;
 
-  /* background: linear-gradient(to top, transparent, #51515172); */
-
-  /* pass though scroll */
   pointer-events: none;
-
-  /* border-radius: 16px; */
+  /* background-color: red; */
 }
 
 .manageEventContent {
@@ -65,11 +70,33 @@
   /* background-color: red; */
 }
 
+.topBlur {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 64px;
+  /* background-color: red; */
+
+  /* background: linear-gradient(to top, transparent, #51515172); */
+
+  /* pass though scroll */
+  pointer-events: none;
+
+  /* border-radius: 16px; */
+}
+
 .optionsContainer {
   width: 100%;
   height: 100%;
 
   margin-top: 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
 
   /* background-color: blue; */
 }

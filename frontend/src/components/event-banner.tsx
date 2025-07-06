@@ -16,7 +16,7 @@ import clsx from "clsx";
 import { PencilIcon } from "lucide-react";
 import { Magnetic } from "./ui/mp_magnetic";
 
-import { Toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export default function EventBanner({
   data,
@@ -64,6 +64,30 @@ export default function EventBanner({
           }}
           className={styles.eventImage}
         />
+        {edit && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            transition={{
+              duration: 0.2,
+              ease: "easeInOut",
+            }}
+            onClick={() => {
+              toast.error("Changing event banner is not implemented yet");
+            }}
+            className={styles.eventIconEdit}
+          >
+            <Magnetic
+              intensity={0.1}
+              springOptions={{ bounce: 0.1 }}
+              actionArea="global"
+              className={styles.eventIconEditIconMagnet}
+              range={175}
+            >
+              <PencilIcon className={styles.eventIconEditIcon} />
+            </Magnetic>
+          </motion.div>
+        )}
       </motion.div>
       <ProgressiveBlur className={styles.eventBannerBlur} blurIntensity={2} />
       <div className={styles.eventDetails}>
@@ -106,7 +130,7 @@ export default function EventBanner({
                   ease: "easeInOut",
                 }}
                 onClick={() => {
-                  alert("clicked");
+                  toast.error("Changing event icon is not implemented yet");
                 }}
                 className={styles.eventIconEdit}
               >
@@ -133,7 +157,18 @@ export default function EventBanner({
               onBlur={() => {
                 if (eventTitleInputRef.current?.value === "") {
                   eventTitleInputRef.current!.value = data.event.name;
+                  return;
                 }
+
+                if (eventTitleInputRef.current?.value === data.event.name) {
+                  return;
+                }
+
+                toast.error("Saving event name is not implemented yet");
+
+                setTimeout(() => {
+                  eventTitleInputRef.current!.value = data.event.name;
+                }, 250);
               }}
               onChange={(e) => {
                 console.log(e.target.value);
@@ -146,7 +181,19 @@ export default function EventBanner({
           )}
 
           {data.event.description && (
-            <p className={styles.eventDescription}>{data.event.description}</p>
+            <p
+              className={clsx(
+                styles.eventDescription,
+                edit && styles.eventDescriptionEdit
+              )}
+              onClick={() => {
+                if (edit) {
+                  toast.error("Editing description is not implemented yet");
+                }
+              }}
+            >
+              {data.event.description}
+            </p>
           )}
         </div>
       </div>

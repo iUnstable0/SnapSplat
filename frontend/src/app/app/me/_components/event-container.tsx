@@ -16,7 +16,6 @@ import styles from "./event-container.module.css";
 export default function EventContainer({ events }: { events: T_Event[][] }) {
   const [manageEvent, setManageEvent] = useState<T_Event | null>(null);
   const [manageEventVisible, setManageEventVisible] = useState(false);
-
   const { setIsBlurred } = useBlurContext();
 
   useEffect(() => {

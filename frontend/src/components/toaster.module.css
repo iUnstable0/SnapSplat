@@ -1,0 +1,13 @@
+.toaster {
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+
+  background-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .toaster {
+    box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.492);
+  }
+}

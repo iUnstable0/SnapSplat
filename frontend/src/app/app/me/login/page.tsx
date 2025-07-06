@@ -16,7 +16,7 @@ import styles from "./page.module.css";
 
 import { TextMorph } from "@/components/ui/mp_text-morph";
 import { Magnetic } from "@/components/ui/mp_magnetic";
-import Keybind, { T_Keybind } from "@/components/keybind";
+import { KeybindButton, T_Keybind } from "@/components/keybind";
 import Spinner from "@/components/spinner";
 
 export default function LoginPage() {
@@ -64,24 +64,24 @@ export default function LoginPage() {
     const email = emailRef.current?.value;
 
     if (!email) {
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         email: {
           success: false,
           reasons: ["Email is required"],
         },
-      });
+      }));
 
       return { success: false, data: email };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       email: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return { success: true, data: email };
   };
@@ -90,24 +90,24 @@ export default function LoginPage() {
     const password = passwordRef.current?.value;
 
     if (!password) {
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         password: {
           success: false,
           reasons: ["Password is required"],
         },
-      });
+      }));
 
       return { success: false, data: password };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       password: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return { success: true, data: password };
   };
@@ -132,8 +132,6 @@ export default function LoginPage() {
   };
 
   const _login = async () => {
-    if (actionDisabled) return;
-
     const { success: checkSuccess, email, password } = await checkFormIssues();
 
     if (!checkSuccess) {
@@ -173,13 +171,13 @@ export default function LoginPage() {
           }, 250);
         }
       } else {
-        setIssues({
-          ...issues,
+        setIssues((prev) => ({
+          ...prev,
           password: {
             success: false,
             reasons: [result.message],
           },
-        });
+        }));
       }
     }, 1000);
   };
@@ -357,92 +355,34 @@ export default function LoginPage() {
                     : calculateIssueMargin(issues.password.reasons, true),
                 }}
               >
-                <Magnetic
-                  intensity={0.1}
-                  springOptions={{ bounce: 0.1 }}
-                  actionArea="global"
-                  className={clsx(
-                    styles.formMagnet,
-                    actionDisabled && styles.formMagnetDisabled
-                  )}
-                  range={actionDisabled ? 0 : 200}
-                >
-                  <button
-                    className={styles.formButton}
-                    onClick={() => {
-                      if (!actionDisabled) {
-                        setFormVisible(false);
+                <KeybindButton
+                  keybinds={[T_Keybind.e]}
+                  // className={styles.formKeybind}
+                  dangerous={false}
+                  disabled={actionDisabled}
+                  onPress={() => {
+                    setFormVisible(false);
 
-                        setTimeout(() => {
-                          router.push("/app/me/register");
-                        }, 250);
-                      }
-                    }}
-                    disabled={actionDisabled}
-                  >
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={styles.formButtonText}
-                      range={actionDisabled ? 0 : 100}
-                    >
-                      Register
-                    </Magnetic>
-                    <Keybind
-                      keybinds={[T_Keybind.e]}
-                      className={styles.formKeybind}
-                      dangerous={false}
-                      disabled={actionDisabled}
-                      onPress={() => {
-                        setFormVisible(false);
-
-                        setTimeout(() => {
-                          router.push("/app/me/register");
-                        }, 250);
-                      }}
-                      // parentClass={styles.createEventFormKeybindCancel}
-                    />
-                  </button>
-                </Magnetic>
-                <Magnetic
-                  intensity={0.1}
-                  springOptions={{ bounce: 0.1 }}
-                  actionArea="global"
-                  className={clsx(
-                    styles.formMagnet,
-                    actionDisabled && styles.formMagnetDisabled
-                  )}
-                  range={actionDisabled ? 0 : 200}
+                    setTimeout(() => {
+                      router.push("/app/me/register");
+                    }, 250);
+                  }}
                 >
-                  <button
-                    className={styles.formButton}
-                    onClick={_login}
-                    disabled={actionDisabled}
-                  >
-                    <Spinner loading={actionDisabled} size={24} />
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={styles.formButtonText}
-                      range={actionDisabled ? 0 : 100}
-                    >
-                      Continue
-                    </Magnetic>
-                    <Keybind
-                      keybinds={[T_Keybind.enter]}
-                      className={styles.formKeybind}
-                      dangerous={false}
-                      disabled={actionDisabled}
-                      onPress={_login}
-                      // parentClass={styles.createEventFormKeybindCancel}
-                    />
-                  </button>
-                </Magnetic>
+                  Create an account
+                </KeybindButton>
+
+                <KeybindButton
+                  keybinds={[T_Keybind.enter]}
+                  // className={styles.formKeybind}
+                  dangerous={false}
+                  disabled={actionDisabled}
+                  onPress={_login}
+                  loading={actionDisabled}
+                  loadingText="Logging in..."
+                >
+                  Continue
+                </KeybindButton>
               </motion.div>
-
-              {/* <div className={styles.continueButton}>Continue</div> */}
             </motion.div>
           )}
         </AnimatePresence>

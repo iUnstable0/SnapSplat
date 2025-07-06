@@ -166,7 +166,7 @@
   transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-.overlayMagnet:hover {
+/* .overlayMagnet:hover {
   scale: 1.1 !important;
 
   .overlayButtonText {
@@ -176,17 +176,17 @@
   .overlayButtonIcon {
     filter: drop-shadow(0 0 10px #f9f9f997);
   }
-}
+} */
 
-.overlayMagnet:active {
+/* .overlayMagnet:active {
   scale: 1.05 !important;
 }
 
 .overlayMagnetDisabled {
   cursor: not-allowed !important;
-}
+} */
 
-.overlayMagnetDisabled:hover {
+/* .overlayMagnetDisabled:hover {
   scale: 1 !important;
 
   .overlayButtonText {
@@ -196,17 +196,17 @@
   .overlayButtonIcon {
     filter: none !important;
   }
-}
+} */
 
-.overlayMagnetDisabled:active {
+/* .overlayMagnetDisabled:active {
   scale: 1 !important;
 }
 
 .overlayMagnetDangerous {
   color: var(--sp-dangerous-color-dark);
-}
+} */
 
-.overlayMagnetDangerous:hover {
+/* .overlayMagnetDangerous:hover {
   .overlayButtonText {
     text-shadow: 0 0 10px var(--sp-dangerous-color-dark-shadow);
   }
@@ -214,13 +214,15 @@
   .overlayButtonIcon {
     filter: drop-shadow(0 0 10px var(--sp-dangerous-color-dark-shadow));
   }
-}
+} */
 
 .overlayButtonIcon {
-  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  width: 28px;
+  height: 28px;
+
+  /* transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; */
 }
 
 .overlayButtonText {
   font-size: 20px;
-  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }

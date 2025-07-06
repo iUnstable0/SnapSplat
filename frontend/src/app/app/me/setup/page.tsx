@@ -52,16 +52,16 @@ export default async function Page() {
     }
   }
 
-  if (platform?.isSetupCompleted) {
-    // return redirect("/app/me", RedirectType.replace);
+  // if (platform?.isSetupCompleted) {
+  //   // return redirect("/app/me", RedirectType.replace);
 
-    return (
-      <Error
-        title="Setup completed"
-        link={{ label: "Go to dashboard", href: "/app/me" }}
-      />
-    );
-  }
+  //   return (
+  //     <Error
+  //       title="Setup completed"
+  //       link={{ label: "Go to dashboard", href: "/app/me" }}
+  //     />
+  //   );
+  // }
 
-  return <Setup />;
+  return <Setup setupCompleted={platform?.isSetupCompleted} />;
 }
