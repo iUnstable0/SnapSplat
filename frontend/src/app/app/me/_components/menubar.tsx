@@ -15,6 +15,7 @@ import { useBlurContext } from "./blur-context";
 import styles from "./menubar.module.css";
 
 import createEvent from "@/actions/event/createEvent";
+import joinEvent from "@/actions/event/joinEvent";
 
 import type { T_User } from "@/gql/types";
 
@@ -24,6 +25,7 @@ import Keybind, { T_Keybind } from "@/components/keybind";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { TextMorph } from "@/components/ui/mp_text-morph";
+
 import Spinner from "@/components/spinner";
 
 export default function MenuBar({ me }: { me: T_User }) {
@@ -32,6 +34,7 @@ export default function MenuBar({ me }: { me: T_User }) {
   const { setIsBlurred } = useBlurContext();
 
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [joinEventOpen, setJoinEventOpen] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [viewportDimensions, setViewportDimensions] = useState({
     width: 0,
@@ -39,17 +42,6 @@ export default function MenuBar({ me }: { me: T_User }) {
   });
 
   const [heldKeys, setHeldKeys] = useState<Set<string>>(new Set());
-
-  const eventNameRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  // const descriptionRef = useRef<HTMLInputElement>(null);
-
-  // const [issues, setIssues] = useState<
-  //   {
-  //     field: string;
-  //     reasons: string[];
-  //   }[]
-  // >([]);
 
   const [issues, setIssues] = useState<{
     eventName: {
@@ -66,6 +58,21 @@ export default function MenuBar({ me }: { me: T_User }) {
   });
 
   const [createEventDisabled, setCreateEventDisabled] = useState(false);
+  const [joinEventDisabled, setJoinEventDisabled] = useState(false);
+  const [joinEventError, setJoinEventError] = useState(false);
+
+  const eventNameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const inputRefs = useRef<HTMLInputElement[]>([]);
+  // const descriptionRef = useRef<HTMLInputElement>(null);
+
+  // const [issues, setIssues] = useState<
+  //   {
+  //     field: string;
+  //     reasons: string[];
+  //   }[]
+  // >([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -82,7 +89,7 @@ export default function MenuBar({ me }: { me: T_User }) {
   }, []);
 
   useEffect(() => {
-    if (overlayOpen) {
+    if (overlayOpen || joinEventOpen) {
       setIsBlurred(true);
 
       setShowForm(false);
@@ -99,7 +106,7 @@ export default function MenuBar({ me }: { me: T_User }) {
         setShowForm(true);
       }, 50);
     }
-  }, [overlayOpen]);
+  }, [overlayOpen, joinEventOpen]);
 
   useEffect(() => {
     // Only focus on the first issue
@@ -224,6 +231,43 @@ export default function MenuBar({ me }: { me: T_User }) {
     };
   };
 
+  const _joinEvent = async () => {
+    if (joinEventDisabled) {
+      return;
+    }
+
+    const textArray = [];
+
+    for (let i = 0; i < 6; i++) {
+      textArray.push(inputRefs.current[i].value);
+    }
+
+    const code = textArray.join("");
+
+    if (code.length !== 6) {
+      return;
+    }
+
+    if (!/^[0-9a-zA-Z]{6}$/.test(code)) {
+      return;
+    }
+
+    setJoinEventDisabled(true);
+
+    const result = await joinEvent("captchaDemo", code);
+
+    setTimeout(() => {
+      setJoinEventDisabled(false);
+
+      if (result.success) {
+        setJoinEventOpen(false);
+        router.push(`/app/event/${result.data?.eventId}`);
+      } else {
+        setJoinEventError(true);
+      }
+    }, 1000);
+  };
+
   const _createEvent = async () => {
     // Just for extra safety
     if (createEventDisabled) {
@@ -242,7 +286,7 @@ export default function MenuBar({ me }: { me: T_User }) {
 
     setCreateEventDisabled(true);
 
-    const result = await createEvent("d", eventName!, description!);
+    const result = await createEvent("captchaDemo", eventName!, description!);
 
     // if (!result.success) {
     //   setTimeout(() => {
@@ -278,6 +322,12 @@ export default function MenuBar({ me }: { me: T_User }) {
         <div className={styles.menuBarContent}>
           <div className={styles.menuBarItem}>
             <div
+              className={styles.joinEvent}
+              onClick={() => setJoinEventOpen(true)}
+            >
+              Join Event
+            </div>
+            <div
               className={styles.createEvent}
               onClick={() => setOverlayOpen(true)}
             >
@@ -305,7 +355,7 @@ export default function MenuBar({ me }: { me: T_User }) {
       </div>
 
       <AnimatePresence>
-        {overlayOpen && (
+        {(overlayOpen || joinEventOpen) && (
           <motion.div
             className={styles.blurOverlay}
             initial={{
@@ -321,8 +371,12 @@ export default function MenuBar({ me }: { me: T_User }) {
               opacity: 0,
             }}
             onClick={() => {
-              if (!createEventDisabled) {
-                setOverlayOpen(false);
+              if (overlayOpen) {
+                if (!createEventDisabled) {
+                  setOverlayOpen(false);
+                }
+              } else {
+                setJoinEventOpen(false);
               }
             }}
             transition={{
@@ -333,6 +387,268 @@ export default function MenuBar({ me }: { me: T_User }) {
               opacity: { duration: 0.2 },
             }}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {joinEventOpen && (
+          <motion.div
+            key="joinEventContent"
+            className={styles.overlayContent}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{
+              ...(showForm && {
+                type: "spring",
+                stiffness: 120,
+                damping: 20,
+              }),
+              ...(!showForm && {
+                duration: 0.2,
+                ease: "easeInOut",
+              }),
+              delay: showForm ? 0.2 : 0,
+            }}
+          >
+            <div
+              className={styles.joinEventContainer}
+              onClick={(e) => setJoinEventOpen(false)}
+            >
+              <AnimatePresence mode="wait">
+                {joinEventDisabled && (
+                  <motion.div
+                    key="joinEventTitleJoining"
+                    className={styles.joinEventTitle}
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.15,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    Joining event...
+                  </motion.div>
+                )}
+
+                {!joinEventError && !joinEventDisabled && (
+                  <motion.div
+                    key="joinEventTitle"
+                    className={styles.joinEventTitle}
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.15,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    Enter your 6 letter invite code
+                  </motion.div>
+                )}
+
+                {joinEventError && !joinEventDisabled && (
+                  <motion.div
+                    key="joinEventTitleError"
+                    className={styles.joinEventTitle}
+                    onClick={(e) => e.stopPropagation()}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      duration: 0.15,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    Invalid invite code
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <div onClick={(e) => e.stopPropagation()}>
+                <Magnetic
+                  intensity={0.1}
+                  springOptions={{ bounce: 0.1 }}
+                  actionArea="global"
+                  range={joinEventDisabled ? 0 : 0}
+                  className={styles.joinEventInput}
+                >
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <Magnetic
+                      key={index}
+                      intensity={0.5}
+                      springOptions={{ bounce: 0.5 }}
+                      actionArea="global"
+                      range={joinEventDisabled ? 0 : 25}
+                      // className={styles.joinEventInput}
+                    >
+                      <input
+                        autoFocus={index === 0}
+                        type="text"
+                        maxLength={1}
+                        disabled={joinEventDisabled}
+                        onKeyDown={async (e) => {
+                          e.preventDefault();
+
+                          setJoinEventError(false);
+
+                          if (e.metaKey && e.code === "KeyV") {
+                            // Handle paste (Cmd+V or Ctrl+V)
+                            e.preventDefault();
+
+                            const clipboardText =
+                              await navigator.clipboard.readText();
+                            const characters = clipboardText
+                              .replace(/[^a-zA-Z0-9]/g, "")
+                              .split("");
+
+                            if (!characters.length) return;
+
+                            let currentIndex = index;
+                            for (
+                              let i = 0;
+                              i < characters.length && currentIndex < 6;
+                              i++
+                            ) {
+                              inputRefs.current[currentIndex].value =
+                                characters[i].toUpperCase();
+                              currentIndex++;
+                            }
+
+                            const focusIndex = Math.min(currentIndex, 5);
+                            inputRefs.current[focusIndex]?.focus();
+
+                            // If we filled all 6 inputs, alert 'Submit'
+                            if (currentIndex >= 6) {
+                              _joinEvent();
+
+                              return;
+                            }
+
+                            return;
+                          }
+
+                          if (e.key === "Tab") {
+                            e.preventDefault();
+
+                            if (index < 5) {
+                              inputRefs.current[index + 1]?.focus();
+                            } else {
+                              inputRefs.current[0]?.focus();
+                            }
+
+                            return;
+                          }
+
+                          if (e.key === "Backspace") {
+                            // if (index > 0) {
+                            //   inputRefs.current[index - 1]?.focus();
+                            // }
+
+                            let target = index;
+
+                            if (inputRefs.current[index].value === "") {
+                              target -= 1;
+                              inputRefs.current[index - 1]?.focus();
+                            }
+
+                            if (target < 0) {
+                              return;
+                            }
+
+                            inputRefs.current[target].value = "";
+
+                            return;
+                          }
+
+                          if (e.key === "ArrowRight") {
+                            if (index < 5) {
+                              inputRefs.current[index + 1]?.focus();
+                            }
+
+                            return;
+                          }
+
+                          if (e.key === "ArrowLeft") {
+                            if (index > 0) {
+                              inputRefs.current[index - 1]?.focus();
+                            }
+
+                            return;
+                          }
+
+                          if (!/^[0-9a-zA-Z]$/.test(e.key)) {
+                            return;
+                          }
+
+                          inputRefs.current[index].value = e.key.toUpperCase();
+
+                          const textArray = [];
+
+                          for (let i = 0; i < 6; i++) {
+                            textArray.push(inputRefs.current[i].value);
+                          }
+
+                          if (textArray.join("").length === 6) {
+                            inputRefs.current[5]?.focus();
+                            _joinEvent();
+                            return;
+                          }
+
+                          if (index < 5) {
+                            inputRefs.current[index + 1]?.focus();
+                          }
+                        }}
+                        // onKeyUp={(e) => {
+                        //   // if key match regex of 0-9 and a-z
+                        //   if (!/^[0-9a-zA-Z]$/.test(e.key)) {
+                        //     return;
+                        //   }
+
+                        //   inputRefs.current[index].value = e.key;
+
+                        //   if (index < 5) {
+                        //     inputRefs.current[index + 1]?.focus();
+                        //   }
+                        // }}
+                        onSelect={(e) => {
+                          if (inputRefs.current[index].value) {
+                            inputRefs.current[index].setSelectionRange(1, 1);
+                          }
+                        }}
+                        onClick={(e) => {
+                          // e.preventDefault();
+
+                          if (inputRefs.current[index].value) {
+                            inputRefs.current[index].setSelectionRange(1, 1);
+                          }
+                        }}
+                        onChange={(e) => {
+                          console.log(e.target.value);
+
+                          // if the input is not empty, focus the next input
+                          if (e.target.value) {
+                            inputRefs.current[index + 1]?.focus();
+                          }
+                        }}
+                        className={clsx(
+                          styles.joinEventInputSlot,
+                          joinEventError && styles.joinEventInputSlotError
+                        )}
+                        ref={(el) => {
+                          if (el) {
+                            inputRefs.current[index] = el;
+                          }
+                        }}
+                      />
+                    </Magnetic>
+                  ))}
+                </Magnetic>
+              </div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -520,6 +836,15 @@ export default function MenuBar({ me }: { me: T_User }) {
                     }}
                     disabled={createEventDisabled}
                   >
+                    <Magnetic
+                      intensity={0.1}
+                      springOptions={{ bounce: 0.1 }}
+                      actionArea="global"
+                      className={styles.createEventFormButtonText}
+                      range={createEventDisabled ? 0 : 100}
+                    >
+                      Cancel
+                    </Magnetic>
                     <Keybind
                       keybinds={[T_Keybind.escape]}
                       className={styles.createEventFormKeybind}
@@ -531,15 +856,6 @@ export default function MenuBar({ me }: { me: T_User }) {
                       }}
                       // parentClass={styles.createEventFormKeybindCancel}
                     />
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={styles.createEventFormButtonText}
-                      range={createEventDisabled ? 0 : 100}
-                    >
-                      Cancel
-                    </Magnetic>
                   </button>
                 </Magnetic>
                 <Magnetic

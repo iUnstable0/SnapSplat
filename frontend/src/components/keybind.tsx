@@ -25,6 +25,7 @@ export enum T_Keybind {
   m = "m",
   p = "p",
   e = "e",
+  r = "r",
   period = ".",
 }
 
@@ -79,6 +80,7 @@ export default function Keybind({
           if (heldKeys.size === keybinds.length) {
             // alert(`keybind removed ${key}`);
             if (!disabled) {
+              console.log("keybind pressed", keybinds.join(","));
               onPress();
             }
           } else {
@@ -139,7 +141,7 @@ export default function Keybind({
       window.removeEventListener("keyup", handleKeyUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heldKeys, animatedKeys]);
+  }, [heldKeys, animatedKeys, disabled]);
 
   return (
     <Magnetic

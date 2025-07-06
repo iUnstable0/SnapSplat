@@ -127,7 +127,7 @@ export default function EventCard({
               setOverlayDisabled(true);
               setOverlayLoading(true);
               // alert("delete event");
-              await deleteEvent("123", event.eventId);
+              await deleteEvent("captchaDemo", event.eventId);
               setOverlayOpen(false);
               setOverlayLoading(false);
               setOverlayDisabled(false);

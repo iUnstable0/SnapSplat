@@ -187,7 +187,7 @@ export default function Sidebar({
         label: "Delete Event",
         icon: <Trash2 />,
         onClick: async () => {
-          await deleteEvent("123", data.event.eventId);
+          await deleteEvent("captchaDemo", data.event.eventId);
 
           router.push(searchParams.get("back") ?? "/app/me");
         },
