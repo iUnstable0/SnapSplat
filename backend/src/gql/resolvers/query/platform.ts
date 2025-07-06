@@ -3,6 +3,8 @@ import * as z from "zod/v4";
 import prisma from "@/db/prisma";
 
 import { Z_Platform } from "@/db/types";
+import lib_error from "@/modules/error";
+import lib_logger from "@/modules/logger";
 
 export default class query_platform {
   public static async getInfo() {
@@ -17,20 +19,36 @@ export default class query_platform {
 
     // console.log("cache miss");
 
-    const rawPlatformInfo = await prisma.platform.findMany();
+    let platformInfo: Z_Platform;
 
-    const platformInfo = Z_Platform.parse(
-      rawPlatformInfo
-        // Zod should auto filter out keys not defined in the schema
-        // .filter((info) => !info.key.startsWith("SENSITIVE_"))
-        .reduce(
-          (acc, curr) => {
-            acc[curr.key] = curr.value;
-            return acc;
-          },
-          {} as Record<string, string>
-        )
-    );
+    try {
+      const rawPlatformInfo = await prisma.platform.findMany();
+
+      platformInfo = Z_Platform.parse(
+        rawPlatformInfo
+          // Zod should auto filter out keys not defined in the schema
+          // .filter((info) => !info.key.startsWith("SENSITIVE_"))
+          .reduce(
+            (acc, curr) => {
+              acc[curr.key] = curr.value;
+              return acc;
+            },
+            {} as Record<string, string>
+          )
+      );
+    } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("query_platform/getInfo")} [${refId}] Failed to get platform info`,
+        error
+      );
+
+      throw lib_error.internal_server_error(
+        `Internal Server Error. refId: ${refId}`,
+        `500 failed to get platform info: ${error}`
+      );
+    }
 
     // console.log("platformInfo", platformInfo);
 

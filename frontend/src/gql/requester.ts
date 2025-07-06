@@ -77,10 +77,13 @@ export default class requester {
           };
         }
 
-        throw {
-          status: 0,
-          errors: [error],
-        };
+        // if error is array
+        if (Array.isArray(error)) {
+          throw {
+            status: 0,
+            errors: error,
+          };
+        }
       });
   }
 }
