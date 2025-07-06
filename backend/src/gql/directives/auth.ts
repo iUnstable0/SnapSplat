@@ -43,6 +43,18 @@ export default function authDirectiveTransformer(schema: GraphQLSchema) {
             //   },
             // });
 
+            //             throw new GraphQLError("Unauthorized", {
+            //   extensions: {
+            //     code: "UNAUTHORIZED",
+            //     http: {
+            //       status: 500,
+            //       headers: {
+            //         "x-refresh-token-needed": "true",
+            //       },
+            //     },
+            //   },
+            // });
+
             if (!context.authenticated) {
               throw new GraphQLError("Unauthorized", {
                 extensions: {

@@ -52,29 +52,61 @@ export async function GET(request: Request): Promise<Response> {
       })
     ).refreshToken;
   } catch (error: any) {
-    console.error(`[/api/refresh] Error refreshing token`, error);
+    console.error(
+      `[/api/refresh] Error refreshing token`,
+      JSON.stringify(error, null, 2)
+    );
 
-    if ("gql" in error) {
-      if (error.gql) {
-        return lib_error.unauthorized(
-          "server",
-          "Unauthorized",
-          `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
-        ) as Response;
-      }
-
-      return lib_error.unauthorized(
-        "server",
-        "Unauthorized",
-        `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
-      ) as Response;
+    if ("redirect" in error) {
+      return NextResponse.redirect(new URL(error.redirect, request.url));
     }
 
-    return lib_error.unauthorized(
-      "server",
-      "Unauthorized",
-      `unexpected error: ${JSON.stringify(error)}`
-    ) as Response;
+    if ("status" in error) {
+      switch (error.status) {
+        case 401:
+          return NextResponse.redirect(new URL("/logout", request.url));
+        case 403:
+          return NextResponse.redirect(new URL("/forbidden", request.url));
+        // case 500:
+        //   return NextResponse.redirect(
+        //     new URL(
+        //       `/error?status=500&message=${error.errors[0].message}`,
+        //       request.url
+        //     )
+        //   );
+        default:
+          return NextResponse.redirect(
+            new URL(
+              `/error?status=${error.status}&message=${error.errors[0].message}&redir=/`,
+              request.url
+            )
+          );
+      }
+    }
+
+    return NextResponse.redirect(new URL(`/error`, request.url));
+
+    // if ("gql" in error) {
+    //   if (error.gql) {
+    //     return lib_error.unauthorized(
+    //       "server",
+    //       "Unauthorized",
+    //       `unexpected gql error (gql = true): ${error.data.map((err: any) => err.message)}`
+    //     ) as Response;
+    //   }
+
+    //   return lib_error.unauthorized(
+    //     "server",
+    //     "Unauthorized",
+    //     `unexpected gql error (gql = false): ${JSON.stringify(error.data)}`
+    //   ) as Response;
+    // }
+
+    // return lib_error.unauthorized(
+    //   "server",
+    //   "Unauthorized",
+    //   `unexpected error: ${JSON.stringify(error)}`
+    // ) as Response;
   }
 
   // console.log(result);

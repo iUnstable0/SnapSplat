@@ -64,8 +64,8 @@ export default class lib_error {
       lib_error.parseMessage(normal ? normal : "Internal Server Error", dev),
       {
         extensions: {
-          code: "BAD_REQUEST",
-          http: { status: 400 },
+          code: "INTERNAL_SERVER_ERROR",
+          http: { status: 500 },
         },
       }
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import Image from "next/image";
 
@@ -12,10 +12,23 @@ import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 
 import type { T_Event } from "@/gql/types";
 import { Skeleton } from "@/components/ui/scn_skeleton";
+import clsx from "clsx";
+import { PencilIcon } from "lucide-react";
+import { Magnetic } from "./ui/mp_magnetic";
 
-export default function EventBanner({ data }: { data: { event: T_Event } }) {
+import { Toast } from "react-hot-toast";
+
+export default function EventBanner({
+  data,
+  edit,
+}: {
+  data: { event: T_Event };
+  edit?: boolean;
+}) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isIconLoaded, setIsIconLoaded] = useState(false);
+
+  const eventTitleInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <motion.div
@@ -84,11 +97,57 @@ export default function EventBanner({ data }: { data: { event: T_Event } }) {
               }}
               className={styles.eventIconImage}
             />
+            {edit && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileHover={{ opacity: 1 }}
+                transition={{
+                  duration: 0.2,
+                  ease: "easeInOut",
+                }}
+                onClick={() => {
+                  alert("clicked");
+                }}
+                className={styles.eventIconEdit}
+              >
+                <Magnetic
+                  intensity={0.1}
+                  springOptions={{ bounce: 0.1 }}
+                  actionArea="global"
+                  className={styles.eventIconEditIconMagnet}
+                  range={175}
+                >
+                  <PencilIcon className={styles.eventIconEditIcon} />
+                </Magnetic>
+              </motion.div>
+            )}
           </motion.div>
         </div>
 
         <div className={styles.eventTitleContainer}>
-          <h1 className={styles.eventTitle}>{data.event.name}</h1>
+          {edit ? (
+            <input
+              type="text"
+              className={clsx(styles.eventTitle, styles.eventTitleInput)}
+              placeholder={"Event Name"}
+              onBlur={() => {
+                if (eventTitleInputRef.current?.value === "") {
+                  eventTitleInputRef.current!.value = data.event.name;
+                }
+              }}
+              onChange={(e) => {
+                console.log(e.target.value);
+              }}
+              ref={eventTitleInputRef}
+              defaultValue={data.event.name}
+            />
+          ) : (
+            <h1 className={styles.eventTitle}>{data.event.name}</h1>
+          )}
+
+          {data.event.description && (
+            <p className={styles.eventDescription}>{data.event.description}</p>
+          )}
         </div>
       </div>
     </motion.div>

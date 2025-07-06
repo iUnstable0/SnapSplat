@@ -4,11 +4,18 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
+
+  gap: 1rem;
 }
 
 .errorMessage {
   font-size: 3rem;
   font-weight: 600;
+  color: var(--sp-text-color);
+}
+
+.errorDescription {
+  font-size: 1.2rem;
   color: var(--sp-text-color);
 }
 

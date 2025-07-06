@@ -28,6 +28,23 @@ export default class lib_error {
     });
   }
 
+  public static forbidden(
+    type: "server" | "client",
+    normal?: string,
+    dev?: string
+  ) {
+    if (type === "server") {
+      return new Response(
+        lib_error.parseMessage(normal ? normal : "Forbidden", dev),
+        { status: 403 }
+      );
+    }
+
+    return Error({
+      title: lib_error.parseMessage(normal ? normal : "Forbidden", dev),
+    });
+  }
+
   public static bad_request(
     type: "server" | "client",
     normal?: string,

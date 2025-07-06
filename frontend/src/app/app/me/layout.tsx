@@ -1,4 +1,4 @@
-import { BlurContextProvider } from "./_components/blur-context";
+import { BlurContextProvider } from "@/components/blur-context";
 
 import Navbar from "./_components/navbar";
 import "./globals.css";
