@@ -13,36 +13,33 @@ import { Z_Email } from "@/modules/parser";
 
 import { tokenCookieOpt, refreshTokenCookieOpt } from "@/modules/cookie";
 
-const Z_LoginForm = z.object({
-  email: Z_Email,
-  password: z.string(),
-});
-
-type Z_LoginForm = z.infer<typeof Z_LoginForm>;
-
-export default async function login(formData: FormData): Promise<void> {
+export default async function login(
+  captchaToken: string,
+  email: string,
+  password: string
+): Promise<{
+  success: boolean;
+  message: string;
+}> {
   const cookieStore = await cookies();
 
-  const data = Object.fromEntries(formData.entries()) as Z_LoginForm;
+  const sanitizedEmail = Z_Email.safeParse(email);
 
-  console.log(data);
-
-  const sanitizedData = Z_LoginForm.safeParse(data);
-
-  if (!sanitizedData.success) {
-    // return {
-    //   success: false,
-    //   error: sanitizedData.error.issues.map((issue) => issue.message).join(". "),
-    // };
-
-    throw new Error(
-      sanitizedData.error.issues.map((issue) => issue.message).join(". ")
-    );
+  if (!sanitizedEmail.success) {
+    return {
+      success: false,
+      message: "Please check your credentials and try again.",
+    };
   }
 
-  console.log(`sanitized`, sanitizedData);
+  const sanitizedPassword = z.string().min(8).safeParse(password);
 
-  const { email, password } = sanitizedData.data;
+  if (!sanitizedPassword.success) {
+    return {
+      success: false,
+      message: "Please check your credentials and try again.",
+    };
+  }
 
   let result = null;
 
@@ -54,16 +51,16 @@ export default async function login(formData: FormData): Promise<void> {
           fields: ["token", "refreshToken"],
           variables: {
             captchaToken: {
-              value: "123",
+              value: captchaToken,
               required: true,
             },
             email: {
-              value: email,
+              value: sanitizedEmail.data,
               type: "EmailAddress",
               required: true,
             },
             password: {
-              value: password,
+              value: sanitizedPassword.data,
               required: true,
             },
           },
@@ -71,8 +68,26 @@ export default async function login(formData: FormData): Promise<void> {
       })
     ).login;
   } catch (error) {
-    console.error("Login query failed:", error);
-    throw new Error("Login failed, please try again later.");
+    console.log("Login mutation failed:", JSON.stringify(error, null, 2));
+
+    return {
+      success: false,
+      message: "Please check your credentials and try again.",
+    };
+  }
+
+  if (!result) {
+    return {
+      success: false,
+      message: "Please check your credentials and try again.",
+    };
+  }
+
+  if (!result.token || !result.refreshToken) {
+    return {
+      success: false,
+      message: "Please check your credentials and try again.",
+    };
   }
 
   // console.log(result);
@@ -80,9 +95,8 @@ export default async function login(formData: FormData): Promise<void> {
   cookieStore.set("token", result.token, tokenCookieOpt);
   cookieStore.set("refresh_token", result.refreshToken, refreshTokenCookieOpt);
 
-  redirect("/app", RedirectType.push);
-
-  // return {
-  //   success: true,
-  // };
+  return {
+    success: true,
+    message: "Login successful",
+  };
 }

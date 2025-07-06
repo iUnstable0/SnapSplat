@@ -98,22 +98,6 @@ export default class mutation_event {
         return updatedEvent;
       })
       .then(async (event) => {
-        try {
-          const eventFolder = `events/${event.eventId}`;
-          const memberFolder = `${eventFolder}/members/${memberId}`;
-
-          await lib_storage.createFolder(eventFolder);
-          await lib_storage.createFolder(memberFolder);
-
-          // TODO: Create a shared module that defines the structure of the R2 bucket
-          // and a apply function that applies the structure based on the func input args
-        } catch (error) {
-          console.error(
-            `${lib_logger.formatPrefix("mutation_event/createEvent")} Failed to create event folder`,
-            error
-          );
-        }
-
         return event;
       })
       .catch((error) => {

@@ -164,15 +164,6 @@ export default class mutation_user {
         return user;
       })
       .then(async (user) => {
-        try {
-          await lib_storage.createFolder(`users/${user.userId}`);
-        } catch (error) {
-          console.error(
-            `${lib_logger.formatPrefix("mutation_user/register")} Failed to create user folder`,
-            error
-          );
-        }
-
         return await lib_token.genAuthTokenWithRefresh(
           user.userId,
           user.passwordSession,

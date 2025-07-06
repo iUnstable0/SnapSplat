@@ -45,7 +45,11 @@ export const Z_DisplayName = z
     message: "Display name cannot start or end with a space",
   });
 
+export type T_DisplayName = z.infer<typeof Z_DisplayName>;
+
 export const Z_SetupKey = z.string().min(1);
+
+export type T_SetupKey = z.infer<typeof Z_SetupKey>;
 
 export const Z_EventName = z
   .string()
@@ -67,3 +71,12 @@ export const Z_EventDescription = z
   })
   .trim()
   .default("");
+
+export const Z_EventCode = z
+  .string()
+  .min(6, {
+    message: "Event code can't be shorter than 6 characters",
+  })
+  .regex(/^[0-9a-zA-Z]{6}$/, {
+    message: "Event code can only contain letters and numbers",
+  });

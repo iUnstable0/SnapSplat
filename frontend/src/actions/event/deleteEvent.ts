@@ -36,7 +36,7 @@ export default async function deleteEvent(
             //   fields: ["eventId"],
             variables: {
               captchaToken: {
-                value: "123",
+                value: "captchaDemo",
                 required: true,
               },
               eventId: {
@@ -51,7 +51,7 @@ export default async function deleteEvent(
       )
     ).createEvent;
   } catch (error) {
-    console.error("Delete event query failed:", error);
+    console.error("Delete event mutation failed:", error);
 
     return {
       success: false,

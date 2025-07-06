@@ -109,8 +109,11 @@ type Mutation {
     setupKey: String
   ): TokenSet! @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
-  login(captchaToken: String!, email: String!, password: String!): TokenSet!
-    @rateLimit(window: "5s", max: 10, message: "Too many requests")
+  login(
+    captchaToken: String!
+    email: EmailAddress!
+    password: String!
+  ): TokenSet! @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
   refreshToken(token: String!, refreshToken: String!): Token!
     @rateLimit(window: "5s", max: 10, message: "Too many requests")

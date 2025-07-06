@@ -4,13 +4,12 @@ import * as gql_builder from "gql-query-builder";
 
 import requester from "@/gql/requester";
 
-import { Z_EventName, Z_EventDescription } from "@/modules/parser";
+import { Z_EventCode } from "@/modules/parser";
 import { cookies } from "next/headers";
 
 export default async function createEvent(
   captchaToken: string,
-  eventName: string,
-  eventDescription: string
+  code: string
 ): Promise<{
   success: boolean;
   message: string;
@@ -18,20 +17,14 @@ export default async function createEvent(
 }> {
   const cookieStore = await cookies();
 
-  const eventNameResult = Z_EventName.safeParse(eventName);
-  const descriptionResult = Z_EventDescription.safeParse(eventDescription);
+  console.log("received data", captchaToken, code);
 
-  if (!eventNameResult.success) {
+  const codeResult = Z_EventCode.safeParse(code);
+
+  if (!codeResult.success) {
     return {
       success: false,
-      message: "Invalid event name",
-    };
-  }
-
-  if (!descriptionResult.success) {
-    return {
-      success: false,
-      message: "Invalid description",
+      message: "Invalid event code",
     };
   }
 
@@ -42,20 +35,16 @@ export default async function createEvent(
       await requester.request(
         {
           data: gql_builder.mutation({
-            operation: "createEvent",
+            operation: "joinEvent",
             fields: ["eventId"],
             variables: {
               captchaToken: {
                 value: "captchaDemo",
                 required: true,
               },
-              name: {
-                value: eventNameResult.data,
+              code: {
+                value: codeResult.data,
                 required: true,
-              },
-              description: {
-                value: descriptionResult.data,
-                required: false,
               },
             },
           }),
@@ -63,9 +52,9 @@ export default async function createEvent(
         },
         cookieStore.get("token")?.value
       )
-    ).createEvent;
+    ).joinEvent;
   } catch (error) {
-    console.log("Create event mutation failed:", error);
+    console.error("Join event mutation failed:", error);
 
     return {
       success: false,
@@ -75,7 +64,7 @@ export default async function createEvent(
 
   return {
     success: true,
-    message: "Event created successfully",
+    message: "Event joined successfully",
     data: result,
   };
 

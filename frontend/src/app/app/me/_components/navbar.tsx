@@ -235,7 +235,7 @@ export default function Navbar() {
             <div className={styles.navbarTitle}>
               <TextMorph>
                 {menuItems.find((item) => item.href === pathname)?.label ||
-                  "Error"}
+                  "Upcoming"}
               </TextMorph>
             </div>
             <ChevronDown className={styles.navbarTitleIcon} />
