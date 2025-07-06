@@ -5,6 +5,7 @@ import * as z from "zod/v4";
 
 import lib_token from "@/modules/token";
 import lib_url from "@/modules/url";
+import { refreshTokenCookieOpt, tokenCookieOpt } from "./modules/cookie";
 
 const GUEST_PATHS = ["/app/me/login", "/app/me/register", "/app/me/setup"];
 
@@ -39,14 +40,7 @@ function handleAuthFailure(
     }
   }
 
-  const response = NextResponse.redirect(loginUrl);
-
-  response.cookies.delete("token");
-  if (deleteRefreshToken) {
-    response.cookies.delete("refresh_token");
-  }
-
-  return response;
+  return NextResponse.redirect(loginUrl);
 }
 
 function validateRefreshToken(request: NextRequest): boolean {
@@ -84,6 +78,27 @@ export async function middleware(request: NextRequest) {
     }
 
     return NextResponse.next();
+  }
+
+  if (pathname === "/logout") {
+    console.log("Handling logout request");
+
+    const response = NextResponse.redirect(
+      new URL("/app/me/login", lib_url.getPublicUrl(request.url))
+    );
+
+    response.cookies.set("token", "", {
+      ...tokenCookieOpt,
+      maxAge: 0,
+    });
+    response.cookies.set("refresh_token", "", {
+      ...refreshTokenCookieOpt,
+      maxAge: 0,
+    });
+
+    console.log("Logout response", response.cookies.getAll());
+
+    return response;
   }
 
   const tokenCookie = request.cookies.get("token");
