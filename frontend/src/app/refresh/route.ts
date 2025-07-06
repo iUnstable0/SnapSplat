@@ -60,15 +60,21 @@ export async function GET(request: Request): Promise<Response> {
     );
 
     if ("redirect" in error) {
-      return NextResponse.redirect(new URL(error.redirect, request.url));
+      return NextResponse.redirect(
+        new URL(error.redirect, process.env.NEXT_PUBLIC_URL)
+      );
     }
 
     if ("status" in error) {
       switch (error.status) {
         case 401:
-          return NextResponse.redirect(new URL("/logout", request.url));
+          return NextResponse.redirect(
+            new URL("/logout", process.env.NEXT_PUBLIC_URL)
+          );
         case 403:
-          return NextResponse.redirect(new URL("/forbidden", request.url));
+          return NextResponse.redirect(
+            new URL("/forbidden", process.env.NEXT_PUBLIC_URL)
+          );
         // case 500:
         //   return NextResponse.redirect(
         //     new URL(
@@ -80,13 +86,15 @@ export async function GET(request: Request): Promise<Response> {
           return NextResponse.redirect(
             new URL(
               `/error?status=${error.status}&message=${error.errors[0].message}&redir=/`,
-              request.url
+              process.env.NEXT_PUBLIC_URL
             )
           );
       }
     }
 
-    return NextResponse.redirect(new URL(`/error`, request.url));
+    return NextResponse.redirect(
+      new URL(`/error`, process.env.NEXT_PUBLIC_URL)
+    );
 
     // if ("gql" in error) {
     //   if (error.gql) {
@@ -118,6 +126,6 @@ export async function GET(request: Request): Promise<Response> {
 
   // return new Response("OK", { status: 200 });
   return NextResponse.redirect(
-    new URL(redirectUrl ? redirectUrl : "/app", request.url)
+    new URL(redirectUrl ? redirectUrl : "/app", process.env.NEXT_PUBLIC_URL)
   );
 }
