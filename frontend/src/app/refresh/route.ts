@@ -66,29 +66,17 @@ export async function GET(request: Request): Promise<Response> {
     if ("redirect" in error) {
       // if (error.redirect === "/app/me/login") {
 
-      const response = NextResponse.redirect(
+      return NextResponse.redirect(
         new URL("/logout", lib_url.getPublicUrl(request.url))
       );
-
-      if (error.redirect === "/logout") {
-        response.cookies.delete("token");
-        response.cookies.delete("refresh_token");
-      }
-
-      return response;
     }
 
     if ("status" in error) {
       switch (error.status) {
         case 401:
-          const response = NextResponse.redirect(
+          return NextResponse.redirect(
             new URL("/logout", lib_url.getPublicUrl(request.url))
           );
-
-          response.cookies.delete("token");
-          response.cookies.delete("refresh_token");
-
-          return response;
         case 403:
           return NextResponse.redirect(
             new URL("/forbidden", lib_url.getPublicUrl(request.url))
