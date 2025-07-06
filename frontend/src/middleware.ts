@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import * as z from "zod/v4";
 
 import lib_token from "@/modules/token";
+import lib_url from "@/modules/url";
 
 const GUEST_PATHS = ["/app/me/login", "/app/me/register", "/app/me/setup"];
 
@@ -15,7 +16,12 @@ const LEGACY_PATH_MAP: { [key: string]: string } = {
   "/setup": "/app/me/setup",
 };
 
-function handleAuthFailure(request: NextRequest): NextResponse {
+function handleAuthFailure(
+  request: NextRequest,
+  deleteRefreshToken: boolean = false
+): NextResponse {
+  console.log("Invalid auth, redirecting to login");
+
   const { pathname } = request.nextUrl;
 
   //   if (pathname.startsWith("/api/")) {
@@ -25,7 +31,7 @@ function handleAuthFailure(request: NextRequest): NextResponse {
   //     );
   //   }
 
-  const loginUrl = new URL("/app/me/login", request.url);
+  const loginUrl = new URL("/app/me/login", lib_url.getPublicUrl(request.url));
 
   if (pathname !== "/") {
     if (!pathname.startsWith("/app/me")) {
@@ -33,7 +39,14 @@ function handleAuthFailure(request: NextRequest): NextResponse {
     }
   }
 
-  return NextResponse.redirect(loginUrl);
+  const response = NextResponse.redirect(loginUrl);
+
+  response.cookies.delete("token");
+  if (deleteRefreshToken) {
+    response.cookies.delete("refresh_token");
+  }
+
+  return response;
 }
 
 function validateRefreshToken(request: NextRequest): boolean {
@@ -49,17 +62,25 @@ function validateRefreshToken(request: NextRequest): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  console.log("Guarding", request.url);
+
   const { pathname } = request.nextUrl;
 
   if (LEGACY_PATH_MAP[pathname]) {
-    const newUrl = new URL(LEGACY_PATH_MAP[pathname], request.url);
+    console.log("Redirecting legacy path:", pathname);
+
+    const newUrl = new URL(
+      LEGACY_PATH_MAP[pathname],
+      lib_url.getPublicUrl(request.url)
+    );
 
     return NextResponse.redirect(newUrl);
   }
 
   if (pathname === "/refresh") {
+    console.log("Handling refresh token request");
     if (!validateRefreshToken(request)) {
-      return handleAuthFailure(request);
+      return handleAuthFailure(request, true);
     }
 
     return NextResponse.next();
@@ -69,13 +90,20 @@ export async function middleware(request: NextRequest) {
   const hasAuthToken = !!tokenCookie;
 
   if (hasAuthToken && GUEST_PATHS.includes(pathname)) {
-    const appUrl = new URL(PROTECTED_APP_PATH_PREFIX, request.url);
+    console.log("Autism");
+    const appUrl = new URL(
+      PROTECTED_APP_PATH_PREFIX,
+      lib_url.getPublicUrl(request.url)
+    );
+    console.log("Autism redirect", appUrl);
 
     return NextResponse.redirect(appUrl);
   }
 
   // 4. Handle Protected Application Paths
   if (pathname.startsWith(PROTECTED_APP_PATH_PREFIX)) {
+    console.log("Handling protected app path:", pathname);
+
     // If it's a protected path but not a guest-only one (like /app/me)
     if (!GUEST_PATHS.includes(pathname)) {
       if (!hasAuthToken) {
@@ -89,7 +117,10 @@ export async function middleware(request: NextRequest) {
       if (!result.valid) {
         // If the token is invalid but renewable, redirect to the refresh path.
         if (result.renew) {
-          const refreshUrl = new URL("/refresh", request.url);
+          const refreshUrl = new URL(
+            "/refresh",
+            lib_url.getPublicUrl(request.url)
+          );
           refreshUrl.searchParams.set("redir", encodeURIComponent(pathname));
           return NextResponse.redirect(refreshUrl);
         }
@@ -100,11 +131,15 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname === "/app") {
-    return NextResponse.redirect(new URL("/app/me", request.url));
+    return NextResponse.redirect(
+      new URL("/app/me", lib_url.getPublicUrl(request.url))
+    );
   }
 
   if (/^\/app\/event\/[^/]+$/.test(pathname)) {
-    return NextResponse.redirect(new URL(`${pathname}/home`, request.url));
+    return NextResponse.redirect(
+      new URL(`${pathname}/home`, lib_url.getPublicUrl(request.url))
+    );
   }
 
   return NextResponse.next();

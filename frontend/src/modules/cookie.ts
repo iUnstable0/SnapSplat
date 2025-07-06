@@ -13,7 +13,7 @@ export const tokenCookieOpt: CookieOptions = {
   maxAge: 60 * 60 * 24 * 8, // 8 days
   sameSite: "strict",
   path: "/",
-  domain: process.env.NEXT_PUBLIC_DOMAIN
+  domain: process.env.NEXT_PUBLIC_DOMAIN,
 };
 
 export const refreshTokenCookieOpt: CookieOptions = {
@@ -21,6 +21,8 @@ export const refreshTokenCookieOpt: CookieOptions = {
   secure: process.env.NEXT_PUBLIC_NODE_ENV === "production",
   maxAge: 60 * 60 * 24 * 8, // 8 days
   sameSite: "strict",
-  path: "/refresh",
-  domain: process.env.NEXT_PUBLIC_DOMAIN
+  // path: "/refresh",
+  // Multiple path
+  path: "/refresh, /logout",
+  domain: process.env.NEXT_PUBLIC_DOMAIN,
 };

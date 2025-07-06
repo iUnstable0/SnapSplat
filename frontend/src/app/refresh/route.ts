@@ -6,6 +6,7 @@ import * as gql_builder from "gql-query-builder";
 import requester from "@/gql/requester";
 
 import lib_error from "@/modules/error";
+import lib_url from "@/modules/url";
 
 import { tokenCookieOpt } from "@/modules/cookie";
 
@@ -59,9 +60,12 @@ export async function GET(request: Request): Promise<Response> {
       JSON.stringify(error, null, 2)
     );
 
+    // console.log(lib_url.getPublicUrl(request.url));
+    // console.log(new URL(error.redirect, lib_url.getPublicUrl(request.url)))
+
     if ("redirect" in error) {
       return NextResponse.redirect(
-        new URL(error.redirect, process.env.NEXT_PUBLIC_URL)
+        new URL(error.redirect, lib_url.getPublicUrl(request.url))
       );
     }
 
@@ -69,11 +73,11 @@ export async function GET(request: Request): Promise<Response> {
       switch (error.status) {
         case 401:
           return NextResponse.redirect(
-            new URL("/logout", process.env.NEXT_PUBLIC_URL)
+            new URL("/logout", lib_url.getPublicUrl(request.url))
           );
         case 403:
           return NextResponse.redirect(
-            new URL("/forbidden", process.env.NEXT_PUBLIC_URL)
+            new URL("/forbidden", lib_url.getPublicUrl(request.url))
           );
         // case 500:
         //   return NextResponse.redirect(
@@ -86,14 +90,14 @@ export async function GET(request: Request): Promise<Response> {
           return NextResponse.redirect(
             new URL(
               `/error?status=${error.status}&message=${error.errors[0].message}&redir=/`,
-              process.env.NEXT_PUBLIC_URL
+              lib_url.getPublicUrl(request.url)
             )
           );
       }
     }
 
     return NextResponse.redirect(
-      new URL(`/error`, process.env.NEXT_PUBLIC_URL)
+      new URL(`/error`, lib_url.getPublicUrl(request.url))
     );
 
     // if ("gql" in error) {
@@ -126,6 +130,6 @@ export async function GET(request: Request): Promise<Response> {
 
   // return new Response("OK", { status: 200 });
   return NextResponse.redirect(
-    new URL(redirectUrl ? redirectUrl : "/app", process.env.NEXT_PUBLIC_URL)
+    new URL(redirectUrl ? redirectUrl : "/app", lib_url.getPublicUrl(request.url))
   );
 }

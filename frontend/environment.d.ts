@@ -7,6 +7,8 @@ declare namespace NodeJS {
     NEXT_PUBLIC_GQL_ENDPOINT: string;
 
     NEXT_PUBLIC_DOMAIN: string;
+    NEXT_PUBLIC_PORT: string;
+    NEXT_PUBLIC_PROTOCOL: string;
     NEXT_PUBLIC_URL: string;
 
     NEXT_PUBLIC_CFTS_SITE_KEY: string;
