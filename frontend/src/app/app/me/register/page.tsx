@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -21,7 +21,7 @@ import Spinner from "@/components/spinner";
 
 import { Z_DisplayName, Z_Email, Z_Password } from "@/modules/parser";
 
-export default function RegisterPage() {
+function RegisterComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -628,5 +628,13 @@ export default function RegisterPage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterComponent />
+    </Suspense>
   );
 }
