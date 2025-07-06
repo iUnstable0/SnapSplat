@@ -32,14 +32,17 @@ body {
   --sp-dangerous-color-light: rgb(205, 43, 43);
   --sp-dangerous-color-light-background: rgba(222, 88, 88, 0.526);
   --sp-dangerous-color-light-shadow: rgba(255, 63, 63, 0.5);
+  --sp-dangerous-color-light-box-shadow: rgba(255, 63, 63, 0.5);
 
   --sp-dangerous-color-dark: rgb(255, 63, 63);
   --sp-dangerous-color-dark-background: #492020;
   --sp-dangerous-color-dark-shadow: rgba(255, 63, 63, 0.5);
+  --sp-dangerous-color-dark-box-shadow: rgba(145, 38, 38, 0.7);
 
   --sp-dangerous-color: var(--sp-dangerous-color-light);
   --sp-dangerous-color-background: var(--sp-dangerous-color-light-background);
   --sp-dangerous-color-shadow: var(--sp-dangerous-color-light-shadow);
+  --sp-dangerous-color-box-shadow: var(--sp-dangerous-color-light-box-shadow);
 
   --sp-skeleton-color: #c1c1c1;
 
@@ -64,6 +67,7 @@ body {
     --sp-dangerous-color: var(--sp-dangerous-color-dark);
     --sp-dangerous-color-background: var(--sp-dangerous-color-dark-background);
     --sp-dangerous-color-shadow: var(--sp-dangerous-color-dark-shadow);
+    --sp-dangerous-color-box-shadow: var(--sp-dangerous-color-dark-box-shadow);
 
     --sp-skeleton-color: #2d2d2d;
 

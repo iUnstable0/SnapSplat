@@ -21,7 +21,7 @@ import type { T_User } from "@/gql/types";
 
 import { Z_EventName, Z_EventDescription } from "@/modules/parser";
 
-import Keybind, { T_Keybind } from "@/components/keybind";
+import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { TextMorph } from "@/components/ui/mp_text-morph";
@@ -97,10 +97,11 @@ export default function MenuBar({ me }: { me: T_User }) {
     } else {
       setIsBlurred(false);
 
-      setIssues({
+      setIssues((prev) => ({
+        ...prev,
         eventName: { success: true, reasons: [] },
         description: { success: true, reasons: [] },
-      });
+      }));
 
       setTimeout(() => {
         setShowForm(true);
@@ -136,13 +137,13 @@ export default function MenuBar({ me }: { me: T_User }) {
         reasons = eventNameResult.error.issues.map((issue) => issue.message);
       }
 
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         eventName: {
           success: false,
           reasons: reasons,
         },
-      });
+      }));
 
       return {
         success: false,
@@ -150,13 +151,13 @@ export default function MenuBar({ me }: { me: T_User }) {
       };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       eventName: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return {
       success: true,
@@ -180,13 +181,13 @@ export default function MenuBar({ me }: { me: T_User }) {
         reasons = descriptionResult.error.issues.map((issue) => issue.message);
       }
 
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         description: {
           success: false,
           reasons: reasons,
         },
-      });
+      }));
 
       return {
         success: false,
@@ -194,13 +195,13 @@ export default function MenuBar({ me }: { me: T_User }) {
       };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       description: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return {
       success: true,
@@ -266,54 +267,6 @@ export default function MenuBar({ me }: { me: T_User }) {
         setJoinEventError(true);
       }
     }, 1000);
-  };
-
-  const _createEvent = async () => {
-    // Just for extra safety
-    if (createEventDisabled) {
-      return;
-    }
-
-    // setCreateEventDisabled(true);
-
-    const { success: checkSuccess, eventName, description } = checkFormIssues();
-
-    if (!checkSuccess) {
-      // setCreateEventDisabled(false);
-      // alert("theres an issue");
-      return;
-    }
-
-    setCreateEventDisabled(true);
-
-    const result = await createEvent("captchaDemo", eventName!, description!);
-
-    // if (!result.success) {
-    //   setTimeout(() => {
-    //     setCreateEventDisabled(false);
-    //   }, 1000);
-
-    //   // alert(result.message);
-
-    //   return;
-    // }
-
-    // router.push(`/app/event/${result.data.eventId}`);
-    // router.push(`/app/me/drafts`);
-
-    setTimeout(() => {
-      setCreateEventDisabled(false);
-
-      if (result.success) {
-        setOverlayOpen(false);
-        // router.push(`/app/event/${result.data.eventId}`);
-        router.push(`/app/me/drafts`);
-      }
-    }, 1000);
-
-    // alert(result.message);
-
-    // return;
   };
 
   return (
@@ -725,23 +678,23 @@ export default function MenuBar({ me }: { me: T_User }) {
                   required={true}
                 />
                 <AnimatePresence mode="popLayout">
-                  {!issues.eventName.success && (
-                    <motion.div
-                      key="eventNameIssues"
-                      className={styles.createEventFormInvalidText}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{
-                        duration: 0.2,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      <TextMorph>
-                        {issues.eventName.reasons.join(", ")}
-                      </TextMorph>
-                    </motion.div>
-                  )}
+                  {!issues.eventName.success &&
+                    issues.eventName.reasons.map((reason, index) => (
+                      <motion.div
+                        key={`eventNameIssues_${index}`}
+                        className={styles.createEventFormInvalidText}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                          duration: 0.2,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        {reason}
+                        {/* <TextMorph>{reason}</TextMorph> */}
+                      </motion.div>
+                    ))}
                 </AnimatePresence>
               </div>
               <div className={styles.createEventFormContent}>
@@ -812,7 +765,56 @@ export default function MenuBar({ me }: { me: T_User }) {
                 </AnimatePresence>
               </div>
               <div className={styles.createEventFormFooter}>
-                <Magnetic
+                <KeybindButton
+                  keybinds={[T_Keybind.escape]}
+                  onPress={() => {
+                    setOverlayOpen(false);
+                  }}
+                  disabled={createEventDisabled}
+                  // textClassName={styles.createEventFormButtonText}
+                >
+                  Cancel
+                </KeybindButton>
+
+                <KeybindButton
+                  keybinds={[T_Keybind.shift, T_Keybind.enter]}
+                  onPress={async () => {
+                    const {
+                      success: checkSuccess,
+                      eventName,
+                      description,
+                    } = checkFormIssues();
+
+                    if (!checkSuccess) {
+                      return;
+                    }
+
+                    setCreateEventDisabled(true);
+
+                    const result = await createEvent(
+                      "captchaDemo",
+                      eventName!,
+                      description!
+                    );
+
+                    setTimeout(() => {
+                      setCreateEventDisabled(false);
+
+                      if (result.success) {
+                        setOverlayOpen(false);
+                        router.push(`/app/me/drafts`);
+                      }
+                    }, 1000);
+                  }}
+                  disabled={createEventDisabled}
+                  loading={createEventDisabled}
+                  loadingText="Creating..."
+                  // textClassName={styles.createEventFormButtonText}
+                >
+                  Create Event
+                </KeybindButton>
+
+                {/* <Magnetic
                   intensity={0.1}
                   springOptions={{ bounce: 0.1 }}
                   actionArea="global"
@@ -898,7 +900,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                       dangerous={false}
                     />
                   </button>
-                </Magnetic>
+                </Magnetic> */}
               </div>
             </div>
           </motion.div>

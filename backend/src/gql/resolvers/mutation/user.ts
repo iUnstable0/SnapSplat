@@ -112,10 +112,7 @@ export default class mutation_user {
 
     if (!platformSetupCompleted) {
       if (!setupKey) {
-        throw lib_error.bad_request(
-          "Platform must be setup first",
-          "setupKey is missing"
-        );
+        throw lib_error.bad_request("Platform must be setup first");
       }
 
       if (setupKey !== process.env.SETUP_KEY) {

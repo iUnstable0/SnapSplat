@@ -1,10 +1,11 @@
-.buttonKeybindMagnet {
+.keybindContainerMagnet {
   display: flex;
   flex-direction: row;
+
   gap: 8px;
 }
 
-.buttonKeybind {
+.keybindContainer {
   padding: 4px 8px;
 
   border-radius: 4px;
@@ -18,17 +19,9 @@
   transition: all 0.2s ease-in-out;
 }
 
-.buttonKeybindIcon {
+.keybindIcon {
   width: 18px;
   height: 18px;
-
-  transition: all 0.2s ease-in-out;
-}
-
-.buttonKeybindText {
-  font-size: 14px;
-  font-weight: 500;
-  /* color: #1d1d1d; */
 
   display: flex;
   align-items: center;
@@ -37,23 +30,211 @@
   transition: all 0.2s ease-in-out;
 }
 
-.buttonKeybind_active {
-  background-color: #00000037;
-  scale: 1.1;
+.keybindText {
+  font-size: 14px;
+  font-weight: 500;
 
-  .buttonKeybindIcon {
-    filter: drop-shadow(0 0 10px #0000009d) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.2s ease-in-out;
+}
+
+.keybindButton {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition: scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.keybindButtonIcon {
+  width: 18px;
+  height: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    color 0.2s ease-in-out,
+    filter 0.2s ease-in-out;
+}
+
+.keybindButtonText {
+  transition:
+    color 0.2s ease-in-out,
+    text-shadow 0.2s ease-in-out;
+}
+
+/* keybindButton.hover If Keybinds is not disabled */
+.keybindButton:hover:not(:disabled) {
+  scale: 1.1;
+}
+
+/* keybindButton.active If Keybinds is not disabled */
+.keybindButton:active:not(:disabled) {
+  scale: 1.05;
+}
+
+/* If Keybinds is disabled */
+.keybindButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* beybindButton:hover If Keybinds is not disabled and not dangerous */
+.keybindButton:hover:not(:disabled):not(.keybindButtonDangerous) {
+  .keybindButtonIcon {
+    filter: drop-shadow(0 0 10px #30303097);
+  }
+
+  .keybindButtonText {
+    /* TODO: Test the color */
+    text-shadow: 0 0 10px #30303097;
+  }
+
+  .keybindContainer {
+    box-shadow: 0 0 5px #30303097;
+    background-color: #00000029;
   }
 }
 
-.buttonKeybindDangerous_active {
-  background-color: var(--sp-dangerous-color-light) !important;
-  scale: 1.1;
-  color: #492020;
+/* keybindButtonDangerous.hover If Keybinds is not disabled and dangerous */
+.keybindButtonDangerous:hover:not(:disabled) {
+  .keybindButtonIcon {
+    color: var(--sp-dangerous-color-light);
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color-light-shadow));
+  }
 
-  .buttonKeybindIcon {
-    filter: drop-shadow(
-      0 0 10px var(--sp-dangerous-color-light-shadow)
-    ) !important;
+  .keybindButtonText {
+    color: var(--sp-dangerous-color-light);
+    text-shadow: 0 0 10px var(--sp-dangerous-color-light-shadow);
+  }
+
+  .keybindContainer {
+    box-shadow: 0 0 10px var(--sp-dangerous-color-light-box-shadow);
+    background-color: var(--sp-dangerous-color-light);
+  }
+}
+
+/* If Keybinds is not disabled and not dangerous and has keybind pressed down */
+.keybindButton:not(:disabled):not(.keybindButtonDangerous):has(
+    .keybindContainer_active
+  ) {
+  .keybindContainer_active {
+    box-shadow: 0 0 5px #30303097;
+    background-color: #00000029;
+  }
+
+  .keybindButton:not(:hover) {
+    .keybindContainer_active {
+      scale: 1.1;
+    }
+  }
+}
+
+/* if Keybinds is not disabled and is dangerous and has keybind pressed down */
+.keybindButtonDangerous:not(:disabled):has(.keybindContainer_active) {
+  .keybindContainer_active {
+    box-shadow: 0 0 10px var(--sp-dangerous-color-light-box-shadow);
+    background-color: var(--sp-dangerous-color-light);
+  }
+
+  .keybindButtonDangerous:not(:hover) {
+    .keybindContainer_active {
+      scale: 1.1;
+    }
+  }
+}
+
+/* If Keybinds is not disabled and is not dangerous and has all keybinds pressed down */
+.keybindButton:not(:disabled):not(.keybindButtonDangerous):has(
+    .keybindContainer_activeall
+  ) {
+  & {
+    scale: 1.1;
+  }
+
+  .keybindButtonIcon {
+    filter: drop-shadow(0 0 10px #30303097);
+  }
+
+  .keybindButtonText {
+    /* TODO: Test the color */
+    text-shadow: 0 0 10px #30303097;
+  }
+
+  .keybindContainer {
+    box-shadow: 0 0 5px #30303097;
+    background-color: #00000029;
+  }
+}
+
+/* If Keybinds is not disabled and is dangerous and has all keybinds pressed down */
+.keybindButtonDangerous:not(:disabled):has(.keybindContainer_activeall) {
+  & {
+    scale: 1.1;
+  }
+
+  .keybindButtonIcon {
+    color: var(--sp-dangerous-color-light);
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color-light-shadow));
+  }
+
+  .keybindButtonText {
+    color: var(--sp-dangerous-color-light);
+    text-shadow: 0 0 10px var(--sp-dangerous-color-light-shadow);
+  }
+}
+
+/* If Keybinds is not dangerous and is loading */
+.keybindButton:not(.keybindButtonDangerous):has(.keybindContainer_loading) {
+  & {
+    scale: 1.1;
+  }
+
+  .keybindButtonIcon {
+    filter: drop-shadow(0 0 10px #30303097);
+  }
+
+  .keybindButtonText {
+    /* TODO: Test the color */
+    text-shadow: 0 0 10px #30303097;
+  }
+
+  .keybindContainer {
+    box-shadow: 0 0 5px #30303097;
+    background-color: #00000029;
+  }
+
+  .keybindContainer {
+    box-shadow: 0 0 5px #30303097;
+    background-color: #00000029;
+  }
+}
+
+/* If Keybinds is dangerous and is loading */
+.keybindButtonDangerous:has(.keybindContainer_loading) {
+  & {
+    scale: 1.1;
+  }
+
+  .keybindButtonIcon {
+    color: var(--sp-dangerous-color-light);
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color-light-shadow));
+  }
+
+  .keybindButtonText {
+    color: var(--sp-dangerous-color-light);
+    text-shadow: 0 0 10px var(--sp-dangerous-color-light-shadow);
+  }
+
+  .keybindContainer {
+    box-shadow: 0 0 10px var(--sp-dangerous-color-light-box-shadow);
+    background-color: var(--sp-dangerous-color-light);
   }
 }

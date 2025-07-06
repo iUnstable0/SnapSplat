@@ -89,7 +89,7 @@ export default async function register(
 
     return {
       success: false,
-      message: "Please try again later.",
+      message: (error as any).errors[0].message,
     };
   }
 

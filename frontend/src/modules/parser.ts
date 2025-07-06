@@ -59,6 +59,9 @@ export const Z_EventName = z
   .max(50, {
     message: "Event name can't be longer than 50 characters",
   })
+  .regex(/[a-zA-Z]/, {
+    message: "Event name must contain at least one letter",
+  })
   .trim();
 
 export const Z_EventDescription = z

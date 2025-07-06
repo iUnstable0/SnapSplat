@@ -7,12 +7,13 @@ import { usePathname, useRouter } from "next/navigation";
 
 import clsx from "clsx";
 import { motion, AnimatePresence } from "motion/react";
-import { FolderOpen, LogOut, Trash2, Wrench } from "lucide-react";
+import { FolderOpen, LogOut, Trash2, Wrench, X } from "lucide-react";
 
 import deleteEvent from "@/actions/event/deleteEvent";
 
 import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
-import Keybind, { T_Keybind } from "@/components/keybind";
+import { KeybindButton, T_Keybind } from "@/components/keybind";
+import Confirmation from "@/components/confirmation";
 
 import { useBlurContext } from "@/components/blur-context";
 
@@ -47,6 +48,10 @@ export default function EventCard({
   const [overlayDisabled, setOverlayDisabled] = useState(false);
   const [overlayLoading, setOverlayLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
+    useState(false);
 
   useEffect(() => {
     if (overlayOpen) {
@@ -129,13 +134,10 @@ export default function EventCard({
 
               setOverlayDisabled(true);
               setOverlayLoading(true);
-              // alert("delete event");
-              await deleteEvent("captchaDemo", event.eventId);
-              setOverlayOpen(false);
-              setOverlayLoading(false);
-              setOverlayDisabled(false);
-              router.refresh();
+
+              setDeleteConfirmationOpen(true);
             },
+            loadingText: "Deleting...",
             keybinds: [T_Keybind.shift, T_Keybind.backspace],
           },
         ]
@@ -159,6 +161,18 @@ export default function EventCard({
       }}
       onHoverEnd={() => {
         // setManageEvent(null);
+        if (deleteConfirmationOpen) {
+          if (!deleteConfirmationLoading) {
+            setOverlayOpen(false);
+            setDeleteConfirmationOpen(false);
+
+            setOverlayLoading(false);
+            setOverlayDisabled(false);
+          }
+
+          return;
+        }
+
         setOverlayOpen(false);
       }}
       onClick={() => {
@@ -178,6 +192,43 @@ export default function EventCard({
           >
             <Skeleton className={styles.eventImageSkeleton} />
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {deleteConfirmationOpen && (
+          <Confirmation
+            title="Delete Event"
+            description="Are you sure you want to delete this event?"
+            confirmText="Delete"
+            confirmLoadingText="Deleting..."
+            // confirmIcon={<Trash2 />}
+            // cancelIcon={<X />}
+            onConfirm={async () => {
+              await deleteEvent("captchaDemo", event.eventId);
+
+              setDeleteConfirmationOpen(false);
+
+              setTimeout(() => {
+                setOverlayLoading(false);
+                setOverlayDisabled(false);
+                setOverlayOpen(false);
+
+                router.refresh();
+              }, 1000);
+            }}
+            onCancel={() => {
+              setDeleteConfirmationOpen(false);
+
+              setTimeout(() => {
+                setOverlayLoading(false);
+                setOverlayDisabled(false);
+              }, 1000);
+            }}
+            confirmationLoading={deleteConfirmationLoading}
+            setConfirmationLoading={setDeleteConfirmationLoading}
+            dangerous={true}
+          />
         )}
       </AnimatePresence>
 
@@ -229,7 +280,7 @@ export default function EventCard({
                 }}
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{
-                  opacity: overlayDisabled ? 0.5 : 1,
+                  opacity: 1,
                   scale: 1,
                 }}
                 exit={{ opacity: 0, scale: 0.98 }}
@@ -246,7 +297,25 @@ export default function EventCard({
                 }
                 className={styles.eventCardMenuButton}
               >
-                <Magnetic
+                <KeybindButton
+                  keybinds={item.keybinds}
+                  onPress={() => {
+                    item.onClick();
+                  }}
+                  textClassName={styles.overlayButtonText}
+                  dangerous={item.dangerous}
+                  disabled={overlayDisabled}
+                  forcetheme="dark"
+                  icon={item.icon}
+                  iconClassName={styles.overlayButtonIcon}
+                  loading={overlayLoading}
+                  loadingText={item.loadingText}
+                  // loadingTheme="dangerous"
+                >
+                  {item.label}
+                </KeybindButton>
+
+                {/* <Magnetic
                   intensity={0.1}
                   springOptions={{ bounce: 0.1 }}
                   actionArea="global"
@@ -266,14 +335,14 @@ export default function EventCard({
                         forcetheme={"dangerous"}
                       />
                     )}
-                  <div className={styles.overlayButtonIcon}>{item.icon}</div>
-                  {/* <span className={styles.overlayButtonText}>{item.label}</span> */}
+                  <div className={styles.overlayButtonIcon}>{item.icon}</div> */}
+                {/* <span className={styles.overlayButtonText}>{item.label}</span> */}
 
-                  <div className={styles.overlayButtonText}>
+                {/* <div className={styles.overlayButtonText}>
                     <TextMorph>{item.label}</TextMorph>
-                  </div>
+                  </div> */}
 
-                  <Magnetic
+                {/* <Magnetic
                     intensity={0.1}
                     springOptions={{ bounce: 0.1 }}
                     actionArea="global"
@@ -299,8 +368,8 @@ export default function EventCard({
                       dangerous={item.dangerous}
                       forcetheme={"dark"}
                     />
-                  </Magnetic>
-                </Magnetic>
+                  </Magnetic> */}
+                {/* </Magnetic> */}
               </motion.div>
             ))}
           </motion.div>

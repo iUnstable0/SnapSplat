@@ -16,12 +16,12 @@ import styles from "./page.module.css";
 
 import { TextMorph } from "@/components/ui/mp_text-morph";
 import { Magnetic } from "@/components/ui/mp_magnetic";
-import Keybind, { T_Keybind } from "@/components/keybind";
+import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
 import Spinner from "@/components/spinner";
 
 import { Z_DisplayName, Z_Email, Z_Password } from "@/modules/parser";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -98,24 +98,24 @@ export default function LoginPage() {
         reasons = displayNameResult.error.issues.map((issue) => issue.message);
       }
 
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         displayName: {
           success: false,
           reasons: reasons,
         },
-      });
+      }));
 
       return { success: false, data: displayNameResult.data };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       displayName: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return { success: true, data: displayNameResult.data };
   };
@@ -134,24 +134,24 @@ export default function LoginPage() {
         reasons = emailResult.error.issues.map((issue) => issue.message);
       }
 
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         email: {
           success: false,
           reasons: reasons,
         },
-      });
+      }));
 
       return { success: false, data: emailResult.data };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       email: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return { success: true, data: emailResult.data };
   };
@@ -169,25 +169,24 @@ export default function LoginPage() {
       } else {
         reasons = passwordResult.error.issues.map((issue) => issue.message);
       }
-
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         password: {
           success: false,
           reasons: reasons,
         },
-      });
+      }));
 
       return { success: false, data: passwordResult.data };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       password: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return { success: true, data: passwordResult.data };
   };
@@ -199,24 +198,24 @@ export default function LoginPage() {
     // Here just check if confirmPassword matches password
 
     if (confirmPassword !== password) {
-      setIssues({
-        ...issues,
+      setIssues((prev) => ({
+        ...prev,
         confirmPassword: {
           success: false,
           reasons: ["Passwords do not match"],
         },
-      });
+      }));
 
       return { success: false, data: confirmPassword };
     }
 
-    setIssues({
-      ...issues,
+    setIssues((prev) => ({
+      ...prev,
       confirmPassword: {
         success: true,
         reasons: [],
       },
-    });
+    }));
 
     return { success: true, data: confirmPassword };
   };
@@ -252,8 +251,6 @@ export default function LoginPage() {
   };
 
   const _register = async () => {
-    if (actionDisabled) return;
-
     const {
       success: checkSuccess,
       displayName,
@@ -303,13 +300,13 @@ export default function LoginPage() {
           }, 250);
         }
       } else {
-        setIssues({
-          ...issues,
-          password: {
+        setIssues((prev) => ({
+          ...prev,
+          confirmPassword: {
             success: false,
             reasons: [result.message],
           },
-        });
+        }));
       }
     }, 1000);
   };
@@ -495,8 +492,14 @@ export default function LoginPage() {
                     styles.input,
                     !issues.password.success && styles.inputInvalid
                   )}
-                  onChange={checkPasswordIssues}
-                  onBlur={checkPasswordIssues}
+                  onChange={() => {
+                    checkPasswordIssues();
+                    checkConfirmPasswordIssues();
+                  }}
+                  onBlur={() => {
+                    checkPasswordIssues();
+                    checkConfirmPasswordIssues();
+                  }}
                   onKeyDown={(e) => {
                     if (e.key !== "Enter") {
                       e.stopPropagation();
@@ -590,89 +593,33 @@ export default function LoginPage() {
                       ),
                 }}
               >
-                <Magnetic
-                  intensity={0.1}
-                  springOptions={{ bounce: 0.1 }}
-                  actionArea="global"
-                  className={clsx(
-                    styles.formMagnet,
-                    actionDisabled && styles.formMagnetDisabled
-                  )}
-                  range={actionDisabled ? 0 : 200}
-                >
-                  <button
-                    className={styles.formButton}
-                    onClick={() => {
-                      if (!actionDisabled) {
-                        setFormVisible(false);
+                <KeybindButton
+                  keybinds={[T_Keybind.e]}
+                  // className={styles.formKeybind}
+                  dangerous={false}
+                  disabled={actionDisabled}
+                  onPress={() => {
+                    setFormVisible(false);
 
-                        setTimeout(() => {
-                          router.push("/app/me/login");
-                        }, 250);
-                      }
-                    }}
-                    disabled={actionDisabled}
-                  >
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={styles.formButtonText}
-                      range={actionDisabled ? 0 : 100}
-                    >
-                      Login
-                    </Magnetic>
-                    <Keybind
-                      keybinds={[T_Keybind.e]}
-                      className={styles.formKeybind}
-                      dangerous={false}
-                      disabled={actionDisabled}
-                      onPress={() => {
-                        setFormVisible(false);
-
-                        setTimeout(() => {
-                          router.push("/app/me/login");
-                        }, 250);
-                      }}
-                      // parentClass={styles.createEventFormKeybindCancel}
-                    />
-                  </button>
-                </Magnetic>
-                <Magnetic
-                  intensity={0.1}
-                  springOptions={{ bounce: 0.1 }}
-                  actionArea="global"
-                  className={clsx(
-                    styles.formMagnet,
-                    actionDisabled && styles.formMagnetDisabled
-                  )}
-                  range={actionDisabled ? 0 : 200}
+                    setTimeout(() => {
+                      router.push("/app/me/login");
+                    }, 250);
+                  }}
                 >
-                  <button
-                    className={styles.formButton}
-                    onClick={_register}
-                    disabled={actionDisabled}
-                  >
-                    <Spinner loading={actionDisabled} size={24} />
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={styles.formButtonText}
-                      range={actionDisabled ? 0 : 100}
-                    >
-                      Continue
-                    </Magnetic>
-                    <Keybind
-                      keybinds={[T_Keybind.enter]}
-                      className={styles.formKeybind}
-                      dangerous={false}
-                      disabled={actionDisabled}
-                      onPress={_register}
-                      // parentClass={styles.createEventFormKeybindCancel}
-                    />
-                  </button>
-                </Magnetic>
+                  Login
+                </KeybindButton>
+
+                <KeybindButton
+                  keybinds={[T_Keybind.enter]}
+                  // className={styles.formKeybind}
+                  dangerous={false}
+                  disabled={actionDisabled}
+                  onPress={_register}
+                  loading={actionDisabled}
+                  loadingText="Creating..."
+                >
+                  Continue
+                </KeybindButton>
               </motion.div>
 
               {/* <div className={styles.continueButton}>Continue</div> */}
