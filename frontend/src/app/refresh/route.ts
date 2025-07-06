@@ -26,7 +26,9 @@ export async function GET(request: Request): Promise<Response> {
     ) as Response;
   }
 
-  const redirectUrl = decodeURIComponent(request.url.split("?redir=")[1]);
+  const searchParams = new URL(request.url).searchParams;
+
+  const redirectUrl = searchParams.get("redir");
 
   // console.log(refreshToken);
 

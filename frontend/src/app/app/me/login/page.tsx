@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -19,7 +19,7 @@ import { Magnetic } from "@/components/ui/mp_magnetic";
 import { KeybindButton, T_Keybind } from "@/components/keybind";
 import Spinner from "@/components/spinner";
 
-export default function LoginPage() {
+function LoginComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -388,5 +388,13 @@ export default function LoginPage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginComponent />
+    </Suspense>
   );
 }

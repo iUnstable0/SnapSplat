@@ -1,10 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
+
 import { useSearchParams } from "next/navigation";
 
 import Error from "@/components/error";
 
-export default function ErrorPage() {
+function ErrorComponent() {
   const searchParams = useSearchParams();
 
   const status = searchParams.get("status");
@@ -17,5 +19,21 @@ export default function ErrorPage() {
       description={message ?? "An unexpected occurred"}
       link={{ label: "Go to home", href: redir ? redir : "/app/me" }}
     />
+  );
+}
+
+export default function ErrorPage() {
+  return (
+    <Suspense
+      fallback={
+        <Error
+          title={"Loading..."}
+          description={"Loading..."}
+          link={{ label: "Loading...", href: "#" }}
+        />
+      }
+    >
+      <ErrorComponent />
+    </Suspense>
   );
 }
