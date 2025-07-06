@@ -10,7 +10,7 @@ import clsx from "clsx";
 
 import { AnimatePresence, motion } from "motion/react";
 
-import { useBlurContext } from "./blur-context";
+import { useBlurContext } from "@/components/blur-context";
 
 import styles from "./menubar.module.css";
 

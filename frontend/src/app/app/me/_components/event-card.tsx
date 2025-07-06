@@ -14,7 +14,7 @@ import deleteEvent from "@/actions/event/deleteEvent";
 import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 import Keybind, { T_Keybind } from "@/components/keybind";
 
-import { useBlurContext } from "./blur-context";
+import { useBlurContext } from "@/components/blur-context";
 
 import styles from "./event-card.module.css";
 
@@ -28,10 +28,12 @@ import Spinner from "@/components/spinner";
 
 export default function EventCard({
   event,
+  manageEvent,
   setManageEvent,
   setManageEventVisible,
 }: {
   event: T_Event;
+  manageEvent: T_Event | null;
   setManageEvent: (event: T_Event) => void;
   setManageEventVisible: (visible: boolean) => void;
 }) {
@@ -65,6 +67,7 @@ export default function EventCard({
       icon: <FolderOpen />,
       onClick: () => {
         if (overlayDisabled) return;
+
         setOverlayDisabled(true);
         router.push(
           `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`
@@ -151,12 +154,15 @@ export default function EventCard({
         damping: 20,
       }}
       onHoverStart={() => {
+        // setManageEvent(event);
         setOverlayOpen(true);
       }}
       onHoverEnd={() => {
+        // setManageEvent(null);
         setOverlayOpen(false);
       }}
       onClick={() => {
+        // setManageEvent(event);
         setOverlayOpen(true);
       }}
       whileHover={{ scale: 1.02 }}
@@ -208,9 +214,11 @@ export default function EventCard({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{
-              type: "spring",
-              stiffness: 120,
-              damping: 20,
+              // type: "spring",
+              // stiffness: 120,
+              // damping: 20,
+              duration: 0.2,
+              ease: "easeInOut",
             }}
           >
             {menuItems.map((item, index) => (
@@ -276,9 +284,18 @@ export default function EventCard({
                       keybinds={item.keybinds}
                       className={styles.createEventFormKeybind}
                       onPress={() => {
+                        // alert(
+                        //   overlayDisabled ||
+                        //     !overlayOpen ||
+                        //     // (manageEvent &&
+                        //     //   manageEvent.eventId !== event.eventId)
+                        // );
                         item.onClick();
                       }}
-                      disabled={overlayDisabled}
+                      disabled={
+                        overlayDisabled || !overlayOpen
+                        //  ||(manageEvent && manageEvent.eventId !== event.eventId)
+                      }
                       dangerous={item.dangerous}
                       forcetheme={"dark"}
                     />

@@ -7,7 +7,7 @@ import type { T_Event } from "@/gql/types";
 import { AnimatePresence, motion } from "framer-motion";
 
 import EventCard from "./event-card";
-import { useBlurContext } from "./blur-context";
+import { useBlurContext } from "@/components/blur-context";
 
 import ManageEvent from "@/components/panels/manage-event";
 
@@ -54,6 +54,7 @@ export default function EventContainer({ events }: { events: T_Event[][] }) {
             <EventCard
               key={event.eventId}
               event={event}
+              manageEvent={manageEvent}
               setManageEvent={setManageEvent}
               setManageEventVisible={setManageEventVisible}
             />

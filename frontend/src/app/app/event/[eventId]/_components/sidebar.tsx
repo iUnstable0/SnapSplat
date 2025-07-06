@@ -37,6 +37,8 @@ import {
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { useMediaQuery } from "@/components/useMediaQuery";
+import ManageEvent from "@/components/panels/manage-event";
+import { useBlurContext } from "@/components/blur-context";
 
 import lib_role from "@/modules/role";
 
@@ -61,6 +63,8 @@ export default function Sidebar({
 
   const pathname = usePathname();
 
+  const { isBlurred, setIsBlurred } = useBlurContext();
+
   // const rootPath = pathname.split("/").slice(0, 4).join("/");
   // const pathDirec = `/${pathname.split("/")[4] ?? ""}`;
 
@@ -73,9 +77,19 @@ export default function Sidebar({
   const [renderChildren, setRenderChildren] = useState(true);
   const [targetPath, setTargetPath] = useState<string>(pathname);
 
+  const [manageEventVisible, setManageEventVisible] = useState(false);
+
   const [activeEventMenuItem, setActiveEventMenuItem] = useState("");
 
   const isMobile = useMediaQuery("(max-width: 767px)");
+
+  useEffect(() => {
+    if (manageEventVisible) {
+      setIsBlurred(true);
+    } else {
+      setIsBlurred(false);
+    }
+  }, [manageEventVisible]);
 
   useEffect(() => {
     if (eventMenuOpen) {
@@ -153,19 +167,21 @@ export default function Sidebar({
     eventMenuItems.push({
       label: "Manage Event",
       icon: <Wrench />,
-      onClick: goBack,
+      onClick: () => {
+        setManageEventVisible(true);
+      },
       keybinds: [T_Keybind.shift, T_Keybind.m],
     });
 
-    if (data.event.isDraft) {
-      eventMenuItems.push({
-        label: "Publish Event",
-        icon: <Check />,
-        onClick: () => {
-          alert("Under construction");
-        },
-      });
-    }
+    // if (data.event.isDraft) {
+    //   eventMenuItems.push({
+    //     label: "Publish Event",
+    //     icon: <Check />,
+    //     onClick: () => {
+    //       alert("Under construction");
+    //     },
+    //   });
+    // }
   }
 
   // NOT HOST
@@ -523,7 +539,7 @@ export default function Sidebar({
           {renderChildren && (
             <motion.div
               initial={{ opacity: 0, scale: 0.99 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.99 }}
               transition={{
                 type: "spring",
@@ -540,6 +556,14 @@ export default function Sidebar({
           )}
         </AnimatePresence>
       </motion.div>
+      <AnimatePresence>
+        {manageEventVisible && (
+          <ManageEvent
+            event={data.event}
+            setManageEventVisible={setManageEventVisible}
+          />
+        )}
+      </AnimatePresence>
       {/* <Dashboard /> */}
     </div>
   );

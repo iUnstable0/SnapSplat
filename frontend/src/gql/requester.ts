@@ -56,18 +56,18 @@ export default class requester {
           if (error.response.status === 401) {
             if (error.response.headers["x-refresh-token-needed"] === "true") {
               throw {
-                redirect: "/refreshtest",
+                redirect: "/refresh",
               };
             }
 
             throw {
-              redirect: "/logouttest",
+              redirect: "/logout",
             };
           }
 
           if (error.response.status === 403) {
             throw {
-              redirect: "/forbiddentest",
+              redirect: "/forbidden",
             };
           }
 

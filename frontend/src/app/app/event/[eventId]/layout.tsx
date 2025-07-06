@@ -1,3 +1,5 @@
+import { BlurContextProvider } from "@/components/blur-context";
+
 import { redirect } from "next/navigation";
 
 import Sidebar from "./_components/sidebar";
@@ -76,7 +78,6 @@ export default async function Page({
             />
           );
         case 500:
-          console.log(error.errors);
           return (
             <Error
               title="Internal server error"
@@ -97,7 +98,9 @@ export default async function Page({
   return (
     <div className={styles.pageWrapper}>
       <main className={styles.mainContainer}>
-        <Sidebar data={data}>{children}</Sidebar>
+        <BlurContextProvider>
+          <Sidebar data={data}>{children}</Sidebar>
+        </BlurContextProvider>
       </main>
     </div>
   );

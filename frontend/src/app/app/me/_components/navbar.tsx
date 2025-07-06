@@ -17,7 +17,7 @@ import {
 
 import clsx from "clsx";
 
-import { useBlurContext } from "./blur-context";
+import { useBlurContext } from "@/components/blur-context";
 
 import styles from "./navbar.module.css";
 

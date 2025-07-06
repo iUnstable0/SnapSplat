@@ -57,8 +57,8 @@ export default async function Page() {
 
     return (
       <Error
-        title="Setup already completed"
-        link={{ label: "Go to home", href: "/app/me" }}
+        title="Setup completed"
+        link={{ label: "Go to dashboard", href: "/app/me" }}
       />
     );
   }

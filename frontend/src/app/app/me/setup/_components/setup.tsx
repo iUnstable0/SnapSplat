@@ -713,54 +713,6 @@ export default function LoginPage() {
                 >
                   <button
                     className={styles.formButton}
-                    onClick={() => {
-                      if (!actionDisabled) {
-                        setFormVisible(false);
-
-                        setTimeout(() => {
-                          router.push("/app/me/login");
-                        }, 250);
-                      }
-                    }}
-                    disabled={actionDisabled}
-                  >
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={styles.formButtonText}
-                      range={actionDisabled ? 0 : 100}
-                    >
-                      Login
-                    </Magnetic>
-                    <Keybind
-                      keybinds={[T_Keybind.e]}
-                      className={styles.formKeybind}
-                      dangerous={false}
-                      disabled={actionDisabled}
-                      onPress={() => {
-                        setFormVisible(false);
-
-                        setTimeout(() => {
-                          router.push("/app/me/login");
-                        }, 250);
-                      }}
-                      // parentClass={styles.createEventFormKeybindCancel}
-                    />
-                  </button>
-                </Magnetic>
-                <Magnetic
-                  intensity={0.1}
-                  springOptions={{ bounce: 0.1 }}
-                  actionArea="global"
-                  className={clsx(
-                    styles.formMagnet,
-                    actionDisabled && styles.formMagnetDisabled
-                  )}
-                  range={actionDisabled ? 0 : 200}
-                >
-                  <button
-                    className={styles.formButton}
                     onClick={_register}
                     disabled={actionDisabled}
                   >

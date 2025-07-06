@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import EventBanner from "./_components/event-banner";
+import EventBanner from "@/components/event-banner";
 
 import Error from "@/components/error";
 
