@@ -562,7 +562,6 @@ export default function Sidebar({
       <AnimatePresence>
         {manageEventVisible && (
           <ManageEvent
-            user={event.hostMember}
             event={event}
             setManageEventVisible={setManageEventVisible}
           />

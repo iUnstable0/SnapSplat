@@ -15,15 +15,17 @@ import lib_role from "@/modules/role";
 import { cookies } from "next/headers";
 import Draft from "./_component/draft";
 
+type T_EventData = T_Event & {
+  myMembership: T_EventMembership;
+};
+
+type T_Me = T_User & {
+  events: T_EventData[];
+  myEvents: T_EventData[];
+};
+
 export default async function Page() {
   const cookieStore = await cookies();
-
-  type T_Me = T_User & {
-    events: (T_Event & {
-      myMembership: T_EventMembership;
-    })[];
-    myEvents: T_Event[];
-  };
 
   let me: T_Me | null = null;
 
@@ -100,19 +102,20 @@ export default async function Page() {
   }
 
   const drafts = me.events.filter(
-    (event: T_Event & { myMembership: T_EventMembership }) =>
-      event.isDraft === true && lib_role.event_isCohost(event.myMembership)
+    (event) =>
+      event.isDraft === true && lib_role.event_isCohost(event.myMembership!)
   );
 
-  const myDrafts = me.myEvents.filter(
-    (event: T_Event) => event.isDraft === true
-  );
+  const myDrafts = me.myEvents.filter((event) => event.isDraft === true);
 
   return (
     <div className={styles.pageWrapper}>
       <MenuBar me={me} />
       <main className={styles.mainContainer}>
-        <Draft drafts={drafts} myDrafts={myDrafts} />
+        <Draft
+          drafts={drafts as T_EventData[]}
+          myDrafts={myDrafts as T_EventData[]}
+        />
       </main>
     </div>
   );

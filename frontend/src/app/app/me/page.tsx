@@ -11,17 +11,21 @@ import Error from "@/components/error";
 import styles from "./page.module.css";
 
 import requester from "@/gql/requester";
-import type { T_Event, T_User } from "@/gql/types";
+import type { T_Event, T_EventMembership, T_User } from "@/gql/types";
 
 import { cookies } from "next/headers";
 
+type T_EventData = T_Event & {
+  myMembership: T_EventMembership;
+};
+
+type T_Me = T_User & {
+  events: T_EventData[];
+  myEvents: T_EventData[];
+};
+
 export default async function Page() {
   const cookieStore = await cookies();
-
-  type T_Me = T_User & {
-    events: T_Event[];
-    myEvents: T_Event[];
-  };
 
   let me: T_Me | null = null;
 
@@ -130,18 +134,16 @@ export default async function Page() {
 
   // console.log(JSON.stringify(me, null, 2));
 
-  const activeEvents = me.events.filter((event: T_Event) => !event.isArchived);
-  const myPublishedEvents = me.myEvents.filter(
-    (event: T_Event) => !event.isDraft
-  );
+  const activeEvents = me.events.filter((event) => !event.isArchived);
+  const myPublishedEvents = me.myEvents.filter((event) => !event.isDraft);
 
   return (
     <div className={styles.pageWrapper}>
       <MenuBar me={me} />
       <main className={styles.mainContainer}>
         <UpcomingEvents
-          activeEvents={activeEvents}
-          myPublishedEvents={myPublishedEvents}
+          activeEvents={activeEvents as T_EventData[]}
+          myPublishedEvents={myPublishedEvents as T_EventData[]}
         />
       </main>
     </div>

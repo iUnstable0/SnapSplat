@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import type { T_Event } from "@/gql/types";
+import type { T_Event, T_EventMembership } from "@/gql/types";
 
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -13,8 +13,16 @@ import ManageEvent from "@/components/panels/manage-event";
 
 import styles from "./event-container.module.css";
 
-export default function EventContainer({ events }: { events: T_Event[][] }) {
-  const [manageEvent, setManageEvent] = useState<T_Event | null>(null);
+type T_EventData = T_Event & {
+  myMembership: T_EventMembership;
+};
+
+export default function EventContainer({
+  events,
+}: {
+  events: T_EventData[][];
+}) {
+  const [manageEvent, setManageEvent] = useState<T_EventData | null>(null);
   const [manageEventVisible, setManageEventVisible] = useState(false);
   const { setIsBlurred } = useBlurContext();
 
@@ -41,15 +49,15 @@ export default function EventContainer({ events }: { events: T_Event[][] }) {
       <AnimatePresence>
         {manageEventVisible && (
           <ManageEvent
-            event={manageEvent}
+            event={manageEvent!}
             setManageEventVisible={setManageEventVisible}
           />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {events.map((eventGroup: T_Event[]) =>
-          eventGroup.map((event: T_Event) => (
+        {events.map((eventGroup) =>
+          eventGroup.map((event) => (
             <EventCard
               key={event.eventId}
               event={event}

@@ -19,10 +19,14 @@ import { useBlurContext } from "@/components/blur-context";
 
 import styles from "./event-card.module.css";
 
-import type { T_Event } from "@/gql/types";
+import type { T_Event, T_EventMembership } from "@/gql/types";
 
 import lib_role from "@/modules/role";
 import { Skeleton } from "@/components/ui/scn_skeleton";
+
+type T_EventData = T_Event & {
+  myMembership: T_EventMembership;
+};
 
 export default function EventCard({
   event,
@@ -30,9 +34,11 @@ export default function EventCard({
   setManageEvent,
   setManageEventVisible,
 }: {
-  event: T_Event;
-  manageEvent: T_Event | null;
-  setManageEvent: (event: T_Event) => void;
+  event: T_EventData & {
+    myMembership: T_EventMembership;
+  };
+  manageEvent: T_EventData | null;
+  setManageEvent: (event: T_EventData) => void;
   setManageEventVisible: (visible: boolean) => void;
 }) {
   const router = useRouter();

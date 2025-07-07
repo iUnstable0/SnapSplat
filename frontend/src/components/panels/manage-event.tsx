@@ -44,7 +44,7 @@ export default function ManageEvent({
   const [edited, setEdited] = useState(false);
   const [saveDisabled, setSaveDisabled] = useState(false);
 
-  const [onDiscard, setOnDiscard] = useState<() => void>(() => {});
+  const [mode, setMode] = useState<"close" | "openevent" | null>(null);
 
   // alert(event.name);
   return (
@@ -148,7 +148,11 @@ export default function ManageEvent({
                 onConfirm={() => {
                   // setCloseConfirmationOpen(false);
 
-                  onDiscard();
+                  if (mode === "close") {
+                    setManageEventVisible(false);
+                  } else if (mode === "openevent") {
+                    router.push(`/app/event/${event.eventId}`);
+                  }
                   // setManageEventDisabled(false);
                 }}
                 onCancel={() => {
@@ -182,9 +186,7 @@ export default function ManageEvent({
 
                     setDiscardConfirmationOpen(true);
 
-                    setOnDiscard(() => {
-                      setManageEventVisible(false);
-                    });
+                    setMode("close");
                   } else {
                     setManageEventVisible(false);
                   }
@@ -269,9 +271,7 @@ export default function ManageEvent({
 
                         setDiscardConfirmationOpen(true);
 
-                        setOnDiscard(() => {
-                          router.push(`/app/event/${event.eventId}`);
-                        });
+                        setMode("openevent");
                       } else {
                         setManageEventDisabled(true);
                         setFooterItemLoading("open");
