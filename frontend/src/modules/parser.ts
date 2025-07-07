@@ -59,27 +59,23 @@ export const Z_EventName = z
   .max(50, {
     message: "Event name can't be longer than 50 characters",
   })
-  .regex(/[a-zA-Z]/, {
-    message: "Event name must contain at least one letter",
-  })
   .trim();
 
 export const Z_EventDescription = z
   .string()
-  // .min(3, {
-  //   message: "Event description can't be shorter than 3 characters",
-  // })
   .max(500, {
     message: "Event description can't be longer than 500 characters",
   })
   .trim()
   .default("");
 
-export const Z_EventCode = z
+export const Z_InviteCode = z
   .string()
-  .min(6, {
-    message: "Event code can't be shorter than 6 characters",
+  .length(6, {
+    message: "Invite code must be 6 characters long",
   })
-  .regex(/^[0-9a-zA-Z]{6}$/, {
-    message: "Event code can only contain letters and numbers",
+  .regex(/^[a-zA-Z0-9]+$/, {
+    message: "Invite code can only contain letters and numbers",
   });
+
+export type T_InviteCode = z.infer<typeof Z_InviteCode>;

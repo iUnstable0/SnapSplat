@@ -39,11 +39,14 @@ type TokenSet {
 
 type User {
   userId: UUID!
+
   email: EmailAddress!
   displayName: String!
-  avatar: URL!
-  isEmailVerified: Boolean!
   platformRole: PlatformRole!
+
+  avatar: URL!
+
+  isEmailVerified: Boolean!
 
   events: [Event!]!
   myEvents: [Event!]!
@@ -53,29 +56,42 @@ type Platform {
   isSetupCompleted: Boolean!
 }
 
+input UpdateEvent {
+  name: String
+  description: String
+
+  isDraft: Boolean
+  isArchived: Boolean
+}
+
 type Event {
   eventId: UUID!
   name: String!
   description: String!
 
+  icon: URL!
+  cover: URL!
+  banner: URL!
+
   startsAt: DateTimeISO!
   endsAt: DateTimeISO!
+
   isDraft: Boolean!
   isArchived: Boolean!
 
   createdAt: DateTimeISO!
 
-  hostMember: EventMembership!
   hostUser: User! @auth(requires: ADMIN)
 
-  memberships: [EventMembership!]!
+  hostMember: EventMembership!
 
+  memberships: [EventMembership!]!
   myMembership(eventId: UUID): EventMembership
-  # myMembership: EventMembership
+
+  invites: [EventInvite!]!
 }
 
 type EventMembership {
-  memberId: UUID!
   eventId: UUID!
 
   eventRole: EventRole!
@@ -86,7 +102,29 @@ type EventMembership {
   joinedAt: DateTimeISO!
   isApproved: Boolean!
 
+  event: Event!
+
+  userId: UUID! @auth(requires: ADMIN)
   user: User! @auth(requires: ADMIN)
+
+  memberId: UUID!
+}
+
+type EventInvite {
+  eventId: UUID!
+  inviteId: UUID!
+  inviteCode: String!
+
+  role: EventRole!
+  requireApproval: Boolean!
+
+  createdAt: DateTimeISO!
+  expiresAt: DateTimeISO
+
+  maxUses: Int!
+  uses: Int!
+
+  event: Event!
 }
 
 ## Query #########################
@@ -118,6 +156,12 @@ type Mutation {
   refreshToken(token: String!, refreshToken: String!): Token!
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
+  joinEvent(captchaToken: String!, inviteCode: String!): Event!
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
+  leaveEvent(captchaToken: String!, eventId: UUID!): Boolean!
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
   # startsAt: DateTimeISO!
   # endsAt: DateTimeISO!
   createEvent(
@@ -128,19 +172,15 @@ type Mutation {
     @auth(requires: USER)
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
-  # updateEvent(
-  #   captchaToken: String!
-  #   eventId: UUID!
-  #   name: String
-  #   description: String
-  #   startsAt: DateTimeISO
-  #   endsAt: DateTimeISO
-  #   isArchived: Boolean
-  # ): Event!
-  #   @auth(requires: USER)
-  #   @rateLimit(window: "5s", max: 10, message: "Too many requests")
+  updateEvent(
+    captchaToken: String!
+    eventId: UUID!
+    data: UpdateEvent!
+  ): Event!
+    @auth(requires: USER)
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
-  deleteEvent(captchaToken: String!, eventId: String!): Boolean!
+  deleteEvent(captchaToken: String!, eventId: UUID!): Boolean!
     @auth(requires: USER)
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 }

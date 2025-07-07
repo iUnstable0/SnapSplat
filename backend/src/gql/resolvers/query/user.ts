@@ -5,29 +5,35 @@ import lib_error from "@/modules/error";
 import lib_logger from "@/modules/logger";
 import lib_role from "@/modules/role";
 
-import { Z_User } from "@/db/types";
+import { Z_EventMembership, Z_User } from "@/db/types";
 
 export default class query_user {
-  public static async getAuthenticatedInfo(args: any, context: any) {
+  public static async getAuthenticatedInfo(args: any) {
+    const [parent, body, context] = args;
+
     // parse only for the avatar
 
     const userData = Z_User.parse(context.user);
 
-    return {
-      ...userData,
+    console.log(userData);
 
-      avatar: userData.avatar.replace(
-        "USER_DISPLAY_NAME",
-        encodeURIComponent(userData.displayName)
-      ),
-    };
+    return userData;
+
+    // return {
+    //   ...userData,
+
+    //   avatar: userData.avatar.replace(
+    //     "USER_DISPLAY_NAME",
+    //     encodeURIComponent(userData.displayName)
+    //   ),
+    // };
   }
 
   // console.log("PARSED IS ", userData);
   public static async getEvents(args: any) {
     const [parent, body, context] = args;
 
-    let data: (EventMembership & { event: Event })[] | null = null;
+    let memberships: (EventMembership & { event: Event })[] | null = null;
 
     try {
       // data = await prisma.user.findUnique({
@@ -45,7 +51,7 @@ export default class query_user {
       //   },
       // });
 
-      data = await prisma.eventMembership.findMany({
+      memberships = await prisma.eventMembership.findMany({
         where: {
           userId: context.user.userId,
           isApproved: true,
@@ -78,12 +84,16 @@ export default class query_user {
       );
     }
 
-    if (!data) {
+    if (!memberships) {
       throw lib_error.not_found(
         "User not found",
         `User with id ${context.user.userId} not found`
       );
     }
+
+    const parsedMemberships = Z_EventMembership.array().parse(memberships);
+
+    const events = parsedMemberships.map((membership) => membership.event);
 
     // const events = data.memberships
     //   .filter((membership) => !lib_role.event_isHost(membership))
@@ -95,20 +105,20 @@ export default class query_user {
 
     // return [...data.hostedEvents, ...events];
 
-    return data.map((membership) => membership.event);
+    return events;
   }
 
   public static async getMyEvents(args: any) {
     const [parent, body, context] = args;
 
-    let data:
+    let user:
       | (User & {
           hostedEvents: Event[];
         })
       | null = null;
 
     try {
-      data = await prisma.user.findUnique({
+      user = await prisma.user.findUnique({
         where: { userId: context.user.userId },
         include: {
           hostedEvents: {
@@ -132,13 +142,15 @@ export default class query_user {
       );
     }
 
-    if (!data) {
+    if (!user) {
       throw lib_error.not_found(
         "User not found",
         `User with id ${context.user.userId} not found`
       );
     }
 
-    return data.hostedEvents;
+    const parsedUser = Z_User.parse(user);
+
+    return parsedUser.hostedEvents;
   }
 }

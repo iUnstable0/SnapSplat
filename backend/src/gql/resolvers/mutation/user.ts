@@ -385,7 +385,7 @@ export default class mutation_user {
       throw lib_error.unauthorized("Unauthorized", "user not found lol");
     }
 
-    console.log("REFRESH TOKEN", result.payload);
+    console.log("SKIBIDI AMOGUS SUS PAYLOAD ERROR", result.payload);
 
     if (!lib_token.checkAuthToken(user, result.payload as T_JWTAuthPayload)) {
       throw lib_error.unauthorized(

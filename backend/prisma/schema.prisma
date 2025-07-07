@@ -37,6 +37,8 @@ model Platform {
 model User {
   id Int @id @default(autoincrement())
 
+  userId String @unique @default(uuid(4))
+
   email        String       @unique
   displayName  String
   platformRole PlatformRole @default(USER)
@@ -50,7 +52,6 @@ model User {
 
   createdAt DateTime @default(now())
   password  String
-  userId    String   @unique @default(uuid(4))
 
   sessions        Session[]
   suspendedTokens SuspendedToken[]
@@ -92,9 +93,9 @@ model Event {
   name        String
   description String @default("")
 
-  eventIcon   String @default("/event-icon-placeholder.png")
-  eventCover  String @default("/event-cover-placeholder.png")
-  eventBanner String @default("/event-banner-placeholder.png")
+  icon   String @default("/event-icon-placeholder.png")
+  cover  String @default("/event-cover-placeholder.png")
+  banner String @default("/event-banner-placeholder.png")
 
   startsAt DateTime
   endsAt   DateTime
@@ -159,19 +160,20 @@ model EventMembership {
 model EventInvite {
   id Int @id @default(autoincrement())
 
-  eventId  String
-  inviteId String @unique
+  eventId    String
+  inviteId   String @unique
+  inviteCode String @unique
 
   role            EventRole @default(ATTENDEE)
   requireApproval Boolean   @default(false)
 
-  createdAt DateTime @default(now())
-  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
 
   maxUses Int @default(0) // 0 = unlimited
   uses    Int @default(0)
 
-  event Event @relation(fields: [eventId], references: [eventId])
+  event Event @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
 
-  @@index([eventId, inviteId])
+  @@index([eventId, inviteId, inviteCode])
 }

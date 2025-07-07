@@ -53,5 +53,40 @@ export const Z_RefreshTokenPayload = z.object({
 
 export type T_RefreshTokenPayload = z.infer<typeof Z_RefreshTokenPayload>;
 
-export const Z_EventName = z.string().min(1).max(50).trim();
-export const Z_EventDescription = z.string().max(500).trim();
+export const Z_EventName = z
+  .string()
+  .min(3, {
+    message: "Event name can't be shorter than 3 characters",
+  })
+  .max(50, {
+    message: "Event name can't be longer than 50 characters",
+  })
+  .trim();
+
+export const Z_EventDescription = z
+  .string()
+  .max(500, {
+    message: "Event description can't be longer than 500 characters",
+  })
+  .trim()
+  .default("");
+
+export const Z_UpdateEvent = z.object({
+  name: Z_EventName.optional(),
+  description: Z_EventDescription.optional(),
+  isDraft: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
+});
+
+export type T_UpdateEvent = z.infer<typeof Z_UpdateEvent>;
+
+export const Z_InviteCode = z
+  .string()
+  .length(6, {
+    message: "Invite code must be 6 characters long",
+  })
+  .regex(/^[a-zA-Z0-9]+$/, {
+    message: "Invite code can only contain letters and numbers",
+  });
+
+export type T_InviteCode = z.infer<typeof Z_InviteCode>;

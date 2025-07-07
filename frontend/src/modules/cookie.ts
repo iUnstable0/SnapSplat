@@ -23,6 +23,6 @@ export const refreshTokenCookieOpt: CookieOptions = {
   sameSite: "strict",
   // path: "/refresh",
   // Multiple path
-  path: "/refresh, /logout",
+  path: "/",
   domain: process.env.NEXT_PUBLIC_DOMAIN,
 };

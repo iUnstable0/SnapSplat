@@ -9,7 +9,7 @@ import styles from "../page.module.css";
 
 import requester from "@/gql/requester";
 
-import type { T_Event, T_User } from "@/gql/types";
+import type { T_Event, T_EventMembership, T_User } from "@/gql/types";
 
 import lib_role from "@/modules/role";
 import { cookies } from "next/headers";
@@ -18,7 +18,14 @@ import Draft from "./_component/draft";
 export default async function Page() {
   const cookieStore = await cookies();
 
-  let me: T_User | null = null;
+  type T_Me = T_User & {
+    events: (T_Event & {
+      myMembership: T_EventMembership;
+    })[];
+    myEvents: T_Event[];
+  };
+
+  let me: T_Me | null = null;
 
   try {
     me = (
@@ -37,6 +44,9 @@ export default async function Page() {
                   "description",
                   "isDraft",
                   "isArchived",
+                  "icon",
+                  "cover",
+                  "banner",
                   {
                     hostMember: ["displayNameAlt"],
                     myMembership: ["eventRole"],
@@ -60,7 +70,7 @@ export default async function Page() {
         },
         cookieStore.get("token")?.value
       )
-    ).me as T_User;
+    ).me as T_Me;
   } catch (error: any) {
     console.error(`[/app/me/drafts] Error fetching data`, error);
 
@@ -72,20 +82,25 @@ export default async function Page() {
       switch (error.status) {
         case 500:
           console.log(error.errors);
-          return <Error title="Internal server error" />;
+          return (
+            <Error
+              title="Internal server error"
+              link={{ label: "Go to home", href: "/app/me" }}
+            />
+          );
       }
-
-      return (
-        <Error
-          title="Unexpected error"
-          link={{ label: "Go to home", href: "/app/me" }}
-        />
-      );
     }
+
+    return (
+      <Error
+        title="Unexpected error"
+        link={{ label: "Go to home", href: "/app/me" }}
+      />
+    );
   }
 
   const drafts = me.events.filter(
-    (event: T_Event) =>
+    (event: T_Event & { myMembership: T_EventMembership }) =>
       event.isDraft === true && lib_role.event_isCohost(event.myMembership)
   );
 

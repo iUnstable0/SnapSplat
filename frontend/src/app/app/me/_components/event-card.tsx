@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { FolderOpen, LogOut, Trash2, Wrench, X } from "lucide-react";
 
 import deleteEvent from "@/actions/event/deleteEvent";
+import leaveEvent from "@/actions/event/leaveEvent";
 
 import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 import { KeybindButton, T_Keybind } from "@/components/keybind";
@@ -42,11 +43,19 @@ export default function EventCard({
   const [isLoaded, setIsLoaded] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayDisabled, setOverlayDisabled] = useState(false);
-  const [overlayLoading, setOverlayLoading] = useState(false);
+  // const [overlayLoading, setOverlayLoading] = useState(false);
+  const [menuItemsLoading, setMenuItemsLoading] = useState<{
+    [key: string]: boolean;
+  }>({});
+
   const [showMenu, setShowMenu] = useState(false);
 
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
+    useState(false);
+
+  const [leaveConfirmationOpen, setLeaveConfirmationOpen] = useState(false);
+  const [leaveConfirmationLoading, setLeaveConfirmationLoading] =
     useState(false);
 
   useEffect(() => {
@@ -67,13 +76,18 @@ export default function EventCard({
       dangerous: false,
       icon: <FolderOpen />,
       onClick: () => {
-        if (overlayDisabled) return;
-
         setOverlayDisabled(true);
+        setMenuItemsLoading((prev) => ({
+          ...prev,
+          open: true,
+        }));
+
         router.push(
           `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`
         );
       },
+      loadingId: "open",
+      loadingText: "Opening...",
       keybinds: [T_Keybind.enter],
     },
 
@@ -85,7 +99,7 @@ export default function EventCard({
             dangerous: false,
             icon: <Wrench />,
             onClick: () => {
-              if (overlayDisabled) return;
+              // if (overlayDisabled) return;
               // router.push(
               //   `/app/event/${event.eventId}/manage?back=${encodeURIComponent(
               //     pathname
@@ -109,9 +123,16 @@ export default function EventCard({
             dangerous: true,
             icon: <LogOut />,
             onClick: () => {
-              if (overlayDisabled) return;
-              alert("leave event");
+              setOverlayDisabled(true);
+              setMenuItemsLoading((prev) => ({
+                ...prev,
+                leave: true,
+              }));
+
+              setLeaveConfirmationOpen(true);
             },
+            loadingId: "leave",
+            loadingText: "Leaving...",
             keybinds: [T_Keybind.shift, T_Keybind.backspace],
           },
         ]
@@ -125,14 +146,15 @@ export default function EventCard({
             dangerous: true,
             icon: <Trash2 />,
             onClick: async () => {
-              if (overlayDisabled) return;
-              if (overlayLoading) return;
-
               setOverlayDisabled(true);
-              setOverlayLoading(true);
+              setMenuItemsLoading((prev) => ({
+                ...prev,
+                delete: true,
+              }));
 
               setDeleteConfirmationOpen(true);
             },
+            loadingId: "delete",
             loadingText: "Deleting...",
             keybinds: [T_Keybind.shift, T_Keybind.backspace],
           },
@@ -157,12 +179,16 @@ export default function EventCard({
       }}
       onHoverEnd={() => {
         // setManageEvent(null);
-        if (deleteConfirmationOpen) {
-          if (!deleteConfirmationLoading) {
+        if (deleteConfirmationOpen || leaveConfirmationOpen) {
+          if (!deleteConfirmationLoading || !leaveConfirmationLoading) {
             setOverlayOpen(false);
             setDeleteConfirmationOpen(false);
+            setLeaveConfirmationOpen(false);
 
-            setOverlayLoading(false);
+            // setOverlayLoading(false);
+
+            setMenuItemsLoading({});
+
             setOverlayDisabled(false);
           }
 
@@ -201,13 +227,18 @@ export default function EventCard({
             // confirmIcon={<Trash2 />}
             // cancelIcon={<X />}
             forcetheme="dark"
+            confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
             onConfirm={async () => {
               await deleteEvent("captchaDemo", event.eventId);
 
               setDeleteConfirmationOpen(false);
 
               setTimeout(() => {
-                setOverlayLoading(false);
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  delete: false,
+                }));
+
                 setOverlayDisabled(false);
                 setOverlayOpen(false);
 
@@ -218,12 +249,62 @@ export default function EventCard({
               setDeleteConfirmationOpen(false);
 
               setTimeout(() => {
-                setOverlayLoading(false);
+                // setOverlayLoading(false);
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  delete: false,
+                }));
+
                 setOverlayDisabled(false);
               }, 1000);
             }}
             confirmationLoading={deleteConfirmationLoading}
             setConfirmationLoading={setDeleteConfirmationLoading}
+            dangerous={true}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {leaveConfirmationOpen && (
+          <Confirmation
+            title="Leave Event"
+            description="Are you sure you want to leave this event? Photos you have uploaded will still be available."
+            confirmText="Leave"
+            confirmLoadingText="Leaving..."
+            forcetheme="dark"
+            confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
+            onConfirm={async () => {
+              await leaveEvent("captchaDemo", event.eventId);
+
+              setLeaveConfirmationOpen(false);
+
+              setTimeout(() => {
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  leave: false,
+                }));
+
+                setOverlayDisabled(false);
+                setOverlayOpen(false);
+
+                router.refresh();
+              }, 1000);
+            }}
+            onCancel={() => {
+              setLeaveConfirmationOpen(false);
+
+              setTimeout(() => {
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  leave: false,
+                }));
+
+                setOverlayDisabled(false);
+              }, 1000);
+            }}
+            confirmationLoading={leaveConfirmationLoading}
+            setConfirmationLoading={setLeaveConfirmationLoading}
             dangerous={true}
           />
         )}
@@ -305,7 +386,7 @@ export default function EventCard({
                   forcetheme="dark"
                   icon={item.icon}
                   iconClassName={styles.overlayButtonIcon}
-                  loading={overlayLoading}
+                  loading={menuItemsLoading[item.loadingId ?? ""]}
                   loadingText={item.loadingText}
                   // loadingTheme="dangerous"
                 >

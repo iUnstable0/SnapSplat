@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import clsx from "clsx";
+
 import { motion } from "motion/react";
 
 import { KeybindButton, T_Keybind } from "./keybind";
@@ -23,6 +25,9 @@ export default function Confirmation({
   confirmationLoading,
   setConfirmationLoading,
   forcetheme,
+  confirmKeybinds,
+  cancelKeybinds,
+  dim,
 }: {
   title: string;
   description: string;
@@ -38,6 +43,9 @@ export default function Confirmation({
   confirmationLoading?: boolean;
   setConfirmationLoading?: (loading: boolean) => void;
   forcetheme?: "light" | "dark";
+  dim?: boolean;
+  confirmKeybinds?: T_Keybind[];
+  cancelKeybinds?: T_Keybind[];
 }) {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -53,15 +61,20 @@ export default function Confirmation({
 
   return (
     <motion.div
-      className={styles.confirmation}
+      className={clsx(styles.confirmation, dim && styles.confirmationDim)}
       key={title}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+      // initial={{ opacity: 0, scale: 0.9 }}
+      // animate={{ opacity: 1, scale: 1 }}
+      // exit={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       transition={{
-        type: "spring",
-        stiffness: 120,
-        damping: 20,
+        duration: 0.2,
+        ease: "easeInOut",
+        // type: "spring",
+        // stiffness: 120,
+        // damping: 20,
       }}
       style={{
         color: forcetheme
@@ -74,9 +87,27 @@ export default function Confirmation({
       <div className={styles.confirmationContainer}>
         <h1 className={styles.title}>{title}</h1>
         <p className={styles.description}>{description}</p>
-        <div className={styles.actions}>
+        <motion.div
+          className={styles.actions}
+          layout
+          transition={{
+            type: "spring",
+            stiffness: 120,
+            damping: 20,
+          }}
+          style={{
+            width: "100%",
+            gap: "50px",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            marginTop: "calc(100% * 0.05)",
+            paddingLeft: "calc(100% * 0.05)",
+            paddingRight: "calc(100% * 0.05)",
+          }}
+        >
           <KeybindButton
-            keybinds={[T_Keybind.escape]}
+            keybinds={cancelKeybinds || [T_Keybind.escape]}
             onPress={async () => {
               if (cancelLoadingText) {
                 setCancelLoading(true);
@@ -109,7 +140,7 @@ export default function Confirmation({
           </KeybindButton>
 
           <KeybindButton
-            keybinds={[T_Keybind.shift, T_Keybind.enter]}
+            keybinds={confirmKeybinds || [T_Keybind.shift, T_Keybind.enter]}
             onPress={async () => {
               if (confirmLoadingText) {
                 setConfirmLoading(true);
@@ -140,7 +171,7 @@ export default function Confirmation({
           >
             {confirmText || "Confirm"}
           </KeybindButton>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );

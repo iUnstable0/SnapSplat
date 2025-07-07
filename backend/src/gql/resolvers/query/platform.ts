@@ -1,10 +1,9 @@
-import * as z from "zod/v4";
-
 import prisma from "@/db/prisma";
 
-import { Z_Platform } from "@/db/types";
 import lib_error from "@/modules/error";
 import lib_logger from "@/modules/logger";
+
+import { Z_Platform, type T_Platform } from "@/db/types";
 
 export default class query_platform {
   public static async getInfo() {
@@ -19,7 +18,7 @@ export default class query_platform {
 
     // console.log("cache miss");
 
-    let platformInfo: Z_Platform;
+    let platformInfo: T_Platform;
 
     try {
       const rawPlatformInfo = await prisma.platform.findMany();

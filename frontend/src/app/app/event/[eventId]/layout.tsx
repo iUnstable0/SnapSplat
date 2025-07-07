@@ -11,7 +11,12 @@ import Error from "@/components/error";
 import * as gql_builder from "gql-query-builder";
 import requester from "@/gql/requester";
 
-import type { T_Event } from "@/gql/types";
+import type {
+  T_Event,
+  T_User,
+  T_EventMembership,
+  T_EventInvite,
+} from "@/gql/types";
 
 import { cookies } from "next/headers";
 
@@ -26,34 +31,58 @@ export default async function Page({
 
   const eventId = (await params).eventId;
 
-  let data: { event: T_Event } = { event: null };
+  type T_EventData = T_Event & {
+    hostMember: T_User;
+    memberships: T_EventMembership[];
+    myMembership: T_EventMembership;
+    invites: T_EventInvite[];
+  };
+
+  let event: T_EventData;
 
   try {
-    data = await requester.request(
-      {
-        data: gql_builder.query({
-          operation: "event",
-          fields: [
-            "eventId",
-            "name",
-            "description",
-            "isDraft",
-            "isArchived",
-            {
-              myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
-              // variables: {
-              //   eventId: { value: eventId, type: "UUID", required: true },
-              // },
+    event = (
+      await requester.request(
+        {
+          data: gql_builder.query({
+            operation: "event",
+            fields: [
+              "eventId",
+              "name",
+              "description",
+              "isDraft",
+              "isArchived",
+              {
+                memberships: [
+                  "memberId",
+                  "eventRole",
+                  "avatarAlt",
+                  "displayNameAlt",
+                  "joinedAt",
+                  "isApproved",
+                ],
+                myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
+                invites: [
+                  "inviteId",
+                  "inviteCode",
+                  "role",
+                  "requireApproval",
+                  "createdAt",
+                  "maxUses",
+                  "uses",
+                  "expiresAt",
+                ],
+              },
+            ],
+            variables: {
+              eventId: { value: eventId, type: "UUID", required: true },
             },
-          ],
-          variables: {
-            eventId: { value: eventId, type: "UUID", required: true },
-          },
-        }),
-        withAuth: true,
-      },
-      cookieStore.get("token")?.value
-    );
+          }),
+          withAuth: true,
+        },
+        cookieStore.get("token")?.value
+      )
+    ).event as T_EventData;
   } catch (error: any) {
     console.error(`[/app/event/${eventId}] Error fetching data`, error);
 
@@ -99,7 +128,7 @@ export default async function Page({
     <div className={styles.pageWrapper}>
       <main className={styles.mainContainer}>
         <BlurContextProvider>
-          <Sidebar data={data}>{children}</Sidebar>
+          <Sidebar event={event}>{children}</Sidebar>
         </BlurContextProvider>
       </main>
     </div>

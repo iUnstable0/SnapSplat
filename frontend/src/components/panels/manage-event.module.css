@@ -15,12 +15,32 @@
   padding: 96px;
 }
 
-.manageEventEscapeButtonContainer {
+.manageEventActionButtons {
   position: absolute;
   bottom: 32px;
   left: 32px;
 
-  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  width: calc(100% - 64px);
+
+  gap: 16px;
+
+  /* background-color: red; */
+
+  z-index: 1;
+}
+
+.manageEventActionButtonsLeft {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  gap: 16px;
 }
 
 .manageEventContainer {
@@ -70,6 +90,23 @@
   /* background-color: red; */
 }
 
+.blurOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  backdrop-filter: blur(16px);
+
+  background-color: #00000070;
+
+  /* background-color: red; */
+
+  z-index: 1;
+}
+
 .topBlur {
   position: absolute;
   top: 0;
@@ -97,6 +134,8 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+
+  user-select: text;
 
   /* background-color: blue; */
 }

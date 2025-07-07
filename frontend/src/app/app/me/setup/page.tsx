@@ -42,14 +42,13 @@ export default async function Page() {
           console.log(error.errors);
           return <Error title="Internal server error" />;
       }
-
-      return (
-        <Error
-          title="Unexpected error"
-          link={{ label: "Go to home", href: "/app/me" }}
-        />
-      );
     }
+    return (
+      <Error
+        title="Unexpected error"
+        link={{ label: "Go to home", href: "/app/me" }}
+      />
+    );
   }
 
   // if (platform?.isSetupCompleted) {

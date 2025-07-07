@@ -90,7 +90,7 @@ export default async function login(
     };
   }
 
-  // console.log(result);
+  // console.log("LOGIN RESULT", result);
 
   cookieStore.set("token", result.token, tokenCookieOpt);
   cookieStore.set("refresh_token", result.refreshToken, refreshTokenCookieOpt);

@@ -1,5 +1,7 @@
 // SHARED WITH FRONTEND!
 
+import type { PlatformRole, EventRole } from "@/generated/prisma";
+
 const platformRoleHierarchy = {
   SUPER_ADMIN: 2,
   ADMIN: 1,
@@ -25,7 +27,7 @@ export default class lib_role {
     return user.platformRole === "USER";
   }
 
-  public static async platform_hasRole(user: any, role: string) {
+  public static async platform_hasRole(user: any, role: PlatformRole) {
     const userPlatformRole =
       user.platformRole as keyof typeof platformRoleHierarchy;
     const requiredPlatformRole = role as keyof typeof platformRoleHierarchy;
@@ -48,7 +50,7 @@ export default class lib_role {
     return event.eventRole === "ATTENDEE";
   }
 
-  public static async event_hasRole(event: any, role: string) {
+  public static async event_hasRole(event: any, role: EventRole) {
     const eventRole = event.eventRole as keyof typeof eventRoleHierarchy;
     const requiredEventRole = role as keyof typeof eventRoleHierarchy;
 

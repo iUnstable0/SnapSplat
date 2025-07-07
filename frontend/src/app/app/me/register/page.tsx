@@ -348,7 +348,7 @@ function RegisterComponent() {
               }}
             >
               <div className={styles.redirectingContainer}>
-                <Spinner loading={redirecting} size={24} />
+                <Spinner id="redirecting" loading={redirecting} size={24} />
                 <div className={styles.redirectingText}>Redirecting...</div>
               </div>
             </motion.div>

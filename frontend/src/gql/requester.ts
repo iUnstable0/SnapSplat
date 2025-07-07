@@ -57,17 +57,23 @@ export default class requester {
             if (error.response.headers["x-refresh-token-needed"] === "true") {
               throw {
                 redirect: "/refresh",
+                status: error.response.status,
+                errors: error.response.data.errors,
               };
             }
 
             throw {
               redirect: "/logout",
+              status: error.response.status,
+              errors: error.response.data.errors,
             };
           }
 
           if (error.response.status === 403) {
             throw {
               redirect: "/forbidden",
+              status: error.response.status,
+              errors: error.response.data.errors,
             };
           }
 

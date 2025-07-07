@@ -11,14 +11,19 @@ import styles from "../page.module.css";
 
 import requester from "@/gql/requester";
 
-import type { T_User } from "@/gql/types";
+import type { T_Event, T_User } from "@/gql/types";
 
 import { cookies } from "next/headers";
 
 export default async function Page() {
   const cookieStore = await cookies();
 
-  let me: T_User | null = null;
+  type T_Me = T_User & {
+    events: T_Event[];
+    myEvents: T_Event[];
+  };
+
+  let me: T_Me | null = null;
 
   try {
     me = (
@@ -64,7 +69,7 @@ export default async function Page() {
         },
         cookieStore.get("token")?.value
       )
-    ).me as T_User;
+    ).me as T_Me;
   } catch (error: any) {
     console.error(`[/app/me/past-events] Error fetching data`, error);
 
@@ -78,14 +83,14 @@ export default async function Page() {
           console.log(error.errors);
           return <Error title="Internal server error" />;
       }
-
-      return (
-        <Error
-          title="Unexpected error"
-          link={{ label: "Go to home", href: "/app/me" }}
-        />
-      );
     }
+
+    return (
+      <Error
+        title="Unexpected error"
+        link={{ label: "Go to home", href: "/app/me" }}
+      />
+    );
   }
 
   // const pastEvents = me.events.filter(

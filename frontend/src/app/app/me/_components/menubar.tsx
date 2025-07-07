@@ -17,7 +17,7 @@ import styles from "./menubar.module.css";
 import createEvent from "@/actions/event/createEvent";
 import joinEvent from "@/actions/event/joinEvent";
 
-import type { T_User } from "@/gql/types";
+import type { T_Event, T_User } from "@/gql/types";
 
 import { Z_EventName, Z_EventDescription } from "@/modules/parser";
 
@@ -28,7 +28,14 @@ import { TextMorph } from "@/components/ui/mp_text-morph";
 
 import Spinner from "@/components/spinner";
 
-export default function MenuBar({ me }: { me: T_User }) {
+export default function MenuBar({
+  me,
+}: {
+  me: T_User & {
+    events: T_Event[];
+    myEvents: T_Event[];
+  };
+}) {
   const router = useRouter();
 
   const { setIsBlurred } = useBlurContext();
@@ -59,7 +66,7 @@ export default function MenuBar({ me }: { me: T_User }) {
 
   const [createEventDisabled, setCreateEventDisabled] = useState(false);
   const [joinEventDisabled, setJoinEventDisabled] = useState(false);
-  const [joinEventError, setJoinEventError] = useState(false);
+  const [joinEventError, setJoinEventError] = useState<string | null>(null);
 
   const eventNameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -262,9 +269,11 @@ export default function MenuBar({ me }: { me: T_User }) {
 
       if (result.success) {
         setJoinEventOpen(false);
-        router.push(`/app/event/${result.data?.eventId}`);
+
+        router.push("/app/me");
+        // router.push(`/app/event/${result.data?.eventId}`);
       } else {
-        setJoinEventError(true);
+        setJoinEventError(result.message);
       }
     }, 1000);
   };
@@ -416,7 +425,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                       ease: "easeInOut",
                     }}
                   >
-                    Invalid invite code
+                    {joinEventError}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -445,7 +454,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                         onKeyDown={async (e) => {
                           e.preventDefault();
 
-                          setJoinEventError(false);
+                          setJoinEventError(null);
 
                           if (e.metaKey && e.code === "KeyV") {
                             // Handle paste (Cmd+V or Ctrl+V)
