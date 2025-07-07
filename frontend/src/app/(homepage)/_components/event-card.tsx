@@ -14,7 +14,7 @@ export default function EventCard({
   event,
   index,
 }: {
-  event: T_Event;
+  event: any;
   index: number;
 }) {
   //   const [isGlowVisible, setIsGlowVisible] = useState(false);

@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import { T_Event } from "@/gql/types";
+import { T_Event, T_EventMembership } from "@/gql/types";
 
 import { TextMorph } from "@/components/ui/mp_text-morph";
 
@@ -10,12 +10,16 @@ import EventContainer from "./event-container";
 
 import styles from "@/app/app/me/page.module.css";
 
+type T_EventData = T_Event & {
+  myMembership: T_EventMembership;
+};
+
 export default function UpcomingEvents({
   activeEvents,
   myPublishedEvents,
 }: {
-  activeEvents: T_Event[];
-  myPublishedEvents: T_Event[];
+  activeEvents: T_EventData[];
+  myPublishedEvents: T_EventData[];
 }) {
   const activeEventsCount = activeEvents.length + myPublishedEvents.length;
 

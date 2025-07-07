@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
-import { T_Event } from "@/gql/types";
+import { T_Event, T_EventMembership } from "@/gql/types";
 
 import { TextMorph } from "@/components/ui/mp_text-morph";
 
@@ -10,12 +10,16 @@ import EventContainer from "@/app/app/me/_components/event-container";
 
 import styles from "@/app/app/me/page.module.css";
 
+type T_EventData = T_Event & {
+  myMembership: T_EventMembership;
+};
+
 export default function Draft({
   drafts,
   myDrafts,
 }: {
-  drafts: T_Event[];
-  myDrafts: T_Event[];
+  drafts: T_EventData[];
+  myDrafts: T_EventData[];
 }) {
   const draftsCount = myDrafts.length + drafts.length;
 
