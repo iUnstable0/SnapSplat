@@ -210,4 +210,8 @@ type Mutation {
   uploadPhoto(captchaToken: String!, eventId: UUID!, file: File!): EventPhoto!
     @auth(requires: USER)
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
+  deletePhoto(captchaToken: String!, photoId: UUID!): Boolean!
+    @auth(requires: USER)
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
 }

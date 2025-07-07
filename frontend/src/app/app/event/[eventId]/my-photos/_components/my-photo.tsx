@@ -5,6 +5,9 @@ import { useDropzone } from "react-dropzone";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./my-photo.module.css";
+import ImagePreviewModal from "@/components/ui/ImagePreviewModal";
+
+import deletePhoto from "@/actions/event/deletePhoto";
 
 import * as gql_builder from "gql-query-builder";
 
@@ -29,8 +32,9 @@ export default function MyPhoto({ photos }: { photos: T_EventPhoto[] }) {
   // For error message
   const [error, setError] = useState<string | null>(null);
 
-  // Placeholder for already uploaded photos (to be fetched later)
-  const uploadedPhotos: string[] = [];
+  // For modal preview
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalPhoto, setModalPhoto] = useState<T_EventPhoto | null>(null);
 
   const totalBatchSize = pendingFiles.reduce((acc, file) => acc + file.size, 0);
 
@@ -119,119 +123,86 @@ export default function MyPhoto({ photos }: { photos: T_EventPhoto[] }) {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      {/* Left: Dropzone with previews */}
-      <div
-        className={styles.dropzone}
-        style={{ flex: 1, position: "relative" }}
-        {...getRootProps()}
-      >
-        <input {...getInputProps()} />
-        <p style={{ fontSize: 20, color: "#888" }}>
-          {isDragActive
-            ? "Drop the files here ..."
-            : "Drag & drop photos here, or click to select files"}
-        </p>
-        {error && <div style={{ color: "red", marginBottom: 8 }}>{error}</div>}
-        {pendingPreviews.length > 0 && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 8,
-              width: "100%",
-              marginTop: 16,
-            }}
-          >
-            {pendingPreviews.map((src, idx) => (
+    <div className={styles.pageWrapper}>
+      <div className={styles.mainContent}>
+        {/* Left: Dropzone with previews */}
+        <div className={styles.dropzone} {...getRootProps()}>
+          <input {...getInputProps()} />
+          <p className={styles.dropzoneText}>
+            {isDragActive
+              ? "Drop the files here ..."
+              : "Drag & drop photos here, or click to select files"}
+          </p>
+          {error && <div className={styles.errorMsg}>{error}</div>}
+          {pendingPreviews.length > 0 && (
+            <div className={styles.pendingPreviewGrid}>
+              {pendingPreviews.map((src, idx) => (
+                <div key={idx} className={styles.pendingPreviewItem}>
+                  <Image
+                    src={src}
+                    alt={`Pending Photo ${idx + 1}`}
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {pendingPreviews.length > 0 && (
+            <button
+              type="button"
+              className={styles.uploadButton}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUpload();
+              }}
+            >
+              Upload
+            </button>
+          )}
+        </div>
+        {/* Right: Uploaded photos grid */}
+        <div className={styles.galleryContainer}>
+          {photos.length === 0 ? (
+            <div className={styles.galleryTitle}>
+              <span className={styles.galleryTitleText}>
+                No uploaded photos yet
+              </span>
+            </div>
+          ) : (
+            photos.map((photo, idx) => (
               <div
-                key={idx}
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  aspectRatio: "1/1",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                  boxShadow: "0 2px 8px #0001",
+                key={photo.photoId}
+                className={styles.galleryItem}
+                onClick={() => {
+                  setModalPhoto(photo);
+                  setModalOpen(true);
                 }}
               >
                 <Image
-                  src={src}
-                  alt={`Pending Photo ${idx + 1}`}
+                  src={photo.presignedUrl || ""}
+                  alt={`Photo ${idx + 1}`}
                   fill
+                  className={styles.galleryItemImage}
                   style={{ objectFit: "cover" }}
                 />
               </div>
-            ))}
-          </div>
-        )}
-        {pendingPreviews.length > 0 && (
-          <button
-            type="button"
-            style={{
-              marginTop: 16,
-              padding: "8px 24px",
-              borderRadius: 6,
-              background: "#222",
-              color: "#fff",
-              border: "none",
-              fontWeight: 500,
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleUpload();
-            }}
-          >
-            Upload
-          </button>
-        )}
-      </div>
-      {/* Right: Uploaded photos grid (placeholder) */}
-      <div
-        style={{
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 12,
-          alignContent: "flex-start",
-          padding: 24,
-        }}
-      >
-        {photos.length === 0 ? (
-          <div
-            style={{
-              gridColumn: "1 / -1",
-              textAlign: "center",
-              color: "#aaa",
-              fontSize: 24,
-            }}
-          >
-            No uploaded photos yet
-          </div>
-        ) : (
-          photos.map((photo, idx) => (
-            <div
-              key={idx}
-              style={{
-                position: "relative",
-                width: "100%",
-                aspectRatio: "1/1",
-                borderRadius: 8,
-                overflow: "hidden",
-                boxShadow: "0 2px 8px #0001",
-              }}
-            >
-              <Image
-                src={photo.presignedUrl || ""}
-                alt={`Photo ${idx + 1}`}
-                fill
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
+        <ImagePreviewModal
+          open={modalOpen && !!modalPhoto}
+          onClose={() => setModalOpen(false)}
+          imageSrc={modalPhoto?.presignedUrl || ""}
+          imageAlt={modalPhoto?.key || ""}
+          imageWidth={modalPhoto?.width}
+          imageHeight={modalPhoto?.height}
+          onDelete={async () => {
+            await deletePhoto("captchaDemo", modalPhoto?.photoId);
+            alert("Photo deleted");
+            router.refresh();
+          }}
+        />
       </div>
     </div>
   );

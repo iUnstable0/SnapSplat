@@ -19,9 +19,7 @@
 }
 
 .galleryContainer {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  padding-left: 24px;
 }
 
 .galleryTitle {

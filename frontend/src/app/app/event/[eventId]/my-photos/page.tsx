@@ -1,13 +1,17 @@
-import { Images } from "lucide-react";
-
-import styles from "./page.module.css";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+
 import Error from "@/components/error";
-import requester from "@/gql/requester";
-import * as gql_builder from "gql-query-builder";
-import type { T_Event, T_EventPhoto } from "@/gql/types";
+
 import MyPhoto from "./_components/my-photo";
+
+import * as gql_builder from "gql-query-builder";
+
+import requester from "@/gql/requester";
+import type { T_Event, T_EventPhoto } from "@/gql/types";
+
+import styles from "./page.module.css";
+import { Images } from "lucide-react";
 
 export default async function Page({
   params,
@@ -31,15 +35,18 @@ export default async function Page({
           data: gql_builder.query({
             operation: "event",
             fields: [
-              // "isDraft",
-              // "isArchived",
+              "isDraft",
+              "isArchived",
               {
+                myMembership: ["memberId"],
                 photos: [
+                  "photoId",
                   "presignedUrl",
                   "width",
                   "height",
                   "mimeType",
                   "uploadedAt",
+                  "memberId",
                 ],
               },
             ],
@@ -53,7 +60,10 @@ export default async function Page({
       )
     ).event as T_EventData;
   } catch (error: any) {
-    console.error(`[/app/event/${eventId}] Error fetching data`, error);
+    console.error(
+      `[/app/event/${eventId}/my-photos] Error fetching data`,
+      error
+    );
 
     if ("redirect" in error) {
       return redirect(error.redirect);
@@ -99,14 +109,22 @@ export default async function Page({
       <div className={styles.mainContent}>
         <div className={styles.pageTitle}>My Photos</div>
 
-        {/* <div className={styles.galleryTitle}>
-          <Images className={styles.galleryTitleIcon} />
-          <span className={styles.galleryTitleText}>No photos yet</span>
-        </div> */}
+        {event.isDraft && (
+          <div className={styles.galleryTitle}>
+            <Images className={styles.galleryTitleIcon} />
+            <span className={styles.galleryTitleText}>
+              Publish your event to get started
+            </span>
+          </div>
+        )}
 
-        {/* <div className={styles.galleryContainer}> */}
-        <MyPhoto photos={event.photos} />
-        {/* </div> */}
+        {!event.isDraft && (
+          <MyPhoto
+            photos={event.photos.filter(
+              (photo) => photo.memberId === event.myMembership?.memberId
+            )}
+          />
+        )}
       </div>
     </div>
   );

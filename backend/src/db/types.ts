@@ -167,8 +167,6 @@ export const Z_Event: z.ZodType<Event> = z
       .default(undefined),
   })
   .transform((val) => {
-    console.log("transforming event", val);
-
     return {
       ...val,
       icon: val.icon.replaceAll("EVENT_ID", encodeURIComponent(val.eventId)),
