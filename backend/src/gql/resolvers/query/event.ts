@@ -1,13 +1,21 @@
+import * as z from "zod/v4";
+
 import prisma from "@/db/prisma";
-import type { Event, EventMembership } from "@/generated/prisma";
+
+import { EventRole } from "@/generated/prisma";
+
+import type { Event, EventInvite, EventMembership } from "@/generated/prisma";
 
 import lib_error from "@/modules/error";
 import lib_logger from "@/modules/logger";
+import lib_role from "@/modules/role";
 
-import { Z_EventMembership } from "@/db/types";
-import type { T_EventMembership } from "@/db/types";
+import { Z_Event, Z_EventMembership } from "@/db/types";
 
 export default class query_event {
+  // Guarded by @auth(requires: USER)
+  // User needs to be a member of the event to view the event info
+
   public static async getInfo(args: any, context: any) {
     const eventId = args.eventId;
 
@@ -15,37 +23,63 @@ export default class query_event {
       throw lib_error.bad_request("Missing required fields", "Missing eventId");
     }
 
-    let event: Event | null = null;
+    // let event: Event | null = null;
+
+    // try {
+    //   event = await prisma.event.findUnique({
+    //     where: { eventId },
+    //   });
+    // } catch (error) {
+    //   const refId = Bun.randomUUIDv7();
+
+    //   console.error(
+    //     `${lib_logger.formatPrefix("query_event/getInfo")} [${refId}] Failed to fetch event`,
+    //     error
+    //   );
+
+    //   throw lib_error.internal_server_error(
+    //     "Internal Server Error. refId: ${refId}",
+    //     `500 failed to fetch event info: ${error}`
+    //   );
+    // }
+
+    let membership: (EventMembership & { event: Event }) | null = null;
 
     try {
-      event = await prisma.event.findUnique({
-        where: { eventId },
+      membership = await prisma.eventMembership.findUnique({
+        where: { eventId_userId: { eventId, userId: context.user.userId } },
+        include: {
+          event: true,
+        },
       });
     } catch (error) {
       const refId = Bun.randomUUIDv7();
 
       console.error(
-        `${lib_logger.formatPrefix("query_event/getInfo")} [${refId}] Failed to fetch event`,
+        `${lib_logger.formatPrefix("query_event/getInfo")} [${refId}] Failed to fetch event membership`,
         error
       );
 
       throw lib_error.internal_server_error(
         "Internal Server Error. refId: ${refId}",
-        `500 failed to fetch event info: ${error}`
+        `500 failed to fetch event membership: ${error}`
       );
     }
 
-    if (!event) {
+    if (!membership) {
       throw lib_error.not_found(
         "Event not found",
         `Event with id ${eventId} not found`
       );
     }
 
-    // console.log(event);
+    const parsedEvent = Z_Event.parse(membership.event);
 
-    return event;
+    return parsedEvent;
   }
+
+  // Guarded by @auth(requires: USER)
+  // User needs to be a member of the event to view the host member
 
   public static async getHostMember(args: any) {
     const [parent, body, context] = args;
@@ -61,51 +95,85 @@ export default class query_event {
       throw lib_error.bad_request("Missing required fields", "Missing eventId");
     }
 
-    let event: (Event & { hostMember: EventMembership | null }) | null = null;
+    let membership:
+      | (EventMembership & {
+          event: Event & { hostMember: EventMembership | null };
+        })
+      | null = null;
 
     try {
-      event = await prisma.event.findUnique({
-        where: { eventId },
+      membership = await prisma.eventMembership.findUnique({
+        where: { eventId_userId: { eventId, userId: context.user.userId } },
         include: {
-          hostMember: true,
+          event: {
+            include: {
+              hostMember: true,
+            },
+          },
         },
       });
     } catch (error) {
       const refId = Bun.randomUUIDv7();
 
       console.error(
-        `${lib_logger.formatPrefix("query_event/getHost")} [${refId}] Failed to fetch event`,
+        `${lib_logger.formatPrefix("query_event/getHostMember")} [${refId}] Failed to fetch event membership`,
         error
       );
 
       throw lib_error.internal_server_error(
         "Internal Server Error. refId: ${refId}",
-        `500 failed to fetch event host: ${error}`
+        `500 failed to fetch event membership: ${error}`
       );
     }
 
-    if (!event) {
+    if (!membership) {
       throw lib_error.not_found(
         "Event not found",
         `Event with id ${eventId} not found`
       );
     }
 
-    return event.hostMember;
+    const parsedHostMember = Z_EventMembership.parse(
+      membership.event.hostMember
+    );
+
+    return parsedHostMember;
   }
 
+  // Guarded by @auth(requires: USER)
+  // User needs to be a member of the event to view the memberships
+
   public static async getMemberships(args: any) {
-    const eventId = args.eventId;
+    const [parent, body, context] = args;
+
+    let eventId = null;
+
+    if (parent) {
+      eventId = parent.eventId;
+    } else {
+      eventId = body.eventId;
+    }
 
     if (!eventId) {
       throw lib_error.bad_request("Missing required fields", "Missing eventId");
     }
 
-    let memberships: EventMembership[] = [];
+    let membership:
+      | (EventMembership & {
+          event: Event & { memberships: EventMembership[] };
+        })
+      | null = null;
 
     try {
-      memberships = await prisma.eventMembership.findMany({
-        where: { eventId },
+      membership = await prisma.eventMembership.findUnique({
+        where: { eventId_userId: { eventId, userId: context.user.userId } },
+        include: {
+          event: {
+            include: {
+              memberships: true,
+            },
+          },
+        },
       });
     } catch (error) {
       const refId = Bun.randomUUIDv7();
@@ -121,8 +189,43 @@ export default class query_event {
       );
     }
 
-    return memberships;
+    if (!membership) {
+      throw lib_error.not_found(
+        "Event not found",
+        `Event with id ${eventId} not found`
+      );
+    }
+
+    const parsedMemberships = Z_EventMembership.array().parse(
+      membership.event.memberships
+    );
+
+    return parsedMemberships;
+
+    // try {
+    //   memberships = await prisma.eventMembership.findMany({
+    //     where: { eventId },
+    //   });
+    // } catch (error) {
+    //   const refId = Bun.randomUUIDv7();
+
+    //   console.error(
+    //     `${lib_logger.formatPrefix("query_event/getMemberships")} [${refId}] Failed to fetch memberships`,
+    //     error
+    //   );
+
+    //   throw lib_error.internal_server_error(
+    //     "Internal Server Error. refId: ${refId}",
+    //     `500 failed to fetch event memberships: ${error}`
+    //   );
+    // }
+
+    // return memberships;
   }
+
+  // Guarded by @auth(requires: USER)
+  // User needs to be a member of the event to view their membership
+  // This fetches data based on authenticated userId
 
   public static async getMyMembership(args: any) {
     const [parent, body, context] = args;
@@ -176,12 +279,82 @@ export default class query_event {
 
     const parsedMembership = Z_EventMembership.parse(membership);
 
-    return {
-      ...parsedMembership,
-      avatarAlt: parsedMembership.avatarAlt.replace(
-        "USER_DISPLAY_NAME",
-        encodeURIComponent(parsedMembership.displayNameAlt)
-      ),
-    };
+    console.log(parsedMembership);
+
+    return parsedMembership;
+
+    // return {
+    //   ...parsedMembership,
+    //   avatarAlt: parsedMembership.avatarAlt.replace(
+    //     "USER_DISPLAY_NAME",
+    //     encodeURIComponent(parsedMembership.displayNameAlt)
+    //   ),
+    // };
+  }
+
+  // Guarded by @auth(requires: USER)
+  // User needs to be a member of the event AND has COHOST role to view the invites
+
+  public static async getInvites(args: any) {
+    const [parent, body, context] = args;
+
+    let eventId = null;
+
+    if (parent) {
+      eventId = parent.eventId;
+    } else {
+      eventId = body.eventId;
+    }
+
+    if (!eventId) {
+      throw lib_error.bad_request("Missing required fields", "Missing eventId");
+    }
+
+    let membership:
+      | (EventMembership & {
+          event: Event & { invites: EventInvite[] };
+        })
+      | null = null;
+
+    try {
+      membership = await prisma.eventMembership.findUnique({
+        where: { eventId_userId: { eventId, userId: context.user.userId } },
+        include: {
+          event: {
+            include: {
+              invites: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("query_event/getInvites")} [${refId}] Failed to fetch event membership`,
+        error
+      );
+
+      throw lib_error.internal_server_error(
+        "Internal Server Error. refId: ${refId}",
+        `500 failed to fetch event membership: ${error}`
+      );
+    }
+
+    if (!membership) {
+      throw lib_error.not_found(
+        "Event not found",
+        `Event with id ${eventId} not found`
+      );
+    }
+
+    if (!lib_role.event_hasRole(membership.eventRole, EventRole.COHOST)) {
+      throw lib_error.forbidden(
+        "Forbidden",
+        "User does not have COHOST role in the event"
+      );
+    }
+
+    return membership.event.invites;
   }
 }

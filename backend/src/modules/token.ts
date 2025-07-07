@@ -59,6 +59,8 @@ export default class lib_token {
 
     const refreshToken = `${userId}:${sessionId}:${sessionKey}`;
 
+    // console.log("REFRESH TOKEN", refreshToken);
+
     const hashedSessionKey = await Bun.password.hash(sessionKey, {
       algorithm: "argon2id",
     });

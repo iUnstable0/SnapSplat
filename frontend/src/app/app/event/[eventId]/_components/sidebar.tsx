@@ -46,16 +46,19 @@ import lib_role from "@/modules/role";
 
 import styles from "./sidebar.module.css";
 
-import { T_Event } from "@/gql/types";
-import Keybind, { T_Keybind } from "@/components/keybind";
+import { T_Event, T_EventInvite, T_EventMembership, T_User } from "@/gql/types";
+import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
 
 export default function Sidebar({
   children,
-  data,
+  event,
 }: {
   children?: React.ReactNode;
-  data: {
-    event: T_Event;
+  event: T_Event & {
+    hostMember: T_User;
+    memberships: T_EventMembership[];
+    myMembership: T_EventMembership;
+    invites: T_EventInvite[];
   };
 }) {
   const router = useRouter();
@@ -163,7 +166,7 @@ export default function Sidebar({
   ];
 
   // COHOST & HOST
-  if (lib_role.event_hasRole(data.event.myMembership, "COHOST")) {
+  if (lib_role.event_hasRole(event.myMembership, "COHOST")) {
     eventMenuItems.push({
       label: "Manage Event",
       icon: <Wrench />,
@@ -173,7 +176,7 @@ export default function Sidebar({
       keybinds: [T_Keybind.shift, T_Keybind.m],
     });
 
-    // if (data.event.isDraft) {
+    // if (event.isDraft) {
     //   eventMenuItems.push({
     //     label: "Publish Event",
     //     icon: <Check />,
@@ -185,7 +188,7 @@ export default function Sidebar({
   }
 
   // NOT HOST
-  if (!lib_role.event_hasRole(data.event.myMembership, "HOST")) {
+  if (!lib_role.event_hasRole(event.myMembership, "HOST")) {
     eventMenuItems.push({
       label: "Leave Event",
       icon: <LogOut />,
@@ -197,13 +200,13 @@ export default function Sidebar({
   }
 
   // HOST
-  if (lib_role.event_hasRole(data.event.myMembership, "HOST")) {
-    if (data.event.isDraft) {
+  if (lib_role.event_hasRole(event.myMembership, "HOST")) {
+    if (event.isDraft) {
       eventMenuItems.push({
         label: "Delete Event",
         icon: <Trash2 />,
         onClick: async () => {
-          await deleteEvent("captchaDemo", data.event.eventId);
+          await deleteEvent("captchaDemo", event.eventId);
 
           router.push(searchParams.get("back") ?? "/app/me");
         },
@@ -250,7 +253,7 @@ export default function Sidebar({
         // setPage("/home");
         // change url bar without reloading
 
-        navigate(`/app/event/${data.event.eventId}/home`);
+        navigate(`/app/event/${event.eventId}/home`);
       },
     },
     {
@@ -259,7 +262,7 @@ export default function Sidebar({
       href: "/my-gallery",
       onClick: () => {
         // setPage("/my-gallery");
-        navigate(`/app/event/${data.event.eventId}/my-gallery`);
+        navigate(`/app/event/${event.eventId}/my-gallery`);
       },
     },
     {
@@ -268,7 +271,7 @@ export default function Sidebar({
       href: "/gallery",
       onClick: () => {
         // setPage("/gallery");
-        navigate(`/app/event/${data.event.eventId}/gallery`);
+        navigate(`/app/event/${event.eventId}/gallery`);
       },
     },
     {
@@ -279,7 +282,7 @@ export default function Sidebar({
       href: "/board",
       onClick: () => {
         // setPage("/board");
-        navigate(`/app/event/${data.event.eventId}/board`);
+        navigate(`/app/event/${event.eventId}/board`);
       },
     },
     // {
@@ -437,7 +440,7 @@ export default function Sidebar({
               {/* <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" /> */}
               <Image
                 src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                  data.event.name
+                  event.name
                 )}`}
                 alt="SnapSplat"
                 width={24}
@@ -450,7 +453,7 @@ export default function Sidebar({
                 animate={{ opacity: open ? 1 : 0 }}
                 className={styles.logoText}
               >
-                {data.event.name}
+                {event.name}
               </motion.span>
             </a>
 
@@ -499,12 +502,12 @@ export default function Sidebar({
             <SidebarLink
               className={styles.avatarLink}
               link={{
-                label: data.event.myMembership.displayNameAlt,
+                label: event.myMembership.displayNameAlt,
                 href: "#",
                 avatar: true,
                 icon: (
                   <img
-                    src={data.event.myMembership.avatarAlt}
+                    src={event.myMembership.avatarAlt}
                     className={styles.avatarImage}
                     // width={50}
                     // height={50}
@@ -559,7 +562,8 @@ export default function Sidebar({
       <AnimatePresence>
         {manageEventVisible && (
           <ManageEvent
-            event={data.event}
+            user={event.hostMember}
+            event={event}
             setManageEventVisible={setManageEventVisible}
           />
         )}

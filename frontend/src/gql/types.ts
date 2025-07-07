@@ -1,69 +1,210 @@
+// Types of data received from the backend
+// Sync with backend/db/types.ts
+// Field names should follow the gql schema.gql
+
 import * as z from "zod/v4";
 
-import { Z_DisplayName, Z_Email } from "@/modules/parser";
+// Import input parsers
+import { Z_Email } from "@/modules/parser";
 
-export const Z_Event: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    eventId: z.uuidv4(),
+type User = {
+  userId: string;
 
-    // We dont validate the name and description
-    // because they are not user controlled
-    // and if in the future we change the name/description constraints
-    name: z.string(),
-    description: z.string(),
+  email: string;
+  displayName: string;
+  platformRole: "SUPER_ADMIN" | "ADMIN" | "USER";
 
-    startsAt: z.date(),
-    endsAt: z.date(),
-    isDraft: z.boolean(),
-    isArchived: z.boolean(),
+  avatar: string;
 
-    createdAt: z.date(),
+  isEmailVerified: boolean;
 
-    hostMember: z.promise(Z_EventMembership),
-    hostUser: z.promise(Z_User),
+  events: T_Event[] | undefined;
+  myEvents: T_Event[] | undefined;
+};
 
-    memberships: z.array(z.promise(Z_EventMembership)),
+export const Z_User: z.ZodType<User> = z.object({
+  userId: z.uuidv4(),
 
-    myMembership: z.promise(Z_EventMembership),
-  })
-);
+  email: Z_Email,
+  displayName: z.string(),
+  platformRole: z.enum(["SUPER_ADMIN", "ADMIN", "USER"]),
 
-export type T_Event = z.infer<typeof Z_Event>;
+  avatar: z.url(),
 
-export const Z_User: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    userId: z.uuidv4(),
-    email: Z_Email,
-    displayName: Z_DisplayName,
-    avatar: z.url(),
-    isEmailVerified: z.boolean(),
-    platformRole: z.enum(["SUPER_ADMIN", "ADMIN", "USER"]),
+  isEmailVerified: z.boolean(),
 
-    events: z.array(z.promise(Z_Event)),
-    myEvents: z.array(z.promise(Z_Event)),
-  })
-);
+  events: z
+    .array(z.lazy(() => Z_Event))
+    .optional()
+    .default(undefined),
+  myEvents: z
+    .array(z.lazy(() => Z_Event))
+    .optional()
+    .default(undefined),
+});
 
 export type T_User = z.infer<typeof Z_User>;
 
-export const Z_EventMembership: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    memberId: z.uuidv4(),
-    eventId: z.uuidv4(),
+type Event = {
+  eventId: string;
+  name: string;
+  description: string;
 
-    eventRole: z.enum(["HOST", "COHOST", "ATTENDEE"]),
+  icon: string;
+  cover: string;
+  banner: string;
 
-    displayNameAlt: Z_DisplayName,
-    avatarAlt: z.url(),
+  startsAt: Date;
+  endsAt: Date;
 
-    joinedAt: z.date(),
-    isApproved: z.boolean(),
+  isDraft: boolean;
+  isArchived: boolean;
 
-    user: z.promise(Z_User),
-  })
-);
+  createdAt: Date;
+
+  hostUser: T_User | undefined;
+
+  hostMember: T_EventMembership | undefined;
+
+  memberships: T_EventMembership[] | undefined;
+  invites: T_EventInvite[] | undefined;
+
+  myMembership: T_EventMembership | undefined;
+};
+
+export const Z_Event: z.ZodType<Event> = z.object({
+  eventId: z.uuidv4(),
+
+  // We dont validate the name and description
+  // because they are not user controlled
+  // and if in the future we change the name/description constraints
+  name: z.string(),
+  description: z.string(),
+
+  icon: z.url(),
+  cover: z.url(),
+  banner: z.url(),
+
+  startsAt: z.date(),
+  endsAt: z.date(),
+
+  isDraft: z.boolean(),
+  isArchived: z.boolean(),
+
+  createdAt: z.date(),
+
+  hostUser: z
+    .lazy(() => Z_User)
+    .optional()
+    .default(undefined),
+
+  hostMember: z
+    .lazy(() => Z_EventMembership)
+    .optional()
+    .default(undefined),
+
+  memberships: z
+    .array(z.lazy(() => Z_EventMembership))
+    .optional()
+    .default(undefined),
+  invites: z
+    .array(z.lazy(() => Z_EventInvite))
+    .optional()
+    .default(undefined),
+
+  myMembership: z
+    .lazy(() => Z_EventMembership)
+    .optional()
+    .default(undefined),
+});
+
+export type T_Event = z.infer<typeof Z_Event>;
+
+type EventMembership = {
+  eventId: string;
+
+  eventRole: "HOST" | "COHOST" | "ATTENDEE";
+
+  displayNameAlt: string;
+  avatarAlt: string;
+
+  joinedAt: Date;
+  isApproved: boolean;
+
+  event: T_Event | undefined;
+
+  userId: string;
+  user: T_User | undefined;
+
+  memberId: string;
+};
+
+export const Z_EventMembership: z.ZodType<EventMembership> = z.object({
+  eventId: z.uuidv4(),
+
+  eventRole: z.enum(["HOST", "COHOST", "ATTENDEE"]),
+
+  displayNameAlt: z.string(),
+  avatarAlt: z.url(),
+
+  joinedAt: z.date(),
+  isApproved: z.boolean(),
+
+  event: z
+    .lazy(() => Z_Event)
+    .optional()
+    .default(undefined),
+
+  userId: z.uuidv4(),
+  user: z
+    .lazy(() => Z_User)
+    .optional()
+    .default(undefined),
+
+  memberId: z.uuidv4(),
+});
 
 export type T_EventMembership = z.infer<typeof Z_EventMembership>;
+
+type EventInvite = {
+  eventId: string;
+  inviteId: string;
+  inviteCode: string;
+
+  role: "HOST" | "COHOST" | "ATTENDEE";
+  requireApproval: boolean;
+
+  createdAt: Date;
+  expiresAt: Date;
+
+  maxUses: number;
+  uses: number;
+
+  event: T_Event | undefined;
+};
+
+export const Z_EventInvite: z.ZodType<EventInvite> = z.object({
+  eventId: z.uuidv4(),
+  inviteId: z.uuidv4(),
+  inviteCode: z.string(),
+
+  role: z.enum(["HOST", "COHOST", "ATTENDEE"]),
+
+  requireApproval: z.boolean(),
+
+  createdAt: z.date(),
+  expiresAt: z.date(),
+
+  maxUses: z.number(),
+  uses: z.number(),
+
+  event: z
+    .lazy(() => Z_Event)
+    .optional()
+    .default(undefined),
+});
+
+export type T_EventInvite = z.infer<typeof Z_EventInvite>;
 
 export const Z_Platform = z.object({
   isSetupCompleted: z.boolean(),

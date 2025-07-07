@@ -4,7 +4,7 @@ import * as gql_builder from "gql-query-builder";
 
 import requester from "@/gql/requester";
 
-import { Z_EventCode } from "@/modules/parser";
+import { Z_InviteCode } from "@/modules/parser";
 import { cookies } from "next/headers";
 
 export default async function createEvent(
@@ -17,9 +17,7 @@ export default async function createEvent(
 }> {
   const cookieStore = await cookies();
 
-  console.log("received data", captchaToken, code);
-
-  const codeResult = Z_EventCode.safeParse(code);
+  const codeResult = Z_InviteCode.safeParse(code);
 
   if (!codeResult.success) {
     return {
@@ -39,10 +37,10 @@ export default async function createEvent(
             fields: ["eventId"],
             variables: {
               captchaToken: {
-                value: "captchaDemo",
+                value: captchaToken,
                 required: true,
               },
-              code: {
+              inviteCode: {
                 value: codeResult.data,
                 required: true,
               },
@@ -53,12 +51,12 @@ export default async function createEvent(
         cookieStore.get("token")?.value
       )
     ).joinEvent;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Join event mutation failed:", error);
 
     return {
       success: false,
-      message: "Internal server error",
+      message: error.errors[0].message,
     };
   }
 

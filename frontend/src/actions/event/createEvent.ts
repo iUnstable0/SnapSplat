@@ -46,7 +46,7 @@ export default async function createEvent(
             fields: ["eventId"],
             variables: {
               captchaToken: {
-                value: "captchaDemo",
+                value: captchaToken,
                 required: true,
               },
               name: {

@@ -52,7 +52,9 @@
   justify-content: center;
   gap: 8px;
 
-  transition: scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition:
+    scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    opacity 0.2s ease-in-out;
 }
 
 .keybindButtonIcon {
@@ -65,13 +67,15 @@
 
   transition:
     color 0.2s ease-in-out,
-    filter 0.2s ease-in-out;
+    filter 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
 }
 
 .keybindButtonText {
   transition:
     color 0.2s ease-in-out,
-    text-shadow 0.2s ease-in-out;
+    text-shadow 0.2s ease-in-out,
+    opacity 0.2s ease-in-out;
 }
 
 /* keybindButton.hover If Keybinds is not disabled */

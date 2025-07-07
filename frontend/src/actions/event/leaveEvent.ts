@@ -8,7 +8,7 @@ import requester from "@/gql/requester";
 
 import { cookies } from "next/headers";
 
-export default async function deleteEvent(
+export default async function leaveEvent(
   captchaToken: string,
   eventId: string
 ): Promise<{
@@ -32,7 +32,7 @@ export default async function deleteEvent(
       await requester.request(
         {
           data: gql_builder.mutation({
-            operation: "deleteEvent",
+            operation: "leaveEvent",
             //   fields: ["eventId"],
             variables: {
               captchaToken: {
@@ -50,9 +50,9 @@ export default async function deleteEvent(
         },
         cookieStore.get("token")?.value
       )
-    ).createEvent;
+    ).leaveEvent;
   } catch (error) {
-    console.error("Delete event mutation failed:", error);
+    console.error("Leave event mutation failed:", error);
 
     return {
       success: false,
@@ -62,7 +62,7 @@ export default async function deleteEvent(
 
   return {
     success: true,
-    message: "Event deleted successfully",
+    message: "Event left successfully",
     data: result,
   };
 

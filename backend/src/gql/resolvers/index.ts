@@ -28,7 +28,7 @@ export default {
     me: (...args: argsType) => {
       console.log("me query");
 
-      return query_user.getAuthenticatedInfo(args[1], args[2]);
+      return query_user.getAuthenticatedInfo(args);
     },
     platform: (...args: argsType) => query_platform.getInfo(),
     event: (...args: argsType) => {
@@ -41,8 +41,10 @@ export default {
     register: (...args: argsType) => mutation_user.register(args[1], args[2]),
     login: (...args: argsType) => mutation_user.login(args[1], args[2]),
     refreshToken: (...args: argsType) => mutation_user.refreshToken(args[1]),
-    createEvent: (...args: argsType) =>
-      mutation_event.createEvent(args[1], args[2]),
+    joinEvent: (...args: argsType) => mutation_event.joinEvent(args),
+    leaveEvent: (...args: argsType) => mutation_event.leaveEvent(args),
+    createEvent: (...args: argsType) => mutation_event.createEvent(args),
+    updateEvent: (...args: argsType) => mutation_event.updateEvent(args),
     deleteEvent: (...args: argsType) => mutation_event.deleteEvent(args),
   },
   User: {
@@ -52,7 +54,7 @@ export default {
       return query_user.getEvents(args);
     },
     myEvents: (...args: argsType) => {
-      console.log("user resolver myEvents query");
+      console.log("user resolver hostedEvents query");
 
       return query_user.getMyEvents(args);
     },
@@ -74,6 +76,11 @@ export default {
       console.log("event resolver myMembership query");
 
       return query_event.getMyMembership(args);
+    },
+    invites: (...args: argsType) => {
+      console.log("event resolver invites query");
+
+      return query_event.getInvites(args);
     },
   },
 };

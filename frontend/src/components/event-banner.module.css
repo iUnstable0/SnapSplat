@@ -163,6 +163,8 @@
   background-color: transparent;
   border: none;
   outline: none;
+
+  transition: all 0.2s ease-in-out;
 }
 
 .eventIconEdit {
@@ -205,4 +207,19 @@
   height: 32px;
 
   transition: filter 0.2s ease-in-out;
+}
+
+.invalid {
+  color: var(--sp-dangerous-color);
+  /* background-color: #491515b1; */
+  border-bottom: 2px solid var(--sp-dangerous-color) !important;
+}
+
+.invalidText {
+  color: var(--sp-dangerous-color);
+  font-weight: 500;
+  /* no wrap */
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
 }

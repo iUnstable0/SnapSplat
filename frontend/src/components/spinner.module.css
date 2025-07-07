@@ -1,17 +1,16 @@
 .spinner {
-  display: none;
+  display: inherit;
+  position: relative;
+  transform: rotate(165deg);
 }
 
-/* .spinner_black {
-  display: inline-block;
-} */
+.spinner_animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
 
-@media (prefers-color-scheme: dark) {
-  .spinner {
-    display: inline-block !important;
-  }
+  transform: translate(-50%, -50%);
 
-  .spinner_black {
-    display: none !important;
-  }
+  animation-fill-mode: none;
 }

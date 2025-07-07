@@ -28,7 +28,9 @@ export enum T_Keybind {
   p = "p",
   e = "e",
   r = "r",
+  s = "s",
   period = ".",
+  tab = "tab",
 }
 
 export const KeybindButton = ({
@@ -43,6 +45,7 @@ export const KeybindButton = ({
   iconClassName,
   loading,
   loadingText,
+  magnetic = true,
 }: {
   keybinds: T_Keybind[];
   dangerous?: boolean;
@@ -55,6 +58,7 @@ export const KeybindButton = ({
   iconClassName?: string;
   loading?: boolean;
   loadingText?: string;
+  magnetic?: boolean;
   // loadingTheme?: "light" | "dark" | "dangerous";
 }) => {
   let styles;
@@ -69,74 +73,93 @@ export const KeybindButton = ({
   }
 
   return (
-    <Magnetic
-      intensity={0.1}
-      springOptions={{ bounce: 0.1 }}
-      actionArea="global"
-      range={disabled ? 0 : 75}
+    <motion.div
+      layout
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{
+        type: "spring",
+        stiffness: 120,
+        damping: 20,
+        opacity: {
+          duration: 0.2,
+          ease: "easeInOut",
+        },
+      }}
     >
-      <button
-        className={clsx(
-          styles.keybindButton,
-          dangerous && styles.keybindButtonDangerous,
-          dangerous && loading === true && styles.keybindButtonDangerous
-        )}
-        onClick={() => {
-          if (!disabled) {
-            onPress?.();
-          }
-        }}
-        disabled={disabled}
+      <Magnetic
+        intensity={0.1}
+        springOptions={{ bounce: 0.1 }}
+        actionArea="global"
+        range={disabled ? 0 : magnetic ? 75 : 0}
       >
-        <AnimatePresence mode="popLayout">
-          {!loadingText && icon && (
-            <motion.div
-              className={clsx(styles.keybindButtonIcon, iconClassName)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {icon}
-            </motion.div>
+        <button
+          className={clsx(
+            styles.keybindButton,
+            dangerous && styles.keybindButtonDangerous,
+            dangerous && loading === true && styles.keybindButtonDangerous
           )}
-
-          {loadingText && !loading && icon && (
-            <motion.div
-              className={clsx(styles.keybindButtonIcon, iconClassName)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              {icon}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {loadingText && typeof loading === "boolean" && (
-          <Spinner
-            loading={loading}
-            size={24}
-            forcetheme={dangerous ? "dangerous" : forcetheme}
-          />
-        )}
-
-        <div className={clsx(styles.keybindButtonText, textClassName)}>
-          {children}
-        </div>
-
-        <Keybind
-          keybinds={keybinds}
-          dangerous={dangerous}
-          onPress={onPress}
+          onClick={() => {
+            if (!disabled && !loading) {
+              onPress?.();
+            }
+          }}
           disabled={disabled}
-          loading={loading}
-          loadingText={loadingText}
-          forcetheme={forcetheme}
-        />
-      </button>
-    </Magnetic>
+        >
+          <AnimatePresence mode="popLayout">
+            {!loadingText && icon && (
+              <motion.div
+                className={clsx(styles.keybindButtonIcon, iconClassName)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {icon}
+              </motion.div>
+            )}
+
+            {loadingText && !loading && icon && (
+              <motion.div
+                className={clsx(styles.keybindButtonIcon, iconClassName)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {icon}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {loadingText && typeof loading === "boolean" && (
+            <Spinner
+              id={`keybind-${keybinds.join("-")}`}
+              loading={loading}
+              size={24}
+              dangerous={dangerous}
+              forcetheme={forcetheme}
+            />
+          )}
+
+          <div className={clsx(styles.keybindButtonText, textClassName)}>
+            {children}
+          </div>
+
+          <Keybind
+            keybinds={keybinds}
+            dangerous={dangerous}
+            onPress={onPress}
+            disabled={disabled}
+            loading={loading}
+            loadingText={loadingText}
+            forcetheme={forcetheme}
+            magnetic={magnetic}
+          />
+        </button>
+      </Magnetic>
+    </motion.div>
   );
 };
 
@@ -150,6 +173,7 @@ export default function Keybind({
   forcetheme,
   loadingText,
   loading,
+  magnetic = true,
 }: {
   keybinds: T_Keybind[];
   className?: string;
@@ -160,6 +184,7 @@ export default function Keybind({
   forcetheme?: "light" | "dark";
   loadingText?: string;
   loading?: boolean;
+  magnetic?: boolean;
 }) {
   let styles = stylesDynamic;
 
@@ -183,27 +208,38 @@ export default function Keybind({
 
   useEffect(() => {
     const addToAnimatedKeys = (key: string) => {
+      const keyeventId = `(${keybinds.join(",")}) ++ ${key}`;
+
+      console.log(keyeventId, "added to animated keys");
+
       setAnimatedKeys((prev) => new Set(prev).add(key));
     };
 
     const removeFromAnimatedKeys = (key: string) => {
+      const keyeventId = `(${keybinds.join(",")}) -- ${key}`;
+
       setTimeout(() => {
         if (
           onPress &&
           keybinds.every((key) => heldKeys.has(key)) &&
           keybinds[keybinds.length - 1] === key
         ) {
-          // If animatedKeys has a key that doesnt exist in keybind
-          if (animatedKeys.size === keybinds.length) {
-            // alert(`keybind removed ${key}`);
-            if (!disabled) {
-              console.log("AMOGUS AMOGUS KEYBND", keybinds.join(","));
+          if (heldKeys.size === keybinds.length) {
+            if (!disabled && !loading) {
+              console.log(keyeventId, "keybind activated");
               onPress();
             }
           } else {
-            // alert("kys sybau");
+            console.log(
+              keyeventId,
+              "unknown key pressed with keybind",
+              Array.from(heldKeys).join(","),
+              ". not activating!"
+            );
           }
         }
+
+        console.log(keyeventId, "removed from animated keys");
 
         setAnimatedKeys((prev) => {
           const next = new Set(prev);
@@ -221,13 +257,25 @@ export default function Keybind({
 
       const key = e.key.toLowerCase();
 
-      console.log(key);
+      if (e.metaKey) {
+        return;
+      }
+
+      if (e.ctrlKey) {
+        return;
+      }
+
+      if (e.repeat) {
+        return;
+      }
+
+      const keyeventId = `(${keybinds.join(",")}) + ${key}`;
+
+      console.log(keyeventId, "pressed");
 
       // check if key is in keybinds (keybinds type is T_Keybind[])
       // if (keybinds.includes(key as T_Keybind)) {
       // If it alr contain key then abort!
-
-      console.log("key added", key, keybinds.join(","));
 
       setHeldKeys((prev) => new Set(prev).add(key));
 
@@ -239,6 +287,22 @@ export default function Keybind({
 
     const handleKeyUp = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
+
+      if (e.metaKey) {
+        return;
+      }
+
+      if (e.ctrlKey) {
+        return;
+      }
+
+      if (e.repeat) {
+        return;
+      }
+
+      const keyeventId = `(${keybinds.join(",")}) - ${key}`;
+
+      console.log(keyeventId, "released");
 
       setHeldKeys((prev) => {
         const next = new Set(prev);
@@ -269,7 +333,7 @@ export default function Keybind({
       springOptions={{ bounce: 0.1 }}
       actionArea="global"
       className={styles.keybindContainerMagnet}
-      range={disabled ? 0 : 75}
+      range={disabled ? 0 : magnetic ? 75 : 0}
       data-theme={forcetheme}
     >
       {keybinds.map((keybind, index) => (
@@ -296,6 +360,9 @@ export default function Keybind({
             // <CircleArrowOutUpLeft
             //   className={clsx(styles.keybindIcon, className)}
             // />
+            <span className={clsx(styles.keybindText, className)}>esc</span>
+          )}
+          {keybind === T_Keybind.tab && (
             <span className={clsx(styles.keybindText, className)}>esc</span>
           )}
           {keybind === T_Keybind.backspace && (

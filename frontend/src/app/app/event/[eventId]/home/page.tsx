@@ -20,34 +20,35 @@ export default async function Page({
 
   const eventId = (await params).eventId;
 
-  let data: { event: T_Event } = { event: null };
+  type T_EventData = T_Event;
+
+  let event: T_EventData;
 
   try {
-    data = await requester.request(
-      {
-        data: gql_builder.query({
-          operation: "event",
-          fields: [
-            "eventId",
-            "name",
-            "description",
-            "isDraft",
-            "isArchived",
-            {
-              myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
-              // variables: {
-              //   eventId: { value: eventId, type: "UUID", required: true },
+    event = (
+      await requester.request(
+        {
+          data: gql_builder.query({
+            operation: "event",
+            fields: [
+              "eventId",
+              "name",
+              "description",
+              // "isDraft",
+              // "isArchived",
+              // {
+              //   myMembership: ["eventRole", "displayNameAlt", "avatarAlt"],
               // },
+            ],
+            variables: {
+              eventId: { value: eventId, type: "UUID", required: true },
             },
-          ],
-          variables: {
-            eventId: { value: eventId, type: "UUID", required: true },
-          },
-        }),
-        withAuth: true,
-      },
-      cookieStore.get("token")?.value
-    );
+          }),
+          withAuth: true,
+        },
+        cookieStore.get("token")?.value
+      )
+    ).event as T_EventData;
   } catch (error: any) {
     console.error(`[/app/event/${eventId}] Error fetching data`, error);
 
@@ -93,7 +94,7 @@ export default async function Page({
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.mainContent}>
-        <EventBanner data={data} />
+        <EventBanner event={event} />
 
         <div className={styles.liveFeed}>
           <div className={styles.liveFeedHeader}>
