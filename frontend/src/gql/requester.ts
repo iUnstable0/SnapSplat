@@ -6,7 +6,7 @@ import axios from "axios";
 // import { NextResponse } from "next/server";
 
 type axiosOptions = {
-  // headers?: Record<string, string>;
+  headers?: Record<string, string>;
   data?: unknown;
   withAuth?: boolean;
 };
@@ -37,6 +37,8 @@ export default class requester {
         baseURL: process.env.NEXT_PUBLIC_GQL_ENDPOINT,
         headers: {
           "Content-Type": "application/json",
+
+          ...(options.headers || {}),
 
           ...(options.withAuth && token
             ? { Authorization: `Bearer ${token}` }

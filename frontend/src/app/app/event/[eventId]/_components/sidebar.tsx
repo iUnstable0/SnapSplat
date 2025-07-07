@@ -24,6 +24,8 @@ import {
   Check,
   Trash2,
   Archive,
+  ImageIcon,
+  Aperture,
 } from "lucide-react";
 
 import { layoutGridPlus } from "@lucide/lab";
@@ -257,16 +259,16 @@ export default function Sidebar({
       },
     },
     {
-      label: "My Gallery",
-      icon: <FolderLock className={styles.sidebarLinkIcon} />,
-      href: "/my-gallery",
+      label: "My Photos",
+      icon: <Aperture className={styles.sidebarLinkIcon} />,
+      href: "/my-photos",
       onClick: () => {
         // setPage("/my-gallery");
-        navigate(`/app/event/${event.eventId}/my-gallery`);
+        navigate(`/app/event/${event.eventId}/my-photos`);
       },
     },
     {
-      label: "Public Gallery",
+      label: "Gallery",
       icon: <Images className={styles.sidebarLinkIcon} />,
       href: "/gallery",
       onClick: () => {

@@ -3,6 +3,7 @@ scalar EmailAddress
 scalar JWT
 scalar URL
 scalar UUID
+scalar File
 
 directive @rateLimit(
   max: Int
@@ -89,6 +90,8 @@ type Event {
   myMembership(eventId: UUID): EventMembership
 
   invites: [EventInvite!]!
+
+  photos: [EventPhoto!]!
 }
 
 type EventMembership {
@@ -125,6 +128,26 @@ type EventInvite {
   uses: Int!
 
   event: Event!
+}
+
+type EventPhoto {
+  photoId: UUID!
+  eventId: UUID!
+
+  key: String!
+  width: Int!
+  height: Int!
+  mimeType: String!
+
+  uploadedAt: DateTimeISO!
+
+  presignedUrl: URL
+
+  memberId: UUID!
+  member: EventMembership!
+
+  userId: UUID! @auth(requires: ADMIN)
+  user: User! @auth(requires: ADMIN)
 }
 
 ## Query #########################
@@ -181,6 +204,10 @@ type Mutation {
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 
   deleteEvent(captchaToken: String!, eventId: UUID!): Boolean!
+    @auth(requires: USER)
+    @rateLimit(window: "5s", max: 10, message: "Too many requests")
+
+  uploadPhoto(captchaToken: String!, eventId: UUID!, file: File!): EventPhoto!
     @auth(requires: USER)
     @rateLimit(window: "5s", max: 10, message: "Too many requests")
 }

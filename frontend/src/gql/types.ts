@@ -206,6 +206,54 @@ export const Z_EventInvite: z.ZodType<EventInvite> = z.object({
 
 export type T_EventInvite = z.infer<typeof Z_EventInvite>;
 
+type EventPhoto = {
+  photoId: string;
+  eventId: string;
+
+  key: string;
+  width: number;
+  height: number;
+  mimeType: string;
+
+  uploadedAt: Date;
+
+  presignedUrl: string | null;
+
+  memberId: string;
+  member: T_EventMembership | undefined;
+
+  userId: string;
+  user: T_User | undefined;
+};
+
+export const Z_EventPhoto: z.ZodType<EventPhoto> = z.object({
+  photoId: z.uuidv4(),
+  eventId: z.uuidv4(),
+
+  key: z.string(),
+  width: z.number(),
+  height: z.number(),
+  mimeType: z.string(),
+
+  uploadedAt: z.date(),
+
+  presignedUrl: z.string().nullable(),
+
+  memberId: z.uuidv4(),
+  member: z
+    .lazy(() => Z_EventMembership)
+    .optional()
+    .default(undefined),
+
+  userId: z.uuidv4(),
+  user: z
+    .lazy(() => Z_User)
+    .optional()
+    .default(undefined),
+});
+
+export type T_EventPhoto = z.infer<typeof Z_EventPhoto>;
+
 export const Z_Platform = z.object({
   isSetupCompleted: z.boolean(),
 });

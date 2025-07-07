@@ -58,6 +58,8 @@ model User {
 
   memberships  EventMembership[]
   hostedEvents Event[]           @relation("EventHostUser")
+
+  photos EventPhoto[]
 }
 
 model Session {
@@ -119,6 +121,7 @@ model Event {
 
   memberships EventMembership[]
   invites     EventInvite[]
+  photos      EventPhoto[]
 
   @@unique([eventId, hostUserId])
   @@index([eventId, hostUserId])
@@ -151,7 +154,8 @@ model EventMembership {
 
   // --------------- INVERSE RELATIONS --------------- //
 
-  hostedEvent Event? @relation("EventHostMembership")
+  hostedEvent Event?       @relation("EventHostMembership")
+  photos      EventPhoto[]
 
   @@unique([eventId, userId])
   @@index([eventId, userId, memberId])
@@ -176,4 +180,36 @@ model EventInvite {
   event Event @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
 
   @@index([eventId, inviteId, inviteCode])
+}
+
+model EventPhoto {
+  id Int @id @default(autoincrement())
+
+  photoId String @unique @default(uuid(4))
+
+  eventId String
+
+  event Event @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
+
+  key      String
+  width    Int
+  height   Int
+  mimeType String
+
+  uploadedAt DateTime @default(now())
+
+  // --------------- PRIVATE --------------- //
+
+  userId String?
+
+  user User? @relation(fields: [userId], references: [userId], onDelete: SetNull)
+
+  // --------------- PUBLIC --------------- //
+
+  memberId String?
+
+  member EventMembership? @relation(fields: [memberId], references: [memberId], onDelete: SetNull)
+
+  @@index([eventId])
+  @@index([memberId])
 }

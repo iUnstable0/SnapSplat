@@ -4,13 +4,19 @@ import prisma from "@/db/prisma";
 
 import { EventRole } from "@/generated/prisma";
 
-import type { Event, EventInvite, EventMembership } from "@/generated/prisma";
+import type {
+  Event,
+  EventInvite,
+  EventMembership,
+  EventPhoto,
+} from "@/generated/prisma";
 
 import lib_error from "@/modules/error";
 import lib_logger from "@/modules/logger";
 import lib_role from "@/modules/role";
 
 import { Z_Event, Z_EventMembership } from "@/db/types";
+import lib_storage from "@/modules/storage";
 
 export default class query_event {
   // Guarded by @auth(requires: USER)
@@ -356,5 +362,80 @@ export default class query_event {
     }
 
     return membership.event.invites;
+  }
+
+  public static async getPhotos(args: any) {
+    const [parent, body, context] = args;
+
+    let eventId = null;
+
+    if (parent) {
+      eventId = parent.eventId;
+    } else {
+      eventId = body.eventId;
+    }
+
+    if (!eventId) {
+      throw lib_error.bad_request("Missing required fields", "Missing eventId");
+    }
+
+    let membership:
+      | (EventMembership & {
+          event: Event & { photos: EventPhoto[] };
+        })
+      | null = null;
+
+    try {
+      membership = await prisma.eventMembership.findUnique({
+        where: { eventId_userId: { eventId, userId: context.user.userId } },
+        include: {
+          event: {
+            include: {
+              photos: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("query_event/getPhotos")} [${refId}] Failed to fetch event membership`,
+        error
+      );
+
+      throw lib_error.internal_server_error(
+        "Internal Server Error. refId: ${refId}",
+        `500 failed to fetch event membership: ${error}`
+      );
+    }
+
+    if (!membership) {
+      throw lib_error.not_found(
+        "Event not found",
+        `Event with id ${eventId} not found`
+      );
+    }
+
+    const photos = membership.event.photos;
+
+    // Generate presigned URLs efficiently
+    const signedUrls = await lib_storage.batchGetSignedUrls(
+      photos.map((p) => p.key)
+    );
+
+    // Merge URLs back into photos
+    const photosWithUrls = photos.map((photo) => {
+      const signed = signedUrls.find((s) => s.key === photo.key);
+
+      return {
+        ...photo,
+        presignedUrl: signed?.url || null,
+      };
+    });
+
+    return photosWithUrls;
+
+    // Go through photos and generate presignURL
   }
 }
