@@ -1,4 +1,4 @@
-import { Construction } from "lucide-react";
+import { Hammer } from "lucide-react";
 
 import styles from "@/app/(homepage)/page.module.css";
 
@@ -7,7 +7,7 @@ export default function Contact() {
     <div className={styles.pageWrapper}>
       <main className={styles.mainContainer}>
         <section className={styles.mainContent}>
-          <Construction
+          <Hammer
             className={styles.mainContentIcon}
             style={{
               color: "#FEC05E",

@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 
 import prisma from "@/db/prisma";
-import { EventRole } from "@/generated/prisma";
+import { type EventPhoto, EventRole } from "@/generated/prisma";
 
 import lib_captcha from "@/modules/captcha";
 import lib_error from "@/modules/error";
@@ -718,5 +718,84 @@ export default class mutation_event {
           `500 failed to update event: ${error}`
         );
       });
+  }
+
+  public static async deletePhoto(args: any) {
+    const [parent, body, context] = args;
+
+    const { captchaToken, photoId } = body;
+
+    if (!captchaToken) {
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captchaToken is missing"
+      );
+    }
+
+    const captchaValid = await lib_captcha.verify(
+      captchaToken,
+      context.request.headers["CF-Connecting-IP"] || null
+    );
+
+    if (!captchaValid) {
+      throw lib_error.bad_request(
+        "Captcha verification failed",
+        "captcha is not valid"
+      );
+    }
+
+    if (!photoId) {
+      throw lib_error.bad_request("Missing required fields", "missing photoId");
+    }
+
+    let photo: EventPhoto | null = null;
+
+    try {
+      photo = await prisma.eventPhoto.findUnique({
+        where: { photoId: photoId },
+      });
+    } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("mutation_event/deletePhoto")} [${refId}] Failed to find photo`,
+        error
+      );
+
+      throw lib_error.internal_server_error(
+        "Internal Server Error. refId: ${refId}",
+        `500 failed to delete photo: ${error}`
+      );
+    }
+
+    if (!photo) {
+      throw lib_error.not_found("Photo not found", "photoId not found");
+    }
+
+    if (photo.userId !== context.user.userId) {
+      throw lib_error.forbidden("Forbidden", "not the owner");
+    }
+
+    try {
+      await prisma.eventPhoto.delete({
+        where: { photoId: photoId },
+      });
+    } catch (error) {
+      const refId = Bun.randomUUIDv7();
+
+      console.error(
+        `${lib_logger.formatPrefix("mutation_event/deletePhoto")} [${refId}] Failed to delete photo`,
+        error
+      );
+
+      throw lib_error.internal_server_error(
+        "Internal Server Error. refId: ${refId}",
+        `500 failed to delete photo: ${error}`
+      );
+    }
+
+    await lib_storage.deleteFile(photo.key);
+
+    return true;
   }
 }

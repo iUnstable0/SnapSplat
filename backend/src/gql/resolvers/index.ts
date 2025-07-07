@@ -38,7 +38,7 @@ export default {
     },
   },
   Mutation: {
-    register: (...args: argsType) => mutation_user.register(args[1], args[2]),
+    register: (...args: argsType) => mutation_user.register(args),
     login: (...args: argsType) => mutation_user.login(args[1], args[2]),
     refreshToken: (...args: argsType) => mutation_user.refreshToken(args[1]),
     joinEvent: (...args: argsType) => mutation_event.joinEvent(args),
@@ -47,6 +47,7 @@ export default {
     updateEvent: (...args: argsType) => mutation_event.updateEvent(args),
     deleteEvent: (...args: argsType) => mutation_event.deleteEvent(args),
     uploadPhoto: (...args: argsType) => mutation_event.uploadPhoto(args),
+    deletePhoto: (...args: argsType) => mutation_event.deletePhoto(args),
   },
   User: {
     events: (...args: argsType) => {

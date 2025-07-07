@@ -145,7 +145,11 @@ export default function Sidebar({
       label: "Members",
       icon: <UsersRound />,
       onClick: () => {
-        alert("Under construction");
+        const members = event.memberships.map(
+          (member) => member.displayNameAlt
+        );
+
+        alert(`Members (${members.length}): ${members.join(", ")}`);
       },
       keybinds: [T_Keybind.m],
     },
@@ -153,7 +157,9 @@ export default function Sidebar({
       label: "Invite / Share",
       icon: <LinkIcon />,
       onClick: () => {
-        alert("Under construction");
+        const invites = event.invites.map((invite) => invite.inviteCode);
+
+        alert(`Invites (${invites.length}): ${invites.join(", ")}`);
       },
       keybinds: [T_Keybind.e],
     },

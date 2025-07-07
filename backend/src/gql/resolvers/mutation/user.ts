@@ -22,8 +22,10 @@ import type { T_JWTAuthPayload, T_RefreshTokenPayload } from "@/modules/parser";
 import query_platform from "@/gql/resolvers/query/platform";
 
 export default class mutation_user {
-  public static async register(args: any, context: any) {
-    const { captchaToken, email, displayName, password, setupKey } = args;
+  public static async register(args: any) {
+    const [parent, body, context] = args;
+
+    const { captchaToken, email, displayName, password, setupKey } = body;
 
     if (!captchaToken) {
       throw lib_error.bad_request(
@@ -170,10 +172,7 @@ export default class mutation_user {
       .catch((error: any) => {
         switch (error.code) {
           case "P2002":
-            throw lib_error.bad_request(
-              "Email is already registered",
-              `unique constraint error: ${error}`
-            );
+            throw lib_error.bad_request("Email is already registered");
           // throw new GraphQLError("Email already registered", {
           //   extensions: {
           //     code: "BAD_REQUEST",
