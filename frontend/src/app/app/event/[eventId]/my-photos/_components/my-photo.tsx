@@ -198,7 +198,7 @@ export default function MyPhoto({ photos }: { photos: T_EventPhoto[] }) {
           imageWidth={modalPhoto?.width}
           imageHeight={modalPhoto?.height}
           onDelete={async () => {
-            await deletePhoto("captchaDemo", modalPhoto?.photoId);
+            await deletePhoto("captchaDemo", modalPhoto!.photoId);
             alert("Photo deleted");
             router.refresh();
           }}
