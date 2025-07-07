@@ -191,7 +191,7 @@ model EventPhoto {
 
   event Event @relation(fields: [eventId], references: [eventId], onDelete: Cascade)
 
-  key      String
+  key      String @unique
   width    Int
   height   Int
   mimeType String
