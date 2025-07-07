@@ -139,7 +139,7 @@ export async function GET(request: Request): Promise<Response> {
   // return new Response("OK", { status: 200 });
   return NextResponse.redirect(
     new URL(
-      redirectUrl ? redirectUrl : "/app",
+      redirectUrl ? decodeURIComponent(redirectUrl) : "/app",
       lib_url.getPublicUrl(request.url)
     )
   );

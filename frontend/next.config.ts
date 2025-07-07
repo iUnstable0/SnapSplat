@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         hostname: "picsum.photos",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.r2.cloudflarestorage.com",
+        pathname: "/**",
+      },
     ],
   },
 };

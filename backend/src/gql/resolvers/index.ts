@@ -46,6 +46,7 @@ export default {
     createEvent: (...args: argsType) => mutation_event.createEvent(args),
     updateEvent: (...args: argsType) => mutation_event.updateEvent(args),
     deleteEvent: (...args: argsType) => mutation_event.deleteEvent(args),
+    uploadPhoto: (...args: argsType) => mutation_event.uploadPhoto(args),
   },
   User: {
     events: (...args: argsType) => {
@@ -81,6 +82,11 @@ export default {
       console.log("event resolver invites query");
 
       return query_event.getInvites(args);
+    },
+    photos: (...args: argsType) => {
+      console.log("event resolver photos query");
+
+      return query_event.getPhotos(args);
     },
   },
 };
