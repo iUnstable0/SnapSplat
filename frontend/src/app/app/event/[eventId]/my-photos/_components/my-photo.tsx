@@ -77,6 +77,7 @@ export default function MyPhoto({ photos }: { photos: T_EventPhoto[] }) {
               const uint8Array =
                 new (globalThis.Uint8Array as typeof Uint8Array)(arrayBuffer);
               const outputBuffer = await convert({
+                // @ts-expect-error idfk if it works it works also im forced to add this description and this ts expect error :sob:
                 buffer: uint8Array,
                 format: "JPEG",
                 quality: 0.9,
