@@ -334,7 +334,9 @@ export default class lib_token {
       };
     } catch (error) {
       if (error instanceof jose.errors.JWTExpired) {
-        return { valid: false, renew: true };
+        const payload = Z_JWTAuthPayload.parse(error.payload);
+
+        return { valid: false, renew: true, payload };
       }
 
       console.error(
