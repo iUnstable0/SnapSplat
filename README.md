@@ -1,16 +1,14 @@
 # SnapSplat
 
-Instructions for running app
+How to migrate db
 
+When in dev environment, run bun pm:migrate
+and choose the option prisma migrate dev --create-only <migration-name>
+choose a migration name
+then once migration created, edit the migration file and change the migration to non destructive
+run prisma migrate dev again
+then push to github and merge with prod!
 
-Requirements:
-
-Install bun at https://bun.sh
-Make sure you have docker running postgresql database 
-on port 54320!
-
-Run `bun run quickstart` in the main folter `/` 
-NOT `/backend` or `/frontend` !
-
-Wait for everything to be initialized
-
+on prod, git pull, then prisma migrate deploy
+and done!
+optional: prisma db seed
