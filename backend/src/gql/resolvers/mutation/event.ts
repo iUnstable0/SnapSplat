@@ -465,6 +465,8 @@ export default class mutation_event {
   public static async uploadPhoto(args: any) {
     const [parent, body, context] = args;
 
+    console.log(`sigma poopy`, body);
+
     const { captchaToken, eventId, file } = body;
 
     if (!captchaToken) {
@@ -521,6 +523,8 @@ export default class mutation_event {
     }
 
     const mimeType = file.type;
+
+    console.log(mimeType);
 
     if (!mimeType.startsWith("image/")) {
       throw lib_error.bad_request("Invalid file type", "file is not an image");
