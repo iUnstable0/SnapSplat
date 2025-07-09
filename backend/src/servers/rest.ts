@@ -18,6 +18,14 @@ import lib_storage from "@/modules/storage";
 
 import prisma from "@/db/prisma";
 
+const CORS_HEADERS = {
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS, POST",
+    "Access-Control-Allow-Headers": "Content-Type",
+  },
+};
+
 export default class rest {
   private static server: any = null;
 
@@ -26,6 +34,11 @@ export default class rest {
       port: process.env.REST_PORT,
       routes: {
         "/event/upload-photo": {
+          OPTIONS: async (req: Request) => {
+            const res = new Response("Departed", CORS_HEADERS);
+            return res;
+          },
+
           POST: async (req: Request) => {
             const context = await lib_auth.getContext(req);
 
