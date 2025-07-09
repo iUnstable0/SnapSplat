@@ -18,13 +18,19 @@ import lib_storage from "@/modules/storage";
 
 import prisma from "@/db/prisma";
 
-const CORS_HEADERS = {
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "OPTIONS, POST",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  },
-};
+import type { BodyInit, ResponseInit } from "undici-types";
+
+export class ClientResponse extends Response {
+  constructor(body?: BodyInit, init?: ResponseInit) {
+    super(body, init);
+    this.headers.set("Access-Control-Allow-Origin", "*");
+    this.headers.set("Access-Control-Allow-Methods", "OPTIONS, POST");
+    this.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+  }
+}
 
 export default class rest {
   private static server: any = null;
@@ -35,7 +41,7 @@ export default class rest {
       routes: {
         "/event/upload-photo": {
           OPTIONS: async (req: Request) => {
-            const res = new Response("Departed", CORS_HEADERS);
+            const res = new ClientResponse("Departed");
             return res;
           },
 
@@ -43,7 +49,7 @@ export default class rest {
             const context = await lib_auth.getContext(req);
 
             if (!context.authenticated) {
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "Unauthorized" },
                 { status: 401 }
               );
@@ -63,7 +69,7 @@ export default class rest {
             }[] = [];
 
             if (!captchaToken) {
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "Captcha token is required" },
                 { status: 400 }
               );
@@ -75,21 +81,21 @@ export default class rest {
             );
 
             if (!captchaValid) {
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "Captcha verification failed" },
                 { status: 400 }
               );
             }
 
             if (!eventId) {
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "Missing required fields" },
                 { status: 400 }
               );
             }
 
             if (!unprocessedFiles || unprocessedFiles.length === 0) {
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "Missing required fields" },
                 { status: 400 }
               );
@@ -113,7 +119,7 @@ export default class rest {
                 `${lib_logger.formatPrefix("rest")} [${refId}] Failed to get membership info: ${error}`
               );
 
-              return Response.json(
+              return ClientResponse.json(
                 {
                   success: false,
                   error: "Internal server error. refId: ${refId}",
@@ -128,7 +134,7 @@ export default class rest {
               console.log(eventId);
               console.log(context.user!.userId);
 
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "Forbidden" },
                 { status: 403 }
               );
@@ -140,14 +146,14 @@ export default class rest {
               const fileType = await fileTypeFromBlob(file);
 
               if (!fileType) {
-                return Response.json(
+                return ClientResponse.json(
                   { success: false, error: "Invalid file type" },
                   { status: 400 }
                 );
               }
 
               if (!fileType.mime.startsWith("image/")) {
-                return Response.json(
+                return ClientResponse.json(
                   { success: false, error: "Invalid file type" },
                   { status: 400 }
                 );
@@ -163,7 +169,7 @@ export default class rest {
             }
 
             if (totalSize > 100 * 1024 * 1024) {
-              return Response.json(
+              return ClientResponse.json(
                 { success: false, error: "File size too large" },
                 { status: 400 }
               );
@@ -262,7 +268,7 @@ export default class rest {
               // skipDuplicates: true,
             });
 
-            return Response.json({ success: true });
+            return ClientResponse.json({ success: true });
           },
         },
       },
