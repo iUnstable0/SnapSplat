@@ -195,7 +195,7 @@ model EventPhoto {
   width    Int
   height   Int
   mimeType String
-  hash     String
+  hash     String? @db.Text
 
   uploadedAt DateTime @default(now())
 
