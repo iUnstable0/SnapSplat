@@ -28,7 +28,7 @@ export default function Header() {
         <span>SnapSplat</span>
       </div>
 
-      <nav className={styles.headerNav}>
+      {/* <nav className={styles.headerNav}>
         <motion.div
           // layout
           initial={{
@@ -77,7 +77,7 @@ export default function Header() {
         >
           Contact
         </Link>
-      </nav>
+      </nav> */}
     </header>
   );
 }
