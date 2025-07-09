@@ -9,6 +9,7 @@ declare namespace NodeJS {
     NEXT_URL: string;
 
     GQL_PORT: number;
+    REST_PORT: number;
 
     VALKEY_HOST: string;
     VALKEY_PORT: number;

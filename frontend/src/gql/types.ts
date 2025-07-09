@@ -54,13 +54,13 @@ type Event = {
   cover: string;
   banner: string;
 
-  startsAt: Date;
-  endsAt: Date;
+  startsAt: string;
+  endsAt: string;
 
   isDraft: boolean;
   isArchived: boolean;
 
-  createdAt: Date;
+  createdAt: string;
 
   hostUser: T_User | undefined;
 
@@ -85,13 +85,13 @@ export const Z_Event: z.ZodType<Event> = z.object({
   cover: z.url(),
   banner: z.url(),
 
-  startsAt: z.date(),
-  endsAt: z.date(),
+  startsAt: z.iso.datetime(),
+  endsAt: z.iso.datetime(),
 
   isDraft: z.boolean(),
   isArchived: z.boolean(),
 
-  createdAt: z.date(),
+  createdAt: z.iso.datetime(),
 
   hostUser: z
     .lazy(() => Z_User)
@@ -128,7 +128,7 @@ type EventMembership = {
   displayNameAlt: string;
   avatarAlt: string;
 
-  joinedAt: Date;
+  joinedAt: string;
   isApproved: boolean;
 
   event: T_Event | undefined;
@@ -147,7 +147,7 @@ export const Z_EventMembership: z.ZodType<EventMembership> = z.object({
   displayNameAlt: z.string(),
   avatarAlt: z.url(),
 
-  joinedAt: z.date(),
+  joinedAt: z.iso.datetime(),
   isApproved: z.boolean(),
 
   event: z
@@ -174,8 +174,8 @@ type EventInvite = {
   role: "HOST" | "COHOST" | "ATTENDEE";
   requireApproval: boolean;
 
-  createdAt: Date;
-  expiresAt: Date;
+  createdAt: string;
+  expiresAt: string;
 
   maxUses: number;
   uses: number;
@@ -192,8 +192,8 @@ export const Z_EventInvite: z.ZodType<EventInvite> = z.object({
 
   requireApproval: z.boolean(),
 
-  createdAt: z.date(),
-  expiresAt: z.date(),
+  createdAt: z.iso.datetime(),
+  expiresAt: z.iso.datetime(),
 
   maxUses: z.number(),
   uses: z.number(),
@@ -215,7 +215,7 @@ type EventPhoto = {
   height: number;
   mimeType: string;
 
-  uploadedAt: Date;
+  uploadedAt: string;
 
   presignedUrl: string | null;
 
@@ -235,7 +235,7 @@ export const Z_EventPhoto: z.ZodType<EventPhoto> = z.object({
   height: z.number(),
   mimeType: z.string(),
 
-  uploadedAt: z.date(),
+  uploadedAt: z.iso.datetime(),
 
   presignedUrl: z.string().nullable(),
 

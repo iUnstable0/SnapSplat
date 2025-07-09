@@ -165,6 +165,10 @@ export const Z_Event: z.ZodType<Event> = z
       .array(z.lazy(() => Z_EventInvite))
       .optional()
       .default(undefined),
+    photos: z
+      .array(z.lazy(() => Z_EventPhoto))
+      .optional()
+      .default(undefined),
   })
   .transform((val) => {
     return {
@@ -275,3 +279,50 @@ export const Z_EventInvite: z.ZodType<EventInvite> = z.object({
 });
 
 export type T_EventInvite = z.infer<typeof Z_EventInvite>;
+
+type EventPhoto = {
+  photoId: string;
+  eventId: string;
+
+  key: string;
+  width: number;
+  height: number;
+  mimeType: string;
+  hash: string;
+
+  uploadedAt: Date;
+
+  userId: string;
+  user: T_User | undefined;
+
+  memberId: string;
+  member: T_EventMembership | undefined;
+};
+
+export const Z_EventPhoto: z.ZodType<EventPhoto> = z.object({
+  photoId: z.uuidv4(),
+
+  eventId: z.uuidv4(),
+
+  key: z.string(),
+  width: z.number(),
+  height: z.number(),
+  mimeType: z.string(),
+  hash: z.string(),
+
+  uploadedAt: z.date(),
+
+  userId: z.uuidv4(),
+  user: z
+    .lazy(() => Z_User)
+    .optional()
+    .default(undefined),
+
+  memberId: z.uuidv4(),
+  member: z
+    .lazy(() => Z_EventMembership)
+    .optional()
+    .default(undefined),
+});
+
+export type T_EventPhoto = z.infer<typeof Z_EventPhoto>;

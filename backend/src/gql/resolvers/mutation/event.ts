@@ -462,117 +462,117 @@ export default class mutation_event {
     });
   }
 
-  public static async uploadPhoto(args: any) {
-    const [parent, body, context] = args;
+  // public static async uploadPhoto(args: any) {
+  //   const [parent, body, context] = args;
 
-    console.log(`sigma poopy`, body);
+  //   console.log(`sigma poopy`, body);
 
-    const { captchaToken, eventId, file } = body;
+  //   const { captchaToken, eventId, file } = body;
 
-    if (!captchaToken) {
-      throw lib_error.bad_request(
-        "Captcha verification failed",
-        "captchaToken is missing"
-      );
-    }
+  //   if (!captchaToken) {
+  //     throw lib_error.bad_request(
+  //       "Captcha verification failed",
+  //       "captchaToken is missing"
+  //     );
+  //   }
 
-    const captchaValid = await lib_captcha.verify(
-      captchaToken,
-      context.request.headers["CF-Connecting-IP"] || null
-    );
+  //   const captchaValid = await lib_captcha.verify(
+  //     captchaToken,
+  //     context.request.headers["CF-Connecting-IP"] || null
+  //   );
 
-    if (!captchaValid) {
-      throw lib_error.bad_request(
-        "Captcha verification failed",
-        "captcha is not valid"
-      );
-    }
+  //   if (!captchaValid) {
+  //     throw lib_error.bad_request(
+  //       "Captcha verification failed",
+  //       "captcha is not valid"
+  //     );
+  //   }
 
-    if (!eventId) {
-      throw lib_error.bad_request("Missing required fields", "missing eventId");
-    }
+  //   if (!eventId) {
+  //     throw lib_error.bad_request("Missing required fields", "missing eventId");
+  //   }
 
-    if (!file) {
-      throw lib_error.bad_request("Missing required fields", "missing file");
-    }
+  //   if (!file) {
+  //     throw lib_error.bad_request("Missing required fields", "missing file");
+  //   }
 
-    const membershipInfo = await prisma.eventMembership.findUnique({
-      where: {
-        eventId_userId: {
-          eventId: eventId,
-          userId: context.user.userId,
-        },
-      },
-    });
+  //   const membershipInfo = await prisma.eventMembership.findUnique({
+  //     where: {
+  //       eventId_userId: {
+  //         eventId: eventId,
+  //         userId: context.user.userId,
+  //       },
+  //     },
+  //   });
 
-    if (!membershipInfo) {
-      throw lib_error.forbidden("Forbidden", "not a member");
-    }
+  //   if (!membershipInfo) {
+  //     throw lib_error.forbidden("Forbidden", "not a member");
+  //   }
 
-    // read the file and save to temp storage
-    // save to db
-    // return the photo info
+  //   // read the file and save to temp storage
+  //   // save to db
+  //   // return the photo info
 
-    // check file size and mime
+  //   // check file size and mime
 
-    const fileSize = file.size;
+  //   const fileSize = file.size;
 
-    // 20mb
-    if (fileSize > 20 * 1024 * 1024) {
-      throw lib_error.bad_request("File too large", "file is too large");
-    }
+  //   // 20mb
+  //   if (fileSize > 20 * 1024 * 1024) {
+  //     throw lib_error.bad_request("File too large", "file is too large");
+  //   }
 
-    const mimeType = file.type;
+  //   const mimeType = file.type;
 
-    console.log(mimeType);
+  //   console.log(mimeType);
 
-    if (!mimeType.startsWith("image/")) {
-      throw lib_error.bad_request("Invalid file type", "file is not an image");
-    }
+  //   if (!mimeType.startsWith("image/")) {
+  //     throw lib_error.bad_request("Invalid file type", "file is not an image");
+  //   }
 
-    const db = `event/${eventId}/photos`;
+  //   const db = `event/${eventId}/photos`;
 
-    const compressedBuffer = await sharp(Buffer.from(await file.arrayBuffer()))
-      .jpeg()
-      .toBuffer();
+  //   const compressedBuffer = await sharp(Buffer.from(await file.arrayBuffer()))
+  //     .jpeg()
+  //     .toBuffer();
 
-    const imageMeta = await sharp(compressedBuffer).metadata();
+  //   const imageMeta = await sharp(compressedBuffer).metadata();
 
-    const key = await lib_storage.uploadBuffer(db, compressedBuffer, {
-      name: `${crypto.randomUUID()}.jpeg`,
-      mimeType: "image/jpeg",
-      size: compressedBuffer.length,
-    });
+  //   const key = await lib_storage.uploadBuffer(db, compressedBuffer, {
+  //     name: `${crypto.randomUUID()}.jpeg`,
+  //     mimeType: "image/jpeg",
+  //     size: compressedBuffer.length,
+  //   });
 
-    return await prisma.eventPhoto
-      .create({
-        data: {
-          eventId: eventId,
-          key: key,
-          width: imageMeta.width,
-          height: imageMeta.height,
-          mimeType: "image/jpeg",
-          userId: context.user.userId,
-          memberId: membershipInfo.memberId,
-        },
-      })
-      .then(async (eventPhoto) => {
-        return eventPhoto;
-      })
-      .catch((error) => {
-        const refId = Bun.randomUUIDv7();
+  //   return await prisma.eventPhoto
+  //     .create({
+  //       data: {
+  //         eventId: eventId,
+  //         key: key,
+  //         width: imageMeta.width,
+  //         height: imageMeta.height,
+  //         mimeType: "image/jpeg",
+  //         userId: context.user.userId,
+  //         memberId: membershipInfo.memberId,
+  //       },
+  //     })
+  //     .then(async (eventPhoto) => {
+  //       return eventPhoto;
+  //     })
+  //     .catch((error) => {
+  //       const refId = Bun.randomUUIDv7();
 
-        console.error(
-          `${lib_logger.formatPrefix("mutation_event/uploadPhoto")} [${refId}] Failed to upload photo`,
-          error
-        );
+  //       console.error(
+  //         `${lib_logger.formatPrefix("mutation_event/uploadPhoto")} [${refId}] Failed to upload photo`,
+  //         error
+  //       );
 
-        throw lib_error.internal_server_error(
-          "Internal Server Error. refId: ${refId}",
-          `500 failed to upload photo: ${error}`
-        );
-      });
-  }
+  //       throw lib_error.internal_server_error(
+  //         "Internal Server Error. refId: ${refId}",
+  //         `500 failed to upload photo: ${error}`
+  //       );
+  //     });
+  // }
 
   public static async updateEvent(args: any) {
     const [parent, body, context] = args;
@@ -665,8 +665,6 @@ export default class mutation_event {
 
     const newData: any = {};
 
-    console.log(parsedData);
-
     if (
       "isArchived" in parsedData &&
       parsedData.isArchived !== eventInfo.isArchived
@@ -688,8 +686,6 @@ export default class mutation_event {
     ) {
       newData.description = parsedData.description;
     }
-
-    console.log(newData);
 
     if (Object.keys(newData).length === 0) {
       console.log(

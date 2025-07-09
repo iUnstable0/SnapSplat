@@ -15,8 +15,6 @@ export default class query_user {
 
     const userData = Z_User.parse(context.user);
 
-    console.log(userData);
-
     return userData;
 
     // return {

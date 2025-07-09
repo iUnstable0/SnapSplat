@@ -151,7 +151,7 @@ export default function EventBanner({
           }}
           className={styles.eventImage}
         />
-        {edit && (
+        {edit && false && (
           <motion.div
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
@@ -208,7 +208,7 @@ export default function EventBanner({
               }}
               className={styles.eventIconImage}
             />
-            {edit && (
+            {edit && false && (
               <motion.div
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
@@ -236,7 +236,7 @@ export default function EventBanner({
         </div>
 
         <div className={styles.eventTitleContainer}>
-          {edit ? (
+          {edit && false ? (
             <motion.input
               type="text"
               className={clsx(
@@ -284,7 +284,7 @@ export default function EventBanner({
               ))}
           </AnimatePresence>
 
-          {!edit && event.description && (
+          {!edit && false && event.description && (
             <p
               className={clsx(
                 styles.eventDescription,

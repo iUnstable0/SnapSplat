@@ -163,14 +163,14 @@ export default function Sidebar({
       },
       keybinds: [T_Keybind.e],
     },
-    {
-      label: "Preferences",
-      icon: <Cog />,
-      onClick: () => {
-        alert("Under construction");
-      },
-      keybinds: [T_Keybind.p],
-    },
+    // {
+    //   label: "Preferences",
+    //   icon: <Cog />,
+    //   onClick: () => {
+    //     alert("Under construction");
+    //   },
+    //   keybinds: [T_Keybind.p],
+    // },
   ];
 
   // COHOST & HOST
@@ -222,14 +222,14 @@ export default function Sidebar({
         dangerous: true,
       });
     } else {
-      eventMenuItems.push({
-        label: "Archive Event",
-        icon: <Archive />,
-        onClick: () => {
-          alert("Under construction");
-        },
-        dangerous: true,
-      });
+      // eventMenuItems.push({
+      //   label: "Archive Event",
+      //   icon: <Archive />,
+      //   onClick: () => {
+      //     alert("Under construction");
+      //   },
+      //   dangerous: true,
+      // });
     }
   }
 
@@ -282,17 +282,17 @@ export default function Sidebar({
         navigate(`/app/event/${event.eventId}/gallery`);
       },
     },
-    {
-      label: "Public Board",
-      icon: (
-        <Icon iconNode={layoutGridPlus} className={styles.sidebarLinkIcon} />
-      ),
-      href: "/board",
-      onClick: () => {
-        // setPage("/board");
-        navigate(`/app/event/${event.eventId}/board`);
-      },
-    },
+    // {
+    //   label: "Public Board",
+    //   icon: (
+    //     <Icon iconNode={layoutGridPlus} className={styles.sidebarLinkIcon} />
+    //   ),
+    //   href: "/board",
+    //   onClick: () => {
+    //     // setPage("/board");
+    //     navigate(`/app/event/${event.eventId}/board`);
+    //   },
+    // },
     // {
     //   label: "Members",
     //   icon: <UsersRound className={styles.sidebarLinkIcon} />,
