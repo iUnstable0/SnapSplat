@@ -41,6 +41,7 @@
     "@valkey/valkey-glide": "^2.0.1",
     "axios": "^1.9.0",
     "better-logging": "^5.0.0",
+    "bun-routes-cors": "^0.2.3",
     "file-type": "^21.0.0",
     "graphql": "^16.11.0",
     "graphql-scalars": "^1.24.2",
