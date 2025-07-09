@@ -199,6 +199,8 @@
   justify-content: center;
   align-items: center;
 
+  color: var(--sp-text-color-dark);
+
   transition: scale 0.2s ease-in-out;
 }
 
@@ -210,13 +212,13 @@
 }
 
 .invalid {
-  color: var(--sp-dangerous-color);
+  color: var(--sp-dangerous-color-dark);
   /* background-color: #491515b1; */
-  border-bottom: 2px solid var(--sp-dangerous-color) !important;
+  border-bottom: 2px solid var(--sp-dangerous-color-dark) !important;
 }
 
 .invalidText {
-  color: var(--sp-dangerous-color);
+  color: var(--sp-dangerous-color-dark);
   font-weight: 500;
   /* no wrap */
   white-space: nowrap;

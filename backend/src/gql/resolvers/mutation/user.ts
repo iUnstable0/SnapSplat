@@ -11,7 +11,7 @@ import type { Session, SuspendedToken, User } from "@/generated/prisma";
 import lib_logger from "@/modules/logger";
 import lib_captcha from "@/modules/captcha";
 import lib_vet from "@/modules/vet";
-import lib_token from "@/modules/token";
+import lib_auth from "@/modules/auth";
 import lib_error from "@/modules/error";
 import lib_cache from "@/modules/cache";
 import lib_storage from "@/modules/storage";
@@ -163,7 +163,7 @@ export default class mutation_user {
         return user;
       })
       .then(async (user) => {
-        return await lib_token.genAuthTokenWithRefresh(
+        return await lib_auth.genAuthTokenWithRefresh(
           user.userId,
           user.passwordSession,
           user.accountSession
@@ -282,7 +282,7 @@ export default class mutation_user {
       throw lib_error.unauthorized("Unauthorized", `password incorrect`);
     }
 
-    return lib_token
+    return lib_auth
       .genAuthTokenWithRefresh(
         user.userId,
         user.passwordSession,
@@ -316,7 +316,7 @@ export default class mutation_user {
       );
     }
 
-    const result = await lib_token.validateAuthToken(
+    const result = await lib_auth.validateAuthToken(
       "This function doesn't do suspended token check",
       token
     );
@@ -337,7 +337,7 @@ export default class mutation_user {
       );
     }
 
-    const extractedRefreshToken = lib_token.extractRefreshToken(refreshToken);
+    const extractedRefreshToken = lib_auth.extractRefreshToken(refreshToken);
 
     if (!extractedRefreshToken.success) {
       throw lib_error.unauthorized(
@@ -386,14 +386,14 @@ export default class mutation_user {
 
     console.log("SKIBIDI AMOGUS SUS PAYLOAD ERROR", result.payload);
 
-    if (!lib_token.checkAuthToken(user, result.payload as T_JWTAuthPayload)) {
+    if (!lib_auth.checkAuthToken(user, result.payload as T_JWTAuthPayload)) {
       throw lib_error.unauthorized(
         "Unauthorized",
         `token db check failed, either suspended or invalidated account/password session`
       );
     }
 
-    const refreshTokenValidationResult = await lib_token.validateRefreshToken(
+    const refreshTokenValidationResult = await lib_auth.validateRefreshToken(
       user,
       userId,
       sessionId,
@@ -407,7 +407,7 @@ export default class mutation_user {
       );
     }
 
-    return await lib_token
+    return await lib_auth
       .genAuthToken(userId, user.passwordSession, user.accountSession)
       .then((data) => {
         return {

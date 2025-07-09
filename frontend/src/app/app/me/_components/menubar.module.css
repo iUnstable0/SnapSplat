@@ -109,8 +109,11 @@
   font-size: 24px;
   font-weight: 600;
 
-  color: #fff;
-  caret-color: #fff;
+  /* color: #fff;
+  caret-color: #fff; */
+
+  /* color: var(--sp-text-color);
+  caret-color: var(--sp-text-color); */
 
   text-align: center;
 

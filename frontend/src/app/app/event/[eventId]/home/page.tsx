@@ -98,7 +98,7 @@ export default async function Page({
 
         <div className={styles.liveFeed}>
           <div className={styles.liveFeedHeader}>
-            <h1 className={styles.liveFeedTitle}>Live Feed</h1>
+            <h1 className={styles.liveFeedTitle}>Welcome!</h1>
           </div>
         </div>
       </div>

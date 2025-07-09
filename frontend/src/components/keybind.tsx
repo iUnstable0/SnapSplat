@@ -46,6 +46,7 @@ export const KeybindButton = ({
   loading,
   loadingText,
   magnetic = true,
+  className,
 }: {
   keybinds: T_Keybind[];
   dangerous?: boolean;
@@ -59,6 +60,7 @@ export const KeybindButton = ({
   loading?: boolean;
   loadingText?: string;
   magnetic?: boolean;
+  className?: string;
   // loadingTheme?: "light" | "dark" | "dangerous";
 }) => {
   let styles;
@@ -93,6 +95,7 @@ export const KeybindButton = ({
         springOptions={{ bounce: 0.1 }}
         actionArea="global"
         range={disabled ? 0 : magnetic ? 75 : 0}
+        className={className}
       >
         <button
           className={clsx(

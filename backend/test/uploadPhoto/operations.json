@@ -1,0 +1,8 @@
+{
+  "query": "mutation UploadPhoto($captchaToken: String!, $eventId: UUID!, $file: File!) {uploadPhoto(captchaToken: $captchaToken, eventId: $eventId, file: $file) {photoId}}",
+  "variables": {
+    "captchaToken": "captchaDemo",
+    "eventId": "f23c6c50-5d9a-458f-9ec5-1aa41f2b0bfb",
+    "file": null
+  }
+}

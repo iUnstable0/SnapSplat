@@ -3,15 +3,17 @@ import { redirect } from "next/navigation";
 
 import Error from "@/components/error";
 
+import { Images } from "lucide-react";
+
+import PhotoGrid from "../_components/photo-grid";
 import MyPhoto from "./_components/my-photo";
 
 import * as gql_builder from "gql-query-builder";
 
 import requester from "@/gql/requester";
-import type { T_Event, T_EventPhoto } from "@/gql/types";
+import type { T_Event, T_EventMembership, T_EventPhoto } from "@/gql/types";
 
 import styles from "./page.module.css";
-import { Images } from "lucide-react";
 
 export default async function Page({
   params,
@@ -23,7 +25,9 @@ export default async function Page({
   const eventId = (await params).eventId;
 
   type T_EventData = T_Event & {
-    photos: T_EventPhoto[];
+    photos: T_EventPhoto[] & {
+      member: T_EventMembership;
+    };
   };
 
   let event: T_EventData;
@@ -35,6 +39,7 @@ export default async function Page({
           data: gql_builder.query({
             operation: "event",
             fields: [
+              "eventId",
               "isDraft",
               "isArchived",
               {
@@ -47,6 +52,9 @@ export default async function Page({
                   "mimeType",
                   "uploadedAt",
                   "memberId",
+                  {
+                    member: ["displayNameAlt", "avatarAlt"],
+                  },
                 ],
               },
             ],
@@ -104,6 +112,15 @@ export default async function Page({
     );
   }
 
+  const filteredEvent = {
+    ...event,
+    photos: event.photos.filter(
+      (photo) => photo.memberId === event.myMembership?.memberId
+    ),
+  } as T_EventData;
+
+  console.log(filteredEvent);
+
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.mainContent}>
@@ -118,13 +135,20 @@ export default async function Page({
           </div>
         )}
 
-        {!event.isDraft && (
-          <MyPhoto
-            photos={event.photos.filter(
-              (photo) => photo.memberId === event.myMembership?.memberId
-            )}
-          />
-        )}
+        {/* {!event.isDraft && filteredEvent.photos.length === 0 && (
+          <div className={styles.galleryTitle}>
+            <Images className={styles.galleryTitleIcon} />
+            <span className={styles.galleryTitleText}>
+              Drag and drop photos here to upload
+            </span>
+          </div>
+        )} */}
+
+        {/* {!event.isDraft && filteredEvent.photos.length > 0 && (
+          <MyPhoto event={filteredEvent} />
+        )} */}
+
+        {!event.isDraft && <MyPhoto event={filteredEvent} />}
       </div>
     </div>
   );

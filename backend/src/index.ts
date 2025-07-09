@@ -3,6 +3,7 @@ let time = Date.now();
 require("better-logging")(console);
 
 import gql from "@/servers/gql";
+import rest from "@/servers/rest";
 
 import lib_logger from "@/modules/logger";
 
@@ -13,6 +14,8 @@ process.send = process.send || function () {};
 console.log(`${lib_logger.formatPrefix("init")} Starting server...`);
 
 await gql.start();
+
+await rest.start();
 
 console.log(
   `${lib_logger.formatPrefix("init")} Server online! Took ${Date.now() - time}ms`

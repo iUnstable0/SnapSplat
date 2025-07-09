@@ -15,7 +15,7 @@ import lib_error from "@/modules/error";
 import lib_logger from "@/modules/logger";
 import lib_role from "@/modules/role";
 
-import { Z_Event, Z_EventMembership } from "@/db/types";
+import { Z_Event, Z_EventMembership, Z_EventPhoto } from "@/db/types";
 import lib_storage from "@/modules/storage";
 
 export default class query_event {
@@ -285,7 +285,7 @@ export default class query_event {
 
     const parsedMembership = Z_EventMembership.parse(membership);
 
-    console.log(parsedMembership);
+    // console.log(parsedMembership);
 
     return parsedMembership;
 
@@ -391,7 +391,11 @@ export default class query_event {
         include: {
           event: {
             include: {
-              photos: true,
+              photos: {
+                include: {
+                  member: true,
+                },
+              },
             },
           },
         },
@@ -417,15 +421,15 @@ export default class query_event {
       );
     }
 
-    const photos = membership.event.photos;
+    const parsedPhotos = Z_EventPhoto.array().parse(membership.event.photos);
 
     // Generate presigned URLs efficiently
     const signedUrls = await lib_storage.batchGetSignedUrls(
-      photos.map((p) => p.key)
+      parsedPhotos.map((p) => p.key)
     );
 
     // Merge URLs back into photos
-    const photosWithUrls = photos.map((photo) => {
+    const photosWithUrls = parsedPhotos.map((photo) => {
       const signed = signedUrls.find((s) => s.key === photo.key);
 
       return {

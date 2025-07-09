@@ -7,20 +7,17 @@ import type { T_JWTAuthPayload } from "@/modules/parser";
 
 // const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 
-export default class lib_token {
+export default class lib_auth {
   // /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ Shared with backend! Remmeber to update /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 
   private static publicKey: jose.KeyObject | null = null;
 
   private static async getPublicKey() {
-    if (!lib_token.publicKey) {
-      lib_token.publicKey = await jose.importSPKI(
-        process.env.PUBLIC_KEY,
-        "EdDSA"
-      );
+    if (!this.publicKey) {
+      this.publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
     }
 
-    return lib_token.publicKey;
+    return this.publicKey;
   }
 
   // Middleware is meant for quick token validation
@@ -44,7 +41,7 @@ export default class lib_token {
       }: {
         payload: T_JWTAuthPayload;
         // protectedHeader: jose.ProtectedHeaderParameters;
-      } = await jose.jwtVerify(token, await lib_token.getPublicKey(), {
+      } = await jose.jwtVerify(token, await this.getPublicKey(), {
         audience: "auth",
       });
 
@@ -62,7 +59,7 @@ export default class lib_token {
         return { valid: false, renew: true };
       }
 
-      console.error(`[lib_token] Error validating auth token:`, error);
+      console.error(`[lib_auth] Error validating auth token:`, error);
 
       return {
         valid: false,

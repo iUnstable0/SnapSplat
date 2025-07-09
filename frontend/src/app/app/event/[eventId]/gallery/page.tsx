@@ -6,7 +6,7 @@ import { Hammer, Images } from "lucide-react";
 import * as gql_builder from "gql-query-builder";
 
 import requester from "@/gql/requester";
-import type { T_Event, T_EventPhoto } from "@/gql/types";
+import type { T_Event, T_EventMembership, T_EventPhoto } from "@/gql/types";
 
 import Error from "@/components/error";
 
@@ -24,7 +24,9 @@ export default async function Page({
   const eventId = (await params).eventId;
 
   type T_EventData = T_Event & {
-    photos: T_EventPhoto[];
+    photos: T_EventPhoto[] & {
+      member: T_EventMembership;
+    };
   };
 
   let event: T_EventData;
@@ -48,6 +50,9 @@ export default async function Page({
                   "mimeType",
                   "uploadedAt",
                   "memberId",
+                  {
+                    member: ["avatarAlt", "displayNameAlt"],
+                  },
                 ],
               },
             ],
@@ -127,7 +132,7 @@ export default async function Page({
         )} */}
 
         <div className={styles.galleryContainer}>
-          {!event.isDraft && <Gallery photos={event.photos} />}
+          {!event.isDraft && <Gallery event={event} />}
         </div>
       </div>
     </div>

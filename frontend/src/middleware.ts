@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 import * as z from "zod/v4";
 
-import lib_token from "@/modules/token";
+import lib_auth from "@/modules/auth";
 import lib_url from "@/modules/url";
 import { refreshTokenCookieOpt, tokenCookieOpt } from "./modules/cookie";
 
@@ -143,7 +143,7 @@ export async function middleware(request: NextRequest) {
 
     // Validate the token
     const token = tokenCookie?.value.replace("Bearer ", "");
-    const result = await lib_token.validateAuthToken(token);
+    const result = await lib_auth.validateAuthToken(token);
 
     if (!result.valid) {
       if (result.renew) {

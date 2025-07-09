@@ -132,7 +132,7 @@ export default async function Page() {
           <h1 className={styles.pageMiddleText}>No past events found</h1>
         )} */}
 
-        <h1 className={styles.pageMiddleText}>Under construction</h1>
+        <h1 className={styles.pageMiddleText}>No past events found</h1>
       </main>
     </div>
   );

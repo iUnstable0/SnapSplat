@@ -18,28 +18,88 @@ import type { T_JWTAuthPayload, T_RefreshTokenPayload } from "@/modules/parser";
 // const publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
 // const privateKey = await jose.importPKCS8(process.env.PRIVATE_KEY, "EdDSA");
 
-export default class lib_token {
+export default class lib_auth {
   private static publicKey: jose.KeyObject | null = null;
   private static privateKey: jose.KeyObject | null = null;
 
   private static async getPublicKey() {
-    if (!lib_token.publicKey) {
-      lib_token.publicKey = await jose.importSPKI(
-        process.env.PUBLIC_KEY,
-        "EdDSA"
-      );
+    if (!this.publicKey) {
+      this.publicKey = await jose.importSPKI(process.env.PUBLIC_KEY, "EdDSA");
     }
-    return lib_token.publicKey;
+    return this.publicKey;
   }
 
   private static async getPrivateKey() {
-    if (!lib_token.privateKey) {
-      lib_token.privateKey = await jose.importPKCS8(
+    if (!this.privateKey) {
+      this.privateKey = await jose.importPKCS8(
         process.env.PRIVATE_KEY,
         "EdDSA"
       );
     }
-    return lib_token.privateKey;
+    return this.privateKey;
+  }
+
+  public static async getContext(request: Request): Promise<{
+    authenticated: boolean;
+    renew?: boolean;
+    user?: User | null;
+    token?: string;
+  }> {
+    let token = request.headers.get("authorization") || "";
+
+    token = token.replace("Bearer ", "");
+
+    if (token.length === 0) {
+      return { authenticated: false };
+    }
+
+    const result = await this.validateAuthToken(
+      "This function doesn't do suspended token check",
+      token
+    );
+
+    let user:
+      | (User & {
+          suspendedTokens: SuspendedToken[];
+          sessions: Session[];
+        })
+      | null = null;
+
+    if (result.valid && result.payload) {
+      const { userId } = result.payload;
+
+      if (!userId) {
+        return { authenticated: false };
+      }
+
+      user = await prisma.user
+        .findUnique({
+          where: { userId },
+          include: { suspendedTokens: true, sessions: true },
+        })
+        .catch((error) => {
+          console.error(
+            `${lib_logger.formatPrefix("rest")} Error fetching user from the database: ${error}`,
+            error.stack
+          );
+
+          return null;
+        });
+
+      if (!user) {
+        return { authenticated: false };
+      }
+
+      if (!this.checkAuthToken(user, result.payload)) {
+        return { authenticated: false };
+      }
+    }
+
+    return {
+      authenticated: result.valid,
+      renew: result.renew,
+      user,
+    };
   }
 
   public static async genAuthTokenWithRefresh(
@@ -81,14 +141,14 @@ export default class lib_token {
       })
       .catch((error) => {
         console.error(
-          `${lib_logger.formatPrefix("lib_token")} Error creating session in database:`,
+          `${lib_logger.formatPrefix("lib_auth")} Error creating session in database:`,
           error
         );
 
         throw new Error("Failed to create session in database");
       });
 
-    const jwt = await lib_token.genAuthToken(
+    const jwt = await this.genAuthToken(
       userId,
       passwordSession,
       accountSession
@@ -124,7 +184,7 @@ export default class lib_token {
     //   })
     //   .catch((error) => {
     //     console.error(
-    //       `${lib_logger.formatPrefix("lib_token")} Error updating active token IDs for user ${userId}:`,
+    //       `${lib_logger.formatPrefix("lib_auth")} Error updating active token IDs for user ${userId}:`,
     //       error,
     //     );
     //
@@ -142,7 +202,7 @@ export default class lib_token {
       .setExpirationTime("2h")
       .setJti(jti)
       // .setJti(crypto.randomUUID())
-      .sign(await lib_token.getPrivateKey());
+      .sign(await this.getPrivateKey());
   }
 
   public static extractRefreshToken(refreshToken: string): {
@@ -310,7 +370,7 @@ export default class lib_token {
       }: {
         payload: T_JWTAuthPayload;
         // protectedHeader: jose.ProtectedHeaderParameters;
-      } = await jose.jwtVerify(token, await lib_token.getPublicKey(), {
+      } = await jose.jwtVerify(token, await this.getPublicKey(), {
         audience: "auth",
       });
 
@@ -318,7 +378,7 @@ export default class lib_token {
 
       // if (!user.activeTokenIds.includes(payload.jti as string)) {
       //   console.warn(
-      //     `${lib_logger.formatPrefix("lib_token")} Token JTI not found in user's active tokens:`,
+      //     `${lib_logger.formatPrefix("lib_auth")} Token JTI not found in user's active tokens:`,
       //     payload.jti,
       //   );
       //
@@ -340,7 +400,7 @@ export default class lib_token {
       }
 
       console.error(
-        `${lib_logger.formatPrefix("lib_token")} Error validating auth token:`,
+        `${lib_logger.formatPrefix("lib_auth")} Error validating auth token:`,
         error
       );
 

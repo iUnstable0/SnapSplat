@@ -1,0 +1,27 @@
+meta {
+  name: Upload Photo
+  type: graphql
+  seq: 2
+}
+
+post {
+  url: http://127.0.0.1:3065/graphql
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation UploadPhoto($captchaToken: String!, $eventId: UUID!, $file: File!) {
+    uploadPhoto(captchaToken: $captchaToken, eventId: $eventId, file: $file) {
+      photoId
+    }
+  }
+  
+}
+
+body:graphql:vars {
+  {
+    captchaToken: "captchaDemo",
+    eventId: "12"
+  }
+}
