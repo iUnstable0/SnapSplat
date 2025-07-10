@@ -50,6 +50,7 @@ import styles from "./sidebar.module.css";
 
 import { T_Event, T_EventInvite, T_EventMembership, T_User } from "@/gql/types";
 import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
+import leaveEvent from "@/actions/event/leaveEvent";
 
 export default function Sidebar({
   children,
@@ -200,8 +201,10 @@ export default function Sidebar({
     eventMenuItems.push({
       label: "Leave Event",
       icon: <LogOut />,
-      onClick: () => {
-        alert("Under construction");
+      onClick: async () => {
+        await leaveEvent("captchaDemo", event.eventId);
+
+        router.push("/app/me");
       },
       dangerous: true,
     });
