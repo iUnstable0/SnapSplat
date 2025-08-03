@@ -12,7 +12,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@lucide/lab": "^0.1.2",
     "@radix-ui/react-slot": "^1.2.3",
-    "@tabler/icons-react": "^3.34.0",
+    "@tabler/icons-react": "^3.34.1",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/heic-convert": "^2.1.0",
     "@types/tinycolor2": "^1.4.6",
@@ -21,11 +21,11 @@
     "clsx": "^2.1.1",
     "gql-query-builder": "^3.8.0",
     "heic-convert": "^2.1.0",
-    "jose": "^6.0.11",
+    "jose": "^6.0.12",
     "lucide-react": "^0.525.0",
-    "luxon": "^3.6.1",
-    "motion": "^12.23.0",
-    "next": "^15.3.4",
+    "luxon": "^3.7.1",
+    "motion": "^12.23.6",
+    "next": "^15.4.2",
     "postcss": "^8.5.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -37,18 +37,18 @@
     "tailwindcss": "^4.1.11",
     "tinycolor2": "^1.6.0",
     "use-sound": "^5.0.0",
-    "zod": "^3.25.67"
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@types/luxon": "^3.6.2",
-    "@types/node": "^20.19.2",
+    "@types/node": "^20.19.9",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
-    "eslint": "^9.30.0",
-    "eslint-config-next": "^15.3.4",
+    "eslint": "^9.31.0",
+    "eslint-config-next": "^15.4.2",
     "sass": "^1.89.2",
-    "tw-animate-css": "^1.3.4",
+    "tw-animate-css": "^1.3.5",
     "typescript": "^5.8.3"
   }
 }

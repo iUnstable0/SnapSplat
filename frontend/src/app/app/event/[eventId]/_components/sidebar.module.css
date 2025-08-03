@@ -395,4 +395,28 @@
   height: 100%;
   overflow: hidden;
   padding: 10px 10px;
+
+  /* z-index: 1; */
+
+  background-color: var(--sp-background-color);
+}
+
+.galleryTitle {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 12px;
+
+  color: var(--sp-secondary-text-color);
+
+  /* z-index: 0; */
 }
