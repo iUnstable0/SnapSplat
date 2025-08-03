@@ -28,7 +28,7 @@ import {
   Aperture,
 } from "lucide-react";
 
-import { layoutGridPlus } from "@lucide/lab";
+// import { layoutGridPlus } from "@lucide/lab";
 import { AnimatePresence, motion } from "motion/react";
 
 import {
@@ -41,6 +41,7 @@ import { Magnetic } from "@/components/ui/mp_magnetic";
 import { useMediaQuery } from "@/components/useMediaQuery";
 import ManageEvent from "@/components/panels/manage-event";
 import { useBlurContext } from "@/components/blur-context";
+import Spinner from "@/components/spinner";
 
 import lib_role from "@/modules/role";
 
@@ -82,6 +83,7 @@ export default function Sidebar({
   const [showMobileMenu, setShowMobileMenu] = useState(true);
   const [renderChildren, setRenderChildren] = useState(true);
   const [targetPath, setTargetPath] = useState<string>(pathname);
+  const [showSpinner, setShowSpinner] = useState<boolean>(false);
 
   const [manageEventVisible, setManageEventVisible] = useState(false);
 
@@ -124,6 +126,25 @@ export default function Sidebar({
       setRenderChildren(true);
     }
   }, [targetPath, pathname]);
+
+  useEffect(() => {
+    if (renderChildren) {
+      // alert("Loaded, clear spinner");
+      setShowSpinner(false);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      if (!renderChildren) {
+        // alert("Loading too long, showing spinner");
+        setShowSpinner(true);
+        // } else {
+        //   setShowSpinner(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [renderChildren]);
 
   const goBack = () => {
     router.push(searchParams.get("back") ?? "/app/me");
@@ -550,8 +571,29 @@ export default function Sidebar({
         }}
       >
         <AnimatePresence>
+          {showSpinner && (
+            <motion.div
+              key={"sidebarspinner"}
+              initial={{ opacity: 0, scale: 0.99 }}
+              animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.99 }}
+              transition={{
+                type: "spring",
+                stiffness: 210,
+                damping: 20,
+                opacity: {
+                  duration: 0.2,
+                },
+              }}
+              className={styles.galleryTitle}
+            >
+              <Spinner id="rendersidebarspin" loading={true} size={32} />
+            </motion.div>
+          )}
+
           {renderChildren && (
             <motion.div
+              key={"sidebarpage"}
               initial={{ opacity: 0, scale: 0.99 }}
               animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.99 }}

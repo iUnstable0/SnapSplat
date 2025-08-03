@@ -1,6 +1,8 @@
 .pageWrapper {
   border-radius: 10px;
   overflow: hidden;
+
+  background-color: var(--sp-background-color);
 }
 
 .mainContent {

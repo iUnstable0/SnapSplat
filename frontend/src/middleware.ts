@@ -22,7 +22,7 @@ function handleAuthFailure(request: NextRequest, reqId: string): NextResponse {
 
   //   if (pathname.startsWith("/api/")) {
   //     return new NextResponse(
-  //       JSON.stringify({ message: "Authentication required." }),
+  //       JSON.stringify({ error: "Authentication required." }),
   //       { status: 401 }
   //     );
   //   }

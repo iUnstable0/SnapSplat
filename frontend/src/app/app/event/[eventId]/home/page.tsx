@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import EventBanner from "@/components/event-banner";
 
 import Error from "@/components/error";
+import Spinner from "@/components/spinner";
 
 import * as gql_builder from "gql-query-builder";
 import requester from "@/gql/requester";
