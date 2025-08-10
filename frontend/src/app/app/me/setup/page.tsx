@@ -19,15 +19,12 @@ export default async function Page() {
 
   try {
     platform = (
-      await requester.request(
-        {
-          data: gql_builder.query({
-            operation: "platform",
-            fields: ["isSetupCompleted"],
-          }),
-        },
-        cookieStore.get("token")?.value
-      )
+      await requester.request({
+        data: gql_builder.query({
+          operation: "platform",
+          fields: ["isSetupCompleted"],
+        }),
+      })
     ).platform;
   } catch (error: any) {
     console.error(`[/app/me/setup] Error fetching platform`, error);
