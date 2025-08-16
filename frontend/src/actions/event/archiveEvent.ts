@@ -46,7 +46,7 @@ export default async function publishEvent(
               },
               data: {
                 value: {
-                  isDraft: false,
+                  isArchived: true,
                 },
                 type: "UpdateEvent",
                 required: true,
@@ -59,7 +59,7 @@ export default async function publishEvent(
       )
     ).updateEvent;
   } catch (error) {
-    console.error("Publish event mutation failed:", error);
+    console.error("Archive event mutation failed:", error);
 
     return {
       success: false,
@@ -69,7 +69,7 @@ export default async function publishEvent(
 
   return {
     success: true,
-    message: "Event published successfully",
+    message: "Event archived successfully",
     data: result,
   };
 

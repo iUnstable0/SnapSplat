@@ -17,25 +17,16 @@ import styles from "./menubar.module.css";
 import createEvent from "@/actions/event/createEvent";
 import joinEvent from "@/actions/event/joinEvent";
 
-import type { T_Event, T_User } from "@/gql/types";
+import type { T_User } from "@/gql/types";
 
 import { Z_EventName, Z_EventDescription } from "@/modules/parser";
 
-import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
+import { KeybindButton, T_Keybind } from "@/components/keybind";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { TextMorph } from "@/components/ui/mp_text-morph";
 
-import Spinner from "@/components/spinner";
-
-export default function MenuBar({
-  me,
-}: {
-  me: T_User & {
-    events: T_Event[];
-    myEvents: T_Event[];
-  };
-}) {
+export default function MenuBar({ me }: { me: T_User }) {
   const router = useRouter();
 
   const { setIsBlurred } = useBlurContext();
@@ -274,6 +265,10 @@ export default function MenuBar({
         // router.push(`/app/event/${result.data?.eventId}`);
       } else {
         setJoinEventError(result.message);
+
+        setTimeout(() => {
+          inputRefs.current[inputRefs.current.length - 1]?.focus();
+        }, 100);
       }
     }, 1000);
   };
@@ -408,7 +403,7 @@ export default function MenuBar({
                       ease: "easeInOut",
                     }}
                   >
-                    Enter your 6 letter invite code
+                    Enter event code
                   </motion.div>
                 )}
 
@@ -609,6 +604,18 @@ export default function MenuBar({
                   ))}
                 </Magnetic>
               </div>
+            </div>
+            <div className={styles.joinEventFormFooter}>
+              <KeybindButton
+                keybinds={[T_Keybind.escape]}
+                onPress={() => {
+                  setJoinEventOpen(false);
+                }}
+                disabled={createEventDisabled}
+                // textClassName={styles.createEventFormButtonText}
+              >
+                Cancel
+              </KeybindButton>
             </div>
           </motion.div>
         )}

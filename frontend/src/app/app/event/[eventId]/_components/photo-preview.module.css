@@ -29,6 +29,8 @@
   padding-left: 30px;
   padding-top: 30px;
 
+  gap: 10px;
+
   z-index: 2;
   /* background: red; */
 }
@@ -50,4 +52,6 @@
   height: 100%;
 
   object-fit: contain;
+
+  transition: opacity 0.2s ease-in-out;
 }

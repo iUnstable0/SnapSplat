@@ -14,14 +14,8 @@ type T_EventData = T_Event & {
   myMembership: T_EventMembership;
 };
 
-export default function Draft({
-  drafts,
-  myDrafts,
-}: {
-  drafts: T_EventData[];
-  myDrafts: T_EventData[];
-}) {
-  const draftsCount = myDrafts.length + drafts.length;
+export default function Draft({ myDrafts }: { myDrafts: T_EventData[] }) {
+  const draftsCount = myDrafts.length;
 
   return (
     <>
@@ -44,7 +38,7 @@ export default function Draft({
           </motion.h1>
         )}
 
-        {draftsCount > 0 && <EventContainer events={[myDrafts, drafts]} />}
+        {draftsCount > 0 && <EventContainer events={[myDrafts]} />}
 
         {draftsCount === 0 && (
           <motion.h1

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Image from "next/image";
 
 import { useRouter } from "next/navigation";
 
 import { motion, AnimatePresence } from "motion/react";
+
+import { Trash2, X } from "lucide-react";
 
 import deletePhoto from "@/actions/event/deletePhoto";
 
@@ -48,6 +50,7 @@ export default function PhotoPreview({
           forcetheme="dark"
           className={styles.toolbarButton}
           disabled={buttonDisabled}
+          // icon={<X />}
         >
           Close
         </KeybindButton>
@@ -63,9 +66,11 @@ export default function PhotoPreview({
             forcetheme="dark"
             className={styles.toolbarButton}
             dangerous={true}
+            // icon={<Trash2 />}
             loading={deleteLoading}
             loadingText="Deleting..."
             disabled={buttonDisabled}
+            preload={false}
           >
             Delete
           </KeybindButton>
@@ -79,8 +84,6 @@ export default function PhotoPreview({
             description="Are you sure you want to delete this photo?"
             confirmText="Delete"
             confirmLoadingText="Deleting..."
-            // confirmIcon={<Trash2 />}
-            // cancelIcon={<X />}
             forcetheme="dark"
             confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
             onConfirm={async () => {
@@ -118,6 +121,9 @@ export default function PhotoPreview({
         alt={`Event ${photo.eventId}`}
         fill
         className={styles.photoPreviewImage}
+        style={{
+          opacity: deleteConfirmationOpen ? 0.5 : 1,
+        }}
         onClick={(e) => e.stopPropagation()}
       />
     </motion.div>

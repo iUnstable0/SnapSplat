@@ -3,6 +3,8 @@
   flex-direction: row;
   gap: 8px;
 
+  /* background: red; */
+
   color: #f9f9f9;
 }
 
@@ -18,12 +20,16 @@
   align-items: center;
   justify-content: center;
 
+  /* background: blue; */
+
   transition: all 0.2s ease-in-out;
 }
 
 .keybindIcon {
-  width: 18px;
-  height: 18px;
+  width: clamp(18px, 2vw, 20px);
+  height: clamp(18px, 2vw, 20px);
+
+  /* display: none !important; */
 
   display: flex;
   align-items: center;
@@ -33,8 +39,11 @@
 }
 
 .keybindText {
-  font-size: 14px;
+  font-size: clamp(14px, 2vw, 16px);
+  /* font-size: 14px; */
   font-weight: 500;
+
+  /* display: none !important; */
 
   display: flex;
   align-items: center;
@@ -49,8 +58,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+
   gap: 8px;
+
+  /* background: green; */
 
   transition:
     scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
@@ -58,8 +70,10 @@
 }
 
 .keybindButtonIcon {
-  width: 18px;
-  height: 18px;
+  width: clamp(22px, 2vw, 24px);
+  height: clamp(22px, 2vw, 24px);
+
+  /* background: red; */
 
   display: flex;
   align-items: center;
@@ -72,6 +86,9 @@
 }
 
 .keybindButtonText {
+  font-size: clamp(16px, 2vw, 18px) !important;
+  /* display: none !important; */
+
   transition:
     color 0.2s ease-in-out,
     text-shadow 0.2s ease-in-out,

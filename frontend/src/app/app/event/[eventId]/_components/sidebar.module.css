@@ -157,7 +157,17 @@
   transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-.sidebarOverlayMagnet:hover {
+.sidebarOverlayMagnetDisabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sidebarOverlayMagnet:hover:not(.sidebarOverlayMagnetDisabled) {
+  cursor: pointer;
+
+  transform: translateX(8px) !important;
+  scale: 1.1 !important;
+
   .sidebarOverlayButtonText {
     /* text-shadow: 0 0 10px rgba(0, 0, 0, 0.3); */
   }
@@ -177,15 +187,8 @@
   }
 
   .sidebarOverlayButtonIcon {
-    filter: drop-shadow(0 0 10px var(--sp-dangerous-color));
+    filter: drop-shadow(0 0 10px var(--sp-dangerous-color)) !important;
   }
-}
-
-.sidebarOverlayMagnet_free:hover {
-  cursor: pointer;
-
-  transform: translateX(8px) !important;
-  scale: 1.1 !important;
 }
 
 .sidebarOverlayMagnet_active {
@@ -419,4 +422,13 @@
   color: var(--sp-secondary-text-color);
 
   /* z-index: 0; */
+}
+
+.sidebarConfirmationContainer {
+  z-index: 1000 !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }

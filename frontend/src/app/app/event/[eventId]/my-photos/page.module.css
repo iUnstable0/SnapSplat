@@ -1,6 +1,8 @@
 .pageWrapper {
   border-radius: 10px;
   overflow: hidden;
+
+  background-color: var(--sp-background-color);
 }
 
 .mainContent {
@@ -19,9 +21,9 @@
 }
 
 .galleryContainer {
-  display: grid;
+  /* display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 12px; */
 }
 
 .galleryTitle {

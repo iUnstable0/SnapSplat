@@ -97,23 +97,18 @@ export default function ManageEvent({
                 confirmLoadingText="Publishing..."
                 // confirmIcon={<Trash2 />}
                 // cancelIcon={<X />}
-                forcetheme="dark"
+                forcetheme={"dark"}
                 onConfirm={async () => {
                   const publishResult = await publishEvent(
                     "captchaDemo",
                     event.eventId
                   );
-
                   setPublishConfirmationOpen(false);
-
                   setTimeout(() => {
                     setFooterItemLoading(null);
-
                     setManageEventDisabled(false);
-
                     if (publishResult.success) {
                       setManageEventVisible(false);
-
                       router.push(`/app/me`);
                     } else {
                       toast.error(publishResult.message);
@@ -197,6 +192,7 @@ export default function ManageEvent({
               >
                 Close
               </KeybindButton>
+
               <AnimatePresence>
                 {edited && (
                   <KeybindButton
@@ -293,6 +289,7 @@ export default function ManageEvent({
             event={event}
             edit={true}
             setEdited={setEdited}
+            manageEventDisabled={manageEventDisabled}
             setSaveDisabled={setSaveDisabled}
           />
 

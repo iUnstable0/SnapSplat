@@ -59,7 +59,6 @@ export default function EventCard({
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
     useState(false);
-
   const [leaveConfirmationOpen, setLeaveConfirmationOpen] = useState(false);
   const [leaveConfirmationLoading, setLeaveConfirmationLoading] =
     useState(false);
@@ -76,10 +75,17 @@ export default function EventCard({
 
   // const rootPath = pathname.split("/").slice(0, 4).join("/");
 
-  const menuItems = [
+  const menuItems: {
+    label: string;
+    icon: React.ReactNode;
+    onClick: () => void;
+    keybinds: T_Keybind[];
+    loadingId?: string;
+    loadingText?: string;
+    dangerous?: boolean;
+  }[] = [
     {
       label: "Open",
-      dangerous: false,
       icon: <FolderOpen />,
       onClick: () => {
         setOverlayDisabled(true);
@@ -92,81 +98,67 @@ export default function EventCard({
           `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`
         );
       },
+      keybinds: [T_Keybind.enter],
       loadingId: "open",
       loadingText: "Opening...",
-      keybinds: [T_Keybind.enter],
+      dangerous: false,
     },
-
-    // COHOST & HOST
-    ...(lib_role.event_hasRole(event.myMembership, "COHOST")
-      ? [
-          {
-            label: "Manage",
-            dangerous: false,
-            icon: <Wrench />,
-            onClick: () => {
-              // if (overlayDisabled) return;
-              // router.push(
-              //   `/app/event/${event.eventId}/manage?back=${encodeURIComponent(
-              //     pathname
-              //   )}`
-              // );
-              // alert("manage event");
-              setIsBlurred(true);
-              setManageEvent(event);
-              setManageEventVisible(true);
-            },
-            keybinds: [T_Keybind.shift, T_Keybind.m],
-          },
-        ]
-      : []),
-
-    // NOT HOST
-    ...(!lib_role.event_hasRole(event.myMembership, "HOST")
-      ? [
-          {
-            label: "Leave",
-            dangerous: true,
-            icon: <LogOut />,
-            onClick: () => {
-              setOverlayDisabled(true);
-              setMenuItemsLoading((prev) => ({
-                ...prev,
-                leave: true,
-              }));
-
-              setLeaveConfirmationOpen(true);
-            },
-            loadingId: "leave",
-            loadingText: "Leaving...",
-            keybinds: [T_Keybind.shift, T_Keybind.backspace],
-          },
-        ]
-      : []),
-
-    // HOST
-    ...(lib_role.event_hasRole(event.myMembership, "HOST") && event.isDraft
-      ? [
-          {
-            label: "Delete",
-            dangerous: true,
-            icon: <Trash2 />,
-            onClick: async () => {
-              setOverlayDisabled(true);
-              setMenuItemsLoading((prev) => ({
-                ...prev,
-                delete: true,
-              }));
-
-              setDeleteConfirmationOpen(true);
-            },
-            loadingId: "delete",
-            loadingText: "Deleting...",
-            keybinds: [T_Keybind.shift, T_Keybind.backspace],
-          },
-        ]
-      : []),
   ];
+
+  if (lib_role.event_hasRole(event.myMembership, "COHOST")) {
+    menuItems.push({
+      label: "Manage",
+      icon: <Wrench />,
+      onClick: () => {
+        setManageEvent(event);
+        setManageEventVisible(true);
+      },
+      keybinds: [T_Keybind.shift, T_Keybind.m],
+      dangerous: false,
+    });
+  }
+
+  if (lib_role.event_hasRole(event.myMembership, "HOST")) {
+    if (event.isDraft || event.isArchived) {
+      menuItems.push({
+        label: "Delete",
+        icon: <Trash2 />,
+        onClick: () => {
+          setOverlayDisabled(true);
+          setMenuItemsLoading((prev) => ({
+            ...prev,
+            delete: true,
+          }));
+
+          setDeleteConfirmationOpen(true);
+        },
+        keybinds: [T_Keybind.shift, T_Keybind.backspace],
+        loadingId: "delete",
+        loadingText: "Deleting...",
+        dangerous: true,
+      });
+    }
+
+    // Archive in main event page
+  } else {
+    menuItems.push({
+      label: "Leave",
+      icon: <LogOut />,
+      onClick: () => {
+        setOverlayDisabled(true);
+        setMenuItemsLoading((prev) => ({
+          ...prev,
+          leave: true,
+        }));
+
+        setLeaveConfirmationOpen(true);
+      },
+      keybinds: [T_Keybind.shift, T_Keybind.backspace],
+      loadingId: "leave",
+      loadingText: "Leaving...",
+      dangerous: true,
+    });
+  }
 
   return (
     <motion.div
@@ -186,7 +178,8 @@ export default function EventCard({
       onHoverEnd={() => {
         // setManageEvent(null);
         if (deleteConfirmationOpen || leaveConfirmationOpen) {
-          if (!deleteConfirmationLoading || !leaveConfirmationLoading) {
+          // if (!Object.values(menuItemsLoading).some((value) => value)) {
+          if (!deleteConfirmationLoading && !leaveConfirmationLoading) {
             setOverlayOpen(false);
             setDeleteConfirmationOpen(false);
             setLeaveConfirmationOpen(false);
@@ -201,7 +194,15 @@ export default function EventCard({
           return;
         }
 
+        if (Object.values(menuItemsLoading).some((value) => value)) {
+          if (!deleteConfirmationOpen && !leaveConfirmationOpen) {
+            return;
+          }
+        }
+
         setOverlayOpen(false);
+        setMenuItemsLoading({});
+        setOverlayDisabled(false);
       }}
       onClick={() => {
         // setManageEvent(event);
@@ -226,8 +227,8 @@ export default function EventCard({
       <AnimatePresence>
         {deleteConfirmationOpen && (
           <Confirmation
-            title="Delete Event"
-            description="Are you sure you want to delete this event?"
+            title="Are you sure?"
+            description="You can't undo this action."
             confirmText="Delete"
             confirmLoadingText="Deleting..."
             // confirmIcon={<Trash2 />}
@@ -274,8 +275,8 @@ export default function EventCard({
       <AnimatePresence>
         {leaveConfirmationOpen && (
           <Confirmation
-            title="Leave Event"
-            description="Are you sure you want to leave this event? Photos you have uploaded will still be available."
+            title="Are you sure?"
+            description="Photos you have uploaded will still be available."
             confirmText="Leave"
             confirmLoadingText="Leaving..."
             forcetheme="dark"
@@ -323,8 +324,8 @@ export default function EventCard({
         transition={{ duration: 0.2 }}
       >
         <Image
-          src={`https://picsum.photos/seed/eventBanner-${event.eventId}/420/300`}
-          alt={event.name}
+          src={event.cover}
+          alt={event.eventId}
           width={420}
           height={300}
           className={styles.eventImage}

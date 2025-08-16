@@ -131,9 +131,9 @@ export default async function Page({
           </div>
         )} */}
 
-        <div className={styles.galleryContainer}>
-          {!event.isDraft && <Gallery event={event} />}
-        </div>
+        {/* <div className={styles.galleryContainer}> */}
+        {!event.isDraft && <Gallery event={event} />}
+        {/* </div> */}
       </div>
     </div>
   );

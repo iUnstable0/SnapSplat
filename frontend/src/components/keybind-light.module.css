@@ -22,8 +22,8 @@
 }
 
 .keybindIcon {
-  width: 18px;
-  height: 18px;
+  width: clamp(18px, 2vw, 20px);
+  height: clamp(18px, 2vw, 20px);
 
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@
 }
 
 .keybindText {
-  font-size: 14px;
+  font-size: clamp(14px, 2vw, 16px);
   font-weight: 500;
 
   display: flex;
@@ -49,7 +49,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
 
   transition:
@@ -58,8 +58,8 @@
 }
 
 .keybindButtonIcon {
-  width: 18px;
-  height: 18px;
+  width: clamp(24px, 2vw, 32px);
+  height: clamp(24px, 2vw, 32px);
 
   display: flex;
   align-items: center;
@@ -72,6 +72,8 @@
 }
 
 .keybindButtonText {
+  font-size: clamp(16px, 2vw, 18px) !important;
+
   transition:
     color 0.2s ease-in-out,
     text-shadow 0.2s ease-in-out,

@@ -11,6 +11,7 @@ import Error from "@/components/error";
 import styles from "./page.module.css";
 
 import requester from "@/gql/requester";
+
 import type { T_Event, T_EventMembership, T_User } from "@/gql/types";
 
 import { cookies } from "next/headers";
@@ -78,6 +79,9 @@ export default async function Page() {
                   "description",
                   "isDraft",
                   "isArchived",
+                  "icon",
+                  "cover",
+                  "banner",
                   {
                     hostMember: ["displayNameAlt"],
                     memberships: [
@@ -135,7 +139,9 @@ export default async function Page() {
   // console.log(JSON.stringify(me, null, 2));
 
   const activeEvents = me.events.filter((event) => !event.isArchived);
-  const myPublishedEvents = me.myEvents.filter((event) => !event.isDraft);
+  const myPublishedEvents = me.myEvents.filter(
+    (event) => !event.isDraft && !event.isArchived
+  );
 
   return (
     <div className={styles.pageWrapper}>

@@ -24,11 +24,13 @@ export default function EventBanner({
   event,
   edit,
   setEdited,
+  manageEventDisabled,
   setSaveDisabled,
 }: {
   event: T_Event;
   edit?: boolean;
   setEdited?: (edited: boolean) => void;
+  manageEventDisabled?: boolean;
   setSaveDisabled?: (edited: boolean) => void;
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -143,7 +145,8 @@ export default function EventBanner({
         transition={{ duration: 0.2 }}
       >
         <img
-          src={`https://picsum.photos/seed/eventBanner-${event.eventId}/1400/1400`}
+          src={event.banner}
+          // src={`https://picsum.photos/seed/eventBanner-${event.eventId}/1400/1400`}
           alt={`Event ${event.eventId}`}
           onLoad={() => {
             // console.log("loaded");
@@ -151,7 +154,7 @@ export default function EventBanner({
           }}
           className={styles.eventImage}
         />
-        {edit && false && (
+        {edit && !manageEventDisabled && (
           <motion.div
             initial={{ opacity: 0 }}
             whileHover={{ opacity: 1 }}
@@ -198,7 +201,8 @@ export default function EventBanner({
             transition={{ duration: 0.2 }}
           >
             <Image
-              src={`https://picsum.photos/seed/eventIcon-${event.eventId}/128/128`}
+              src={event.icon}
+              // src={`https://picsum.photos/seed/eventIcon-${event.eventId}/128/128`}
               alt={`Event ${event.eventId}`}
               width={128}
               height={128}
@@ -208,7 +212,7 @@ export default function EventBanner({
               }}
               className={styles.eventIconImage}
             />
-            {edit && false && (
+            {edit && !manageEventDisabled && (
               <motion.div
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
@@ -236,7 +240,7 @@ export default function EventBanner({
         </div>
 
         <div className={styles.eventTitleContainer}>
-          {edit && false ? (
+          {edit ? (
             <motion.input
               type="text"
               className={clsx(
@@ -255,6 +259,7 @@ export default function EventBanner({
               onKeyDown={(e) => {
                 e.stopPropagation();
               }}
+              disabled={manageEventDisabled}
               ref={eventTitleInputRef}
               defaultValue={event.name}
               initial={{ opacity: 0 }}
@@ -284,7 +289,7 @@ export default function EventBanner({
               ))}
           </AnimatePresence>
 
-          {!edit && false && event.description && (
+          {!edit && !manageEventDisabled && event.description && (
             <p
               className={clsx(
                 styles.eventDescription,

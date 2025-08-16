@@ -9,6 +9,8 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import clsx from "clsx";
 
 import deleteEvent from "@/actions/event/deleteEvent";
+import leaveEvent from "@/actions/event/leaveEvent";
+import archiveEvent from "@/actions/event/archiveEvent";
 
 import {
   FolderLock,
@@ -39,9 +41,12 @@ import {
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 import { useMediaQuery } from "@/components/useMediaQuery";
-import ManageEvent from "@/components/panels/manage-event";
 import { useBlurContext } from "@/components/blur-context";
 import Spinner from "@/components/spinner";
+import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
+import Confirmation from "@/components/confirmation";
+
+import ManageEvent from "@/components/panels/manage-event";
 
 import lib_role from "@/modules/role";
 
@@ -50,8 +55,6 @@ import lib_role from "@/modules/role";
 import styles from "./sidebar.module.css";
 
 import { T_Event, T_EventInvite, T_EventMembership, T_User } from "@/gql/types";
-import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
-import leaveEvent from "@/actions/event/leaveEvent";
 
 export default function Sidebar({
   children,
@@ -87,17 +90,34 @@ export default function Sidebar({
 
   const [manageEventVisible, setManageEventVisible] = useState(false);
 
-  const [activeEventMenuItem, setActiveEventMenuItem] = useState("");
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
+    useState(false);
+
+  const [leaveConfirmationOpen, setLeaveConfirmationOpen] = useState(false);
+  const [leaveConfirmationLoading, setLeaveConfirmationLoading] =
+    useState(false);
+
+  const [archiveConfirmationOpen, setArchiveConfirmationOpen] = useState(false);
+  const [archiveConfirmationLoading, setArchiveConfirmationLoading] =
+    useState(false);
+
+  const [menuItemsLoading, setMenuItemsLoading] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  const [overlayDisabled, setOverlayDisabled] = useState(false);
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
-  useEffect(() => {
-    if (manageEventVisible) {
-      setIsBlurred(true);
-    } else {
-      setIsBlurred(false);
-    }
-  }, [manageEventVisible]);
+  // TODO: Point
+  // useEffect(() => {
+  //   if (manageEventVisible) {
+  //     setIsBlurred(true);
+  //   } else {
+  //     setIsBlurred(false);
+  //   }
+  // }, [manageEventVisible]);
 
   useEffect(() => {
     if (eventMenuOpen) {
@@ -154,14 +174,17 @@ export default function Sidebar({
     label: string;
     icon: React.ReactNode;
     onClick: () => void;
-    keybinds?: T_Keybind[];
+    keybinds: T_Keybind[];
+    loadingId?: string;
+    loadingText?: string;
     dangerous?: boolean;
   }[] = [
     {
       label: "Back to My Events",
       icon: <ArrowLeft />,
       onClick: goBack,
-      keybinds: [T_Keybind.enter],
+      // keybinds: [T_Keybind.enter],
+      keybinds: [],
     },
     {
       label: "Members",
@@ -173,7 +196,8 @@ export default function Sidebar({
 
         alert(`Members (${members.length}): ${members.join(", ")}`);
       },
-      keybinds: [T_Keybind.m],
+      // keybinds: [T_Keybind.m],
+      keybinds: [],
     },
     {
       label: "Invite / Share",
@@ -183,7 +207,8 @@ export default function Sidebar({
 
         alert(`Invites (${invites.length}): ${invites.join(", ")}`);
       },
-      keybinds: [T_Keybind.e],
+      // keybinds: [T_Keybind.e],
+      keybinds: [],
     },
     // {
     //   label: "Preferences",
@@ -203,7 +228,8 @@ export default function Sidebar({
       onClick: () => {
         setManageEventVisible(true);
       },
-      keybinds: [T_Keybind.shift, T_Keybind.m],
+      // keybinds: [T_Keybind.shift, T_Keybind.m],
+      keybinds: [],
     });
 
     // if (event.isDraft) {
@@ -223,11 +249,23 @@ export default function Sidebar({
       label: "Leave Event",
       icon: <LogOut />,
       onClick: async () => {
-        await leaveEvent("captchaDemo", event.eventId);
+        setOverlayDisabled(true);
+        setMenuItemsLoading((prev) => ({
+          ...prev,
+          delete: true,
+        }));
 
-        router.push("/app/me");
+        setLeaveConfirmationOpen(true);
+
+        // await leaveEvent("captchaDemo", event.eventId);
+
+        // router.push("/app/me");
+        // goBack();
       },
+      keybinds: [],
       dangerous: true,
+      loadingId: "leave",
+      loadingText: "Leaving Event...",
     });
   }
 
@@ -238,22 +276,36 @@ export default function Sidebar({
         label: "Delete Event",
         icon: <Trash2 />,
         onClick: async () => {
-          await deleteEvent("captchaDemo", event.eventId);
-
-          router.push(searchParams.get("back") ?? "/app/me");
+          setOverlayDisabled(true);
+          setMenuItemsLoading((prev) => ({
+            ...prev,
+            delete: true,
+          }));
+          setDeleteConfirmationOpen(true);
         },
-        // keybinds: [T_Keybind.shift, T_Keybind.backspace],
+        keybinds: [],
+        loadingId: "delete",
+        loadingText: "Deleting Event...",
         dangerous: true,
       });
     } else {
-      // eventMenuItems.push({
-      //   label: "Archive Event",
-      //   icon: <Archive />,
-      //   onClick: () => {
-      //     alert("Under construction");
-      //   },
-      //   dangerous: true,
-      // });
+      eventMenuItems.push({
+        label: "Archive Event",
+        icon: <Archive />,
+        onClick: () => {
+          setOverlayDisabled(true);
+          setMenuItemsLoading((prev) => ({
+            ...prev,
+            archive: true,
+          }));
+
+          setArchiveConfirmationOpen(true);
+        },
+        keybinds: [],
+        loadingId: "archive",
+        loadingText: "Archiving Event...",
+        dangerous: true,
+      });
     }
   }
 
@@ -330,6 +382,108 @@ export default function Sidebar({
         userSelect: "none",
       }}
     >
+      <AnimatePresence>
+        {deleteConfirmationOpen && (
+          <Confirmation
+            parentClassName={styles.sidebarConfirmationContainer}
+            title="Are you sure?"
+            description="You can't undo this action."
+            confirmText="Delete"
+            confirmLoadingText="Deleting..."
+            // confirmIcon={<Trash2 />}
+            // cancelIcon={<X />}
+            forcetheme="dark"
+            confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
+            onConfirm={async () => {
+              await deleteEvent("captchaDemo", event.eventId);
+
+              setDeleteConfirmationOpen(false);
+
+              setTimeout(() => {
+                // setDeleteConfirmationLoading(false);
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  delete: false,
+                }));
+
+                // setOverlayDisabled(false);
+                // setOverlayOpen(false);
+
+                // router.push("/app/me");
+                goBack();
+              }, 1000);
+            }}
+            onCancel={() => {
+              setDeleteConfirmationOpen(false);
+
+              setTimeout(() => {
+                // setOverlayLoading(false);
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  delete: false,
+                }));
+
+                setOverlayDisabled(false);
+              }, 1000);
+            }}
+            dim={true}
+            confirmationLoading={deleteConfirmationLoading}
+            setConfirmationLoading={setDeleteConfirmationLoading}
+            dangerous={true}
+          />
+        )}
+
+        {archiveConfirmationOpen && (
+          <Confirmation
+            parentClassName={styles.sidebarConfirmationContainer}
+            title="Are you sure?"
+            description="You can't undo this action."
+            confirmText="Archive"
+            confirmLoadingText="Archiving..."
+            // confirmIcon={<Trash2 />}
+            // cancelIcon={<X />}
+            forcetheme="dark"
+            confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
+            onConfirm={async () => {
+              await archiveEvent("captchaDemo", event.eventId);
+
+              setArchiveConfirmationOpen(false);
+
+              setTimeout(() => {
+                // setDeleteConfirmationLoading(false);
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  archive: false,
+                }));
+
+                // setOverlayDisabled(false);
+                // setOverlayOpen(false);
+
+                // router.push("/app/me");
+                goBack();
+              }, 1000);
+            }}
+            onCancel={() => {
+              setArchiveConfirmationOpen(false);
+
+              setTimeout(() => {
+                // setOverlayLoading(false);
+                setMenuItemsLoading((prev) => ({
+                  ...prev,
+                  archive: false,
+                }));
+
+                setOverlayDisabled(false);
+              }, 1000);
+            }}
+            dim={true}
+            confirmationLoading={archiveConfirmationLoading}
+            setConfirmationLoading={setArchiveConfirmationLoading}
+            dangerous={true}
+          />
+        )}
+      </AnimatePresence>
+
       <Ace_Sidebar
         open={open}
         setOpen={setOpen}
@@ -407,13 +561,11 @@ export default function Sidebar({
                           : 0,
                     }}
                     onClick={() => {
-                      setActiveEventMenuItem(item.label);
+                      if (overlayDisabled) {
+                        return;
+                      }
 
                       item.onClick();
-
-                      setTimeout(() => {
-                        setActiveEventMenuItem("");
-                      }, 250);
                     }}
                   >
                     <Magnetic
@@ -423,41 +575,60 @@ export default function Sidebar({
                       className={clsx(
                         styles.sidebarOverlayMagnet,
                         item.dangerous && styles.sidebarOverlayMagnetDangerous,
-                        activeEventMenuItem === item.label &&
-                          styles.sidebarOverlayMagnet_active,
-                        activeEventMenuItem !== item.label &&
-                          styles.sidebarOverlayMagnet_free
+                        overlayDisabled && styles.sidebarOverlayMagnetDisabled
+                        // activeEventMenuItem === item.label &&
+                        //   styles.sidebarOverlayMagnet_active,
+                        // activeEventMenuItem !== item.label &&
+                        //   styles.sidebarOverlayMagnet_free
                       )}
                       range={175}
                     >
-                      <div className={styles.sidebarOverlayButtonIcon}>
+                      {/* <div className={styles.sidebarOverlayButtonIcon}>
                         {item.icon}
-                      </div>
+                      </div> */}
+
+                      <AnimatePresence mode="popLayout">
+                        {!item.loadingText && (
+                          <motion.div
+                            className={styles.sidebarOverlayButtonIcon}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            {item.icon}
+                          </motion.div>
+                        )}
+
+                        {item.loadingText &&
+                          !menuItemsLoading[item.loadingId ?? ""] && (
+                            <motion.div
+                              className={styles.sidebarOverlayButtonIcon}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              {item.icon}
+                            </motion.div>
+                          )}
+                      </AnimatePresence>
+
+                      {item.loadingText &&
+                        typeof menuItemsLoading[item.loadingId ?? ""] ===
+                          "boolean" && (
+                          <Spinner
+                            id={`keybind-${item.loadingId ?? ""}`}
+                            loading={menuItemsLoading[item.loadingId ?? ""]}
+                            size={24}
+                            preload={false}
+                            dangerous={item.dangerous}
+                          />
+                        )}
+
                       <span className={styles.sidebarOverlayButtonText}>
                         {item.label}
                       </span>
-                      {/* Keybinds is bugged for some reason */}
-                      {/* {item.keybinds && (
-                        <Magnetic
-                          intensity={0.1}
-                          springOptions={{ bounce: 0.1 }}
-                          actionArea="global"
-                          className={clsx(styles.overlayButtonKeybind)}
-                          range={90}
-                        >
-                          {alert(`loaded keybind ${item.keybinds}`)}
-                          <Keybind
-                            keybinds={item.keybinds}
-                            className={styles.createEventFormKeybind}
-                            onPress={() => {
-                              item.onClick();
-                            }}
-                            disabled={false}
-                            dangerous={item.dangerous}
-                            // forcetheme={"dark"}
-                          />
-                        </Magnetic>
-                      )} */}
                     </Magnetic>
                   </motion.div>
                 ))}
@@ -469,7 +640,6 @@ export default function Sidebar({
               className={styles.logoLink}
               onClick={() => setEventMenuOpen(!eventMenuOpen)}
             >
-              {/* <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" /> */}
               <Image
                 src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
                   event.name
@@ -551,6 +721,7 @@ export default function Sidebar({
           </div>
         </SidebarBody>
       </Ace_Sidebar>
+
       <motion.div
         className={styles.mainContent}
         // className={cn(styles.mainContent, "")}
@@ -575,7 +746,8 @@ export default function Sidebar({
             <motion.div
               key={"sidebarspinner"}
               initial={{ opacity: 0, scale: 0.99 }}
-              animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+              // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.99 }}
               transition={{
                 type: "spring",
@@ -595,7 +767,9 @@ export default function Sidebar({
             <motion.div
               key={"sidebarpage"}
               initial={{ opacity: 0, scale: 0.99 }}
-              animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+              // TODO: Point
+              // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+              animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.99 }}
               transition={{
                 type: "spring",
