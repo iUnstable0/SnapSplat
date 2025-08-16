@@ -1,14 +1,22 @@
 .photoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 128px);
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
   gap: 6px;
+  justify-content: start;
 
   /* width: 100%; */
 
   /* background: blue; */
 
   padding-left: 24px;
+  padding-right: 56px;
   padding-bottom: 24px;
+
+  transition: opacity 0.2s ease-in-out;
+}
+
+.blurred {
+  opacity: 0.65;
 }
 
 .photoGridItem {
@@ -85,4 +93,18 @@
   object-fit: cover;
   object-position: center;
   display: block;
+}
+
+.photoGridItemOverlayContentUserText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  /* break character wrap */
+  /* word-break: break-all; */
+
+  width: 100%;
+  max-width: 100%;
 }

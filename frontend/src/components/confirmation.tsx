@@ -28,6 +28,7 @@ export default function Confirmation({
   confirmKeybinds,
   cancelKeybinds,
   dim,
+  parentClassName,
 }: {
   title: string;
   description: string;
@@ -46,6 +47,7 @@ export default function Confirmation({
   dim?: boolean;
   confirmKeybinds?: T_Keybind[];
   cancelKeybinds?: T_Keybind[];
+  parentClassName?: string;
 }) {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -59,9 +61,20 @@ export default function Confirmation({
     setConfirmationLoading?.(confirmLoading || cancelLoading);
   }, [confirmLoading, cancelLoading]);
 
+  // if (confirmLoadingText === "Publishing Now...") {
+  //   // alert("GAY");
+  //   alert(
+  //     `forcetheme: ${forcetheme} | confirmLoadingText: ${confirmLoadingText}`
+  //   );
+  // }
+
   return (
     <motion.div
-      className={clsx(styles.confirmation, dim && styles.confirmationDim)}
+      className={clsx(
+        styles.confirmation,
+        dim && styles.confirmationDim,
+        parentClassName
+      )}
       key={title}
       // initial={{ opacity: 0, scale: 0.9 }}
       // animate={{ opacity: 1, scale: 1 }}

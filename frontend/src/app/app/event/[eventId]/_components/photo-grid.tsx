@@ -12,6 +12,10 @@ import type { T_Event, T_EventPhoto, T_EventMembership } from "@/gql/types";
 
 import styles from "./photo-grid.module.css";
 import { Skeleton } from "@/components/ui/scn_skeleton";
+import { TextMorph } from "@/components/ui/mp_text-morph";
+
+import { useBlurContext } from "@/components/blur-context";
+import clsx from "clsx";
 
 type T_EventData = T_Event & {
   photos: T_EventPhoto[] & {
@@ -28,14 +32,29 @@ export default function PhotoGrid({
   type: "my" | "all";
   onPhotoClick: (photo: T_EventPhoto) => void;
 }) {
+  const { isBlurred, setIsBlurred } = useBlurContext();
+
   const [selectedPhoto, setSelectedPhoto] = useState<T_EventPhoto | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [uploadedRelativeTime, setUploadedRelativeTime] = useState<
+    string | null
+  >(null);
 
   const [imageLoaded, setImageLoaded] = useState<Record<string, boolean>>({});
 
   // selectedPhoto must be hovered for at least 250ms before it can be shown
   useEffect(() => {
     if (selectedPhoto) {
+      setUploadedRelativeTime(
+        DateTime.fromISO(selectedPhoto.uploadedAt).toRelative()
+      );
+
+      const interval = setInterval(() => {
+        setUploadedRelativeTime(
+          DateTime.fromISO(selectedPhoto.uploadedAt).toRelative()
+        );
+      }, 500);
+
       // const timeout = setTimeout(() => {
       //   if (selectedPhoto) {
       //     setShowOverlay(true);
@@ -47,13 +66,15 @@ export default function PhotoGrid({
       // return () => clearTimeout(timeout);
 
       setShowOverlay(true);
+
+      return () => clearInterval(interval);
     } else {
       setShowOverlay(false);
     }
   }, [selectedPhoto]);
 
   return (
-    <div className={styles.photoGrid}>
+    <div className={clsx(styles.photoGrid, isBlurred && styles.blurred)}>
       {event.photos
         .filter((photo) => photo.presignedUrl)
         .map((photo) => (
@@ -93,9 +114,10 @@ export default function PhotoGrid({
                 setImageLoaded((prev) => ({ ...prev, [photo.photoId]: true }))
               }
               loading="lazy"
-              style={{
-                objectFit: "cover",
-              }}
+              objectFit="cover"
+              // style={{
+              //   objectFit: "cover",
+              // }}
             />
             <motion.div
               className={styles.photoGridItemOverlay}
@@ -120,13 +142,13 @@ export default function PhotoGrid({
             >
               <div className={styles.photoGridItemOverlayContent}>
                 <h3 className={styles.photoGridItemOverlayContentText}>
-                  {DateTime.fromISO(photo.uploadedAt).toRelative()}
+                  <TextMorph>{uploadedRelativeTime || "Updating..."}</TextMorph>
                 </h3>
                 {type === "all" && (
                   <div className={styles.photoGridItemOverlayContentUser}>
                     {photo.memberId === event.myMembership?.memberId && (
                       <div
-                        className={styles.photoGridItemOverlayContentUserBadge}
+                        className={styles.photoGridItemOverlayContentUserText}
                       >
                         You
                       </div>
@@ -143,7 +165,11 @@ export default function PhotoGrid({
                             styles.photoGridItemOverlayContentUserImage
                           }
                         />
-                        {photo.member!.displayNameAlt}
+                        <div
+                          className={styles.photoGridItemOverlayContentUserText}
+                        >
+                          {photo.member!.displayNameAlt}
+                        </div>
                       </>
                     )}
                   </div>

@@ -35,6 +35,9 @@ export default async function Page({
               "eventId",
               "name",
               "description",
+              "icon",
+              "cover",
+              "banner",
               // "isDraft",
               // "isArchived",
               // {

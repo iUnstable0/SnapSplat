@@ -141,17 +141,36 @@ export default class mutation_event {
         return event;
       })
       .catch((error) => {
-        const refId = Bun.randomUUIDv7();
+        switch (error.code) {
+          case "P2002":
+            throw lib_error.bad_request(
+              "You are already a member of this event"
+            );
+          default:
+            const refId = Bun.randomUUIDv7();
 
-        console.error(
-          `${lib_logger.formatPrefix("mutation_event/joinEvent")} [${refId}] Failed to join event`,
-          error
-        );
+            console.error(
+              `${lib_logger.formatPrefix("mutation_event/joinEvent")} [${refId}] Failed to join event`,
+              error
+            );
 
-        throw lib_error.internal_server_error(
-          "Internal Server Error. refId: ${refId}",
-          `500 failed to join event: ${error}`
-        );
+            throw lib_error.internal_server_error(
+              "Internal Server Error. refId: ${refId}",
+              `500 failed to join event: ${error}`
+            );
+        }
+
+        // const refId = Bun.randomUUIDv7();
+
+        // console.error(
+        //   `${lib_logger.formatPrefix("mutation_event/joinEvent")} [${refId}] Failed to join event`,
+        //   error
+        // );
+
+        // throw lib_error.internal_server_error(
+        //   "Internal Server Error. refId: ${refId}",
+        //   `500 failed to join event: ${error}`
+        // );
       });
 
     // return await prisma.eventMembership
@@ -645,12 +664,12 @@ export default class mutation_event {
       );
     }
 
-    if ("isArchived" in data) {
-      throw lib_error.bad_request(
-        "Not implemented",
-        "isArchived is not implemented"
-      );
-    }
+    // if ("isArchived" in data) {
+    //   throw lib_error.bad_request(
+    //     "Not implemented",
+    //     "isArchived is not implemented"
+    //   );
+    // }
 
     const parseResult = Z_UpdateEvent.safeParse(data);
 

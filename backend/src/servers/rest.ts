@@ -57,17 +57,9 @@ export default class rest {
 
               const captchaToken = formData.get("captchaToken");
               const eventId = formData.get("eventId");
-              const unprocessedFiles: File[] = formData.getAll(
-                "files"
-              ) as File[];
-              const files: {
-                ext: string;
-                mime: string;
-                file: File;
-              }[] = [];
 
               if (!captchaToken) {
-                return ClientResponse.json(
+                return Response.json(
                   { success: false, error: "Captcha token is required" },
                   { status: 400 }
                 );
@@ -91,6 +83,10 @@ export default class rest {
                   { status: 400 }
                 );
               }
+
+              const unprocessedFiles: File[] = formData.getAll(
+                "files"
+              ) as File[];
 
               if (!unprocessedFiles || unprocessedFiles.length === 0) {
                 return Response.json(
@@ -138,6 +134,13 @@ export default class rest {
                 );
               }
 
+              const files: {
+                ext: string;
+                mime: string;
+                file: File;
+                hash: string;
+              }[] = [];
+
               let totalSize = 0;
 
               for (const file of unprocessedFiles) {
@@ -157,18 +160,30 @@ export default class rest {
                   );
                 }
 
+                const hash = crypto
+                  .createHash("sha256")
+                  .update(new Uint8Array(await file.arrayBuffer()))
+                  .digest("hex");
+
+                if (files.find((file) => file.hash === hash)) {
+                  console.log("duplicate file detected, skipping");
+
+                  continue;
+                }
+
                 totalSize += file.size;
 
                 files.push({
                   ext: fileType.ext,
                   mime: fileType.mime,
                   file: file,
+                  hash: hash,
                 });
               }
 
               if (totalSize > 100 * 1024 * 1024) {
                 return Response.json(
-                  { success: false, error: "File size too large" },
+                  { success: false, error: "Batch size too large" },
                   { status: 400 }
                 );
               }
@@ -187,6 +202,7 @@ export default class rest {
                   task.mime.startsWith("image/heif")
                 ) {
                   fileBuffer = await convert({
+                    // @ts-expect-error weird types
                     buffer: new Uint8Array(fileBuffer),
                     format: "JPEG",
                     quality: 1,
@@ -274,8 +290,8 @@ export default class rest {
         },
         {
           origin: "*",
-          methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-          headers: ["Content-Type", "Authorization"],
+          methods: "GET,POST,PUT,DELETE,OPTIONS",
+          headers: "Content-Type,Authorization",
         }
       ),
 

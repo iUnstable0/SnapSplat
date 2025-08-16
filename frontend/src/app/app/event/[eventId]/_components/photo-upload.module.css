@@ -1,0 +1,268 @@
+.galleryTitle {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.galleryTitleIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.galleryTitleText {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--sp-text-color);
+}
+
+.dropzone {
+  width: 100%;
+  height: 100vh;
+}
+
+.dropModalOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  backdrop-filter: blur(10px);
+
+  z-index: 2;
+
+  /* background: rgba(0, 0, 0, 0.1); */
+
+  /* background: red; */
+
+  /* Reduce padding to give more space for the image */
+  padding: 32px;
+  padding-right: 100px;
+  /* background: transparent; */
+}
+
+.dropModalOverlayImagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 6px;
+  justify-content: start;
+  align-items: start;
+
+  width: 100%;
+  height: 100%;
+
+  /* Remove background color */
+  /* background: red; */
+}
+
+.dropModalOverlayImageGridContainer {
+  width: 100%;
+
+  border-radius: 8px;
+  aspect-ratio: 1;
+
+  overflow: hidden;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 180px;
+  max-height: 180px;
+
+  position: relative;
+}
+
+.dropModalOverlayImageGridContainerInitial {
+  /* width: 100%; */
+
+  border-radius: 6px;
+  /* aspect-ratio: 1; */
+
+  overflow: hidden;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 90px;
+  margin-top: 48px;
+  margin-left: 52px;
+  /* max-height: 180px; */
+
+  /* position: relative; */
+
+  /* make other item ignore this item in grid */
+
+  position: absolute;
+  z-index: 1;
+}
+
+.dropModalOverlayImages {
+  position: relative;
+
+  border-radius: 24px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* background: red; */
+
+  /* WTF This is a hack to make the image fit the screen */
+  min-height: calc(100% - 100vh);
+}
+
+.dropModalOverlayImagesImage {
+  border-radius: 24px;
+
+  object-fit: contain;
+
+  max-height: 100%;
+  max-width: 100%;
+}
+
+.dropModalOverlayImageGridImage {
+  border-radius: 8px;
+
+  width: 180px;
+  height: 180px;
+
+  /* 
+  min-width: 180px;
+  min-height: 180px;
+
+  max-height: 180px;
+  max-width: 180px; */
+
+  object-fit: cover;
+}
+
+.dropModalOverlayImageGridImageInitial {
+  border-radius: 8px;
+
+  width: 100%;
+  height: 100%;
+
+  /* width: 180px;
+  height: 180px; */
+
+  /* 
+  min-width: 180px;
+  min-height: 180px;
+
+  max-height: 180px;
+  max-width: 180px; */
+
+  object-fit: contain;
+}
+
+.dropModalOverlayImagesBlur {
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 50%;
+
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 1));
+  border-radius: 24px;
+}
+
+.dropModalOverlayImagesTitle {
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+
+  padding-bottom: clamp(18px, 4vw, 32px);
+  padding-left: clamp(18px, 4vw, 32px);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+
+  gap: 8px;
+
+  /* background: red; */
+}
+
+.dropModalOverlayImagesTitleText {
+  font-size: clamp(18px, 4vw, 32px);
+  font-weight: 600;
+  color: var(--sp-text-color-dark);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+
+  word-break: break-word;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
+.dropModalOverlayImagesSize {
+  font-size: clamp(14px, 2vw, 16px);
+  color: var(--sp-text-color-dark);
+}
+
+.dropModalOverlayImagesFooter {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+
+  gap: 12px;
+
+  padding-right: clamp(18px, 4vw, 24px);
+  padding-top: clamp(18px, 4vw, 24px);
+
+  /* background: red; */
+}
+
+.dropModalOverlayImagesSizeDragText {
+  font-size: clamp(14px, 2vw, 16px);
+  color: var(--sp-secondary-text-color);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .dropModalOverlay {
+    padding-right: 32px;
+  }
+}
+
+.toolbarButton {
+  padding: 8px 16px;
+
+  border-radius: 100px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}

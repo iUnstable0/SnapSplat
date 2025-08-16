@@ -91,12 +91,12 @@ export default function Navbar() {
       href: "/app/me/archived",
       className: styles.menuNormalButton,
     },
-    {
-      label: "Recently Deleted",
-      icon: <Trash2 />,
-      href: "/app/me/trash",
-      className: styles.menuNormalButton,
-    },
+    // {
+    //   label: "Recently Deleted",
+    //   icon: <Trash2 />,
+    //   href: "/app/me/trash",
+    //   className: styles.menuNormalButton,
+    // },
     // {
     //   label: "Hosting",
     //   icon: <Crown />,
@@ -190,7 +190,7 @@ export default function Navbar() {
                   animate={{ opacity: 1, x: "0", scale: 1 }}
                   exit={{ opacity: 0, x: "0", scale: 0.95 }}
                   transition={{
-                    delay: showMenu ? index * 0.1 + 0.2 : 0,
+                    delay: showMenu ? index * 0.1 + 0.1 : 0,
                   }}
                   className={styles.menuButton}
                   onClick={() => {

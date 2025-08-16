@@ -1,13 +1,19 @@
 .toaster {
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(24px) !important;
 
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1) !important;
 
-  background-color: transparent;
+  background-color: transparent !important;
+
+  color: var(--sp-text-color) !important;
+
+  /* display: none; */
 }
 
 @media (prefers-color-scheme: dark) {
   .toaster {
-    box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.492);
+    box-shadow: 0 0 2px 0 rgba(255, 255, 255, 0.492) !important;
+
+    /* display: none; */
   }
 }

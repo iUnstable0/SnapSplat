@@ -17,6 +17,7 @@ export default function Spinner({
   dangerous,
   style,
   speedMultiplier = 1,
+  preload = true,
 }: {
   id: string;
   loading: boolean;
@@ -27,8 +28,13 @@ export default function Spinner({
   dangerous?: boolean;
   style?: React.CSSProperties;
   speedMultiplier?: number;
+  preload?: boolean;
 }) {
   // const isDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+
+  // if (id === "keybind-shift-enter") {
+  //   alert(`forcetheme: ${forcetheme} | id: ${id}`);
+  // }
 
   const getCSSVariable = (variable: string) => {
     if (typeof window === "undefined") {
@@ -40,27 +46,34 @@ export default function Spinner({
     );
   };
 
-  let color = getCSSVariable("--sp-text-color");
+  let color = dangerous
+    ? getCSSVariable("--sp-dangerous-color")
+    : getCSSVariable("--sp-text-color");
 
-  if (forcetheme) {
-    if (forcetheme === "light") {
-      if (dangerous) {
-        color = getCSSVariable("--sp-dangerous-color-light");
-      } else {
-        color = getCSSVariable("--sp-text-color-light");
-      }
-    } else if (forcetheme === "dark") {
-      if (dangerous) {
-        color = getCSSVariable("--sp-dangerous-color-dark");
-      } else {
-        color = getCSSVariable("--sp-text-color-dark");
-      }
+  // if (forcetheme) {
+  // console.log("forcetheme", forcetheme);
+  if (forcetheme === "light") {
+    if (dangerous) {
+      color = getCSSVariable("--sp-dangerous-color-light");
+    } else {
+      color = getCSSVariable("--sp-text-color-light");
+    }
+  } else if (forcetheme === "dark") {
+    if (dangerous) {
+      color = getCSSVariable("--sp-dangerous-color-dark");
+    } else {
+      color = getCSSVariable("--sp-text-color-dark");
     }
   }
+  // }
 
   if (forcecolor) {
     color = forcecolor;
   }
+
+  // console.log("precolor", color);
+  // console.log("forcecolor", forcecolor);
+  // console.log("color", color);
 
   const thickness = size / 5;
 
@@ -106,12 +119,19 @@ export default function Spinner({
     animation: `spinner-${id}-after ${2 / speedMultiplier}s infinite`,
   };
 
-  if (!loading) {
+  if (!loading && !preload) {
     return null;
   }
 
   return (
-    <span className={clsx(styles.spinner, className)} style={newClassName}>
+    <span
+      className={clsx(
+        styles.spinner,
+        className,
+        loading && styles.spinner_loading
+      )}
+      style={newClassName}
+    >
       <style>{animation}</style>
       <span className={styles.spinner_animation} style={spinnerBefore} />
       <span className={styles.spinner_animation} style={spinnerAfter} />
