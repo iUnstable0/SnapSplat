@@ -205,7 +205,7 @@ export default class rest {
                     // @ts-expect-error weird types
                     buffer: new Uint8Array(fileBuffer),
                     format: "JPEG",
-                    quality: 1,
+                    quality: 0.9,
                   });
                 }
 

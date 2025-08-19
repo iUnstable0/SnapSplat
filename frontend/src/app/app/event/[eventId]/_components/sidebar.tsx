@@ -40,11 +40,15 @@ import {
 } from "@/components/ui/ace_sidebar";
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
+
 import { useMediaQuery } from "@/components/useMediaQuery";
 import { useBlurContext } from "@/components/blur-context";
+
 import Spinner from "@/components/spinner";
-import Keybind, { KeybindButton, T_Keybind } from "@/components/keybind";
+import { KeybindButton, T_Keybind } from "@/components/keybind";
 import Confirmation from "@/components/confirmation";
+
+import PhotoUpload from "./photo-upload";
 
 import ManageEvent from "@/components/panels/manage-event";
 
@@ -377,121 +381,122 @@ export default function Sidebar({
   ];
 
   return (
-    <div
-      style={{
-        userSelect: "none",
-      }}
-    >
-      <AnimatePresence>
-        {deleteConfirmationOpen && (
-          <Confirmation
-            parentClassName={styles.sidebarConfirmationContainer}
-            title="Are you sure?"
-            description="You can't undo this action."
-            confirmText="Delete"
-            confirmLoadingText="Deleting..."
-            // confirmIcon={<Trash2 />}
-            // cancelIcon={<X />}
-            forcetheme="dark"
-            confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
-            onConfirm={async () => {
-              await deleteEvent("captchaDemo", event.eventId);
-
-              setDeleteConfirmationOpen(false);
-
-              setTimeout(() => {
-                // setDeleteConfirmationLoading(false);
-                setMenuItemsLoading((prev) => ({
-                  ...prev,
-                  delete: false,
-                }));
-
-                // setOverlayDisabled(false);
-                // setOverlayOpen(false);
-
-                // router.push("/app/me");
-                goBack();
-              }, 1000);
-            }}
-            onCancel={() => {
-              setDeleteConfirmationOpen(false);
-
-              setTimeout(() => {
-                // setOverlayLoading(false);
-                setMenuItemsLoading((prev) => ({
-                  ...prev,
-                  delete: false,
-                }));
-
-                setOverlayDisabled(false);
-              }, 1000);
-            }}
-            dim={true}
-            confirmationLoading={deleteConfirmationLoading}
-            setConfirmationLoading={setDeleteConfirmationLoading}
-            dangerous={true}
-          />
-        )}
-
-        {archiveConfirmationOpen && (
-          <Confirmation
-            parentClassName={styles.sidebarConfirmationContainer}
-            title="Are you sure?"
-            description="You can't undo this action."
-            confirmText="Archive"
-            confirmLoadingText="Archiving..."
-            // confirmIcon={<Trash2 />}
-            // cancelIcon={<X />}
-            forcetheme="dark"
-            confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
-            onConfirm={async () => {
-              await archiveEvent("captchaDemo", event.eventId);
-
-              setArchiveConfirmationOpen(false);
-
-              setTimeout(() => {
-                // setDeleteConfirmationLoading(false);
-                setMenuItemsLoading((prev) => ({
-                  ...prev,
-                  archive: false,
-                }));
-
-                // setOverlayDisabled(false);
-                // setOverlayOpen(false);
-
-                // router.push("/app/me");
-                goBack();
-              }, 1000);
-            }}
-            onCancel={() => {
-              setArchiveConfirmationOpen(false);
-
-              setTimeout(() => {
-                // setOverlayLoading(false);
-                setMenuItemsLoading((prev) => ({
-                  ...prev,
-                  archive: false,
-                }));
-
-                setOverlayDisabled(false);
-              }, 1000);
-            }}
-            dim={true}
-            confirmationLoading={archiveConfirmationLoading}
-            setConfirmationLoading={setArchiveConfirmationLoading}
-            dangerous={true}
-          />
-        )}
-      </AnimatePresence>
-
-      <Ace_Sidebar
-        open={open}
-        setOpen={setOpen}
-        eventMenuOpen={eventMenuOpen}
-        setEventMenuOpen={setEventMenuOpen}
+    <PhotoUpload event={event}>
+      <div
+        style={{
+          userSelect: "none",
+        }}
       >
-        <SidebarBody>
-          {/* <motion.div
+        <AnimatePresence>
+          {deleteConfirmationOpen && (
+            <Confirmation
+              parentClassName={styles.sidebarConfirmationContainer}
+              title="Are you sure?"
+              description="You can't undo this action."
+              confirmText="Delete"
+              confirmLoadingText="Deleting..."
+              // confirmIcon={<Trash2 />}
+              // cancelIcon={<X />}
+              forcetheme="dark"
+              confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
+              onConfirm={async () => {
+                await deleteEvent("captchaDemo", event.eventId);
+
+                setDeleteConfirmationOpen(false);
+
+                setTimeout(() => {
+                  // setDeleteConfirmationLoading(false);
+                  setMenuItemsLoading((prev) => ({
+                    ...prev,
+                    delete: false,
+                  }));
+
+                  // setOverlayDisabled(false);
+                  // setOverlayOpen(false);
+
+                  // router.push("/app/me");
+                  goBack();
+                }, 1000);
+              }}
+              onCancel={() => {
+                setDeleteConfirmationOpen(false);
+
+                setTimeout(() => {
+                  // setOverlayLoading(false);
+                  setMenuItemsLoading((prev) => ({
+                    ...prev,
+                    delete: false,
+                  }));
+
+                  setOverlayDisabled(false);
+                }, 1000);
+              }}
+              dim={true}
+              confirmationLoading={deleteConfirmationLoading}
+              setConfirmationLoading={setDeleteConfirmationLoading}
+              dangerous={true}
+            />
+          )}
+
+          {archiveConfirmationOpen && (
+            <Confirmation
+              parentClassName={styles.sidebarConfirmationContainer}
+              title="Are you sure?"
+              description="You can't undo this action."
+              confirmText="Archive"
+              confirmLoadingText="Archiving..."
+              // confirmIcon={<Trash2 />}
+              // cancelIcon={<X />}
+              forcetheme="dark"
+              confirmKeybinds={[T_Keybind.shift, T_Keybind.enter]}
+              onConfirm={async () => {
+                await archiveEvent("captchaDemo", event.eventId);
+
+                setArchiveConfirmationOpen(false);
+
+                setTimeout(() => {
+                  // setDeleteConfirmationLoading(false);
+                  setMenuItemsLoading((prev) => ({
+                    ...prev,
+                    archive: false,
+                  }));
+
+                  // setOverlayDisabled(false);
+                  // setOverlayOpen(false);
+
+                  // router.push("/app/me");
+                  goBack();
+                }, 1000);
+              }}
+              onCancel={() => {
+                setArchiveConfirmationOpen(false);
+
+                setTimeout(() => {
+                  // setOverlayLoading(false);
+                  setMenuItemsLoading((prev) => ({
+                    ...prev,
+                    archive: false,
+                  }));
+
+                  setOverlayDisabled(false);
+                }, 1000);
+              }}
+              dim={true}
+              confirmationLoading={archiveConfirmationLoading}
+              setConfirmationLoading={setArchiveConfirmationLoading}
+              dangerous={true}
+            />
+          )}
+        </AnimatePresence>
+
+        <Ace_Sidebar
+          open={open}
+          setOpen={setOpen}
+          eventMenuOpen={eventMenuOpen}
+          setEventMenuOpen={setEventMenuOpen}
+        >
+          <SidebarBody>
+            {/* <motion.div
             className={styles.sidebarOverlayCover}
             initial={{
               width: "70px",
@@ -510,98 +515,86 @@ export default function Sidebar({
             }}
           /> */}
 
-          <motion.div
-            className={styles.sidebarOverlay}
-            onClick={() => setEventMenuOpen(false)}
-            initial={{
-              width: isMobile ? "100%" : "70px",
-              y: eventMenuOpen ? "-100%" : "0",
-              backdropFilter: isMobile ? "blur(0px)" : "blur(0px)",
-            }}
-            animate={{
-              // Size of sidebar body
-              // 60px + 10px (invisible content border)
-              ...(!isMobile && {
-                width: open ? "300px" : "70px",
-                backdropFilter: eventMenuOpen ? "blur(12px)" : "blur(0px)",
-              }),
+            <motion.div
+              className={styles.sidebarOverlay}
+              onClick={() => setEventMenuOpen(false)}
+              initial={{
+                width: isMobile ? "100%" : "70px",
+                y: eventMenuOpen ? "-100%" : "0",
+                backdropFilter: isMobile ? "blur(0px)" : "blur(0px)",
+              }}
+              animate={{
+                // Size of sidebar body
+                // 60px + 10px (invisible content border)
+                ...(!isMobile && {
+                  width: open ? "300px" : "70px",
+                  backdropFilter: eventMenuOpen ? "blur(12px)" : "blur(0px)",
+                }),
 
-              opacity: isMobile ? 0 : eventMenuOpen ? 1 : 0,
+                opacity: isMobile ? 0 : eventMenuOpen ? 1 : 0,
 
-              y: eventMenuOpen ? "0" : "-100%",
-            }}
-            transition={{
-              // duration: 0.2,
-              // ease: "easeInOut",
+                y: eventMenuOpen ? "0" : "-100%",
+              }}
+              transition={{
+                // duration: 0.2,
+                // ease: "easeInOut",
 
-              type: "spring",
-              stiffness: 210,
-              // neat little trick
-              damping: open ? 20 : 30,
-              mass: 1,
-              restDelta: 0.01,
-              restSpeed: 10,
-            }}
-          />
+                type: "spring",
+                stiffness: 210,
+                // neat little trick
+                damping: open ? 20 : 30,
+                mass: 1,
+                restDelta: 0.01,
+                restSpeed: 10,
+              }}
+            />
 
-          <div className={styles.sidebarOverlayContent}>
-            <AnimatePresence>
-              {eventMenuOpen &&
-                eventMenuItems.map((item, index) => (
-                  <motion.div
-                    key={`item_${item.label}_${index}`}
-                    initial={{ opacity: 0, x: "0", scale: 0.95 }}
-                    animate={{ opacity: 1, x: "0", scale: 1 }}
-                    exit={{ opacity: 0, x: "0", scale: 0.95 }}
-                    transition={{
-                      delay: isMobile
-                        ? index * 0.07 + 0.2
-                        : showMenu
+            <div className={styles.sidebarOverlayContent}>
+              <AnimatePresence>
+                {eventMenuOpen &&
+                  eventMenuItems.map((item, index) => (
+                    <motion.div
+                      key={`item_${item.label}_${index}`}
+                      initial={{ opacity: 0, x: "0", scale: 0.95 }}
+                      animate={{ opacity: 1, x: "0", scale: 1 }}
+                      exit={{ opacity: 0, x: "0", scale: 0.95 }}
+                      transition={{
+                        delay: isMobile
                           ? index * 0.07 + 0.2
-                          : 0,
-                    }}
-                    onClick={() => {
-                      if (overlayDisabled) {
-                        return;
-                      }
+                          : showMenu
+                            ? index * 0.07 + 0.2
+                            : 0,
+                      }}
+                      onClick={() => {
+                        if (overlayDisabled) {
+                          return;
+                        }
 
-                      item.onClick();
-                    }}
-                  >
-                    <Magnetic
-                      intensity={0.1}
-                      springOptions={{ bounce: 0.1 }}
-                      actionArea="global"
-                      className={clsx(
-                        styles.sidebarOverlayMagnet,
-                        item.dangerous && styles.sidebarOverlayMagnetDangerous,
-                        overlayDisabled && styles.sidebarOverlayMagnetDisabled
-                        // activeEventMenuItem === item.label &&
-                        //   styles.sidebarOverlayMagnet_active,
-                        // activeEventMenuItem !== item.label &&
-                        //   styles.sidebarOverlayMagnet_free
-                      )}
-                      range={175}
+                        item.onClick();
+                      }}
                     >
-                      {/* <div className={styles.sidebarOverlayButtonIcon}>
+                      <Magnetic
+                        intensity={0.1}
+                        springOptions={{ bounce: 0.1 }}
+                        actionArea="global"
+                        className={clsx(
+                          styles.sidebarOverlayMagnet,
+                          item.dangerous &&
+                            styles.sidebarOverlayMagnetDangerous,
+                          overlayDisabled && styles.sidebarOverlayMagnetDisabled
+                          // activeEventMenuItem === item.label &&
+                          //   styles.sidebarOverlayMagnet_active,
+                          // activeEventMenuItem !== item.label &&
+                          //   styles.sidebarOverlayMagnet_free
+                        )}
+                        range={175}
+                      >
+                        {/* <div className={styles.sidebarOverlayButtonIcon}>
                         {item.icon}
                       </div> */}
 
-                      <AnimatePresence mode="popLayout">
-                        {!item.loadingText && (
-                          <motion.div
-                            className={styles.sidebarOverlayButtonIcon}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                          >
-                            {item.icon}
-                          </motion.div>
-                        )}
-
-                        {item.loadingText &&
-                          !menuItemsLoading[item.loadingId ?? ""] && (
+                        <AnimatePresence mode="popLayout">
+                          {!item.loadingText && (
                             <motion.div
                               className={styles.sidebarOverlayButtonIcon}
                               initial={{ opacity: 0 }}
@@ -612,189 +605,203 @@ export default function Sidebar({
                               {item.icon}
                             </motion.div>
                           )}
-                      </AnimatePresence>
 
-                      {item.loadingText &&
-                        typeof menuItemsLoading[item.loadingId ?? ""] ===
-                          "boolean" && (
-                          <Spinner
-                            id={`keybind-${item.loadingId ?? ""}`}
-                            loading={menuItemsLoading[item.loadingId ?? ""]}
-                            size={24}
-                            preload={false}
-                            dangerous={item.dangerous}
-                          />
-                        )}
+                          {item.loadingText &&
+                            !menuItemsLoading[item.loadingId ?? ""] && (
+                              <motion.div
+                                className={styles.sidebarOverlayButtonIcon}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {item.icon}
+                              </motion.div>
+                            )}
+                        </AnimatePresence>
 
-                      <span className={styles.sidebarOverlayButtonText}>
-                        {item.label}
-                      </span>
-                    </Magnetic>
-                  </motion.div>
-                ))}
-            </AnimatePresence>
-          </div>
-          <div className={styles.sidebarContent}>
-            <a
-              href="#"
-              className={styles.logoLink}
-              onClick={() => setEventMenuOpen(!eventMenuOpen)}
-            >
-              <Image
-                src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                  event.name
-                )}`}
-                alt="SnapSplat"
-                width={24}
-                height={24}
-                className={styles.logoImage}
-              />
+                        {item.loadingText &&
+                          typeof menuItemsLoading[item.loadingId ?? ""] ===
+                            "boolean" && (
+                            <Spinner
+                              id={`keybind-${item.loadingId ?? ""}`}
+                              loading={menuItemsLoading[item.loadingId ?? ""]}
+                              size={24}
+                              preload={false}
+                              dangerous={item.dangerous}
+                            />
+                          )}
 
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: open ? 1 : 0 }}
-                className={styles.logoText}
+                        <span className={styles.sidebarOverlayButtonText}>
+                          {item.label}
+                        </span>
+                      </Magnetic>
+                    </motion.div>
+                  ))}
+              </AnimatePresence>
+            </div>
+            <div className={styles.sidebarContent}>
+              <a
+                href="#"
+                className={styles.logoLink}
+                onClick={() => setEventMenuOpen(!eventMenuOpen)}
               >
-                {event.name}
-              </motion.span>
-            </a>
+                <Image
+                  src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
+                    event.name
+                  )}`}
+                  alt="SnapSplat"
+                  width={24}
+                  height={24}
+                  className={styles.logoImage}
+                />
 
-            {isMobile && (
-              <div className={styles.linksContainerMobile}>
-                <AnimatePresence>
-                  {showMobileMenu &&
-                    sidebarItems.map((item, index) => (
-                      <motion.div
-                        key={`item_${item.label}_${index}`}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                          delay: index * 0.05,
-                        }}
-                      >
-                        <SidebarLink
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: open ? 1 : 0 }}
+                  className={styles.logoText}
+                >
+                  {event.name}
+                </motion.span>
+              </a>
+
+              {isMobile && (
+                <div className={styles.linksContainerMobile}>
+                  <AnimatePresence>
+                    {showMobileMenu &&
+                      sidebarItems.map((item, index) => (
+                        <motion.div
                           key={`item_${item.label}_${index}`}
-                          link={item}
-                        />
-                      </motion.div>
-                    ))}
-                </AnimatePresence>
-              </div>
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            delay: index * 0.05,
+                          }}
+                        >
+                          <SidebarLink
+                            key={`item_${item.label}_${index}`}
+                            link={item}
+                          />
+                        </motion.div>
+                      ))}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {!isMobile && (
+                <div className={styles.linksContainer}>
+                  {sidebarItems.map((item, index) => (
+                    <SidebarLink
+                      key={`item_${item.label}_${index}`}
+                      link={item}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+            <div>
+              <div
+                className={styles.sidebarSeperator}
+                style={{
+                  right: open ? "0" : "-5px",
+                }}
+              />
+              <SidebarLink
+                className={styles.avatarLink}
+                link={{
+                  label: event.myMembership.displayNameAlt,
+                  href: "#",
+                  avatar: true,
+                  icon: (
+                    <img
+                      src={event.myMembership.avatarAlt}
+                      className={styles.avatarImage}
+                      // width={50}
+                      // height={50}
+                      alt="Avatar"
+                    />
+                  ),
+                }}
+              />
+            </div>
+          </SidebarBody>
+        </Ace_Sidebar>
+
+        <motion.div
+          className={styles.mainContent}
+          // className={cn(styles.mainContent, "")}
+          animate={{
+            marginLeft: open ? "300px" : "60px",
+            // media tag
+            // backgroundColor: open ? "red" : "blue",
+          }}
+          transition={{
+            // different type for open and close
+            type: "spring",
+            stiffness: 210,
+            // neat little trick
+            damping: open ? 20 : 30,
+            mass: 1,
+            restDelta: 0.01,
+            restSpeed: 10,
+          }}
+        >
+          <AnimatePresence>
+            {showSpinner && (
+              <motion.div
+                key={"sidebarspinner"}
+                initial={{ opacity: 0, scale: 0.99 }}
+                // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.99 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 210,
+                  damping: 20,
+                  opacity: {
+                    duration: 0.2,
+                  },
+                }}
+                className={styles.galleryTitle}
+              >
+                <Spinner id="rendersidebarspin" loading={true} size={32} />
+              </motion.div>
             )}
 
-            {!isMobile && (
-              <div className={styles.linksContainer}>
-                {sidebarItems.map((item, index) => (
-                  <SidebarLink
-                    key={`item_${item.label}_${index}`}
-                    link={item}
-                  />
-                ))}
-              </div>
+            {renderChildren && (
+              <motion.div
+                key={"sidebarpage"}
+                initial={{ opacity: 0, scale: 0.99 }}
+                // TODO: Point
+                // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.99 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 210,
+                  damping: 20,
+                  opacity: {
+                    duration: 0.2,
+                  },
+                }}
+                className={styles.mainContentChildren}
+              >
+                {children}
+              </motion.div>
             )}
-          </div>
-          <div>
-            <div
-              className={styles.sidebarSeperator}
-              style={{
-                right: open ? "0" : "-5px",
-              }}
-            />
-            <SidebarLink
-              className={styles.avatarLink}
-              link={{
-                label: event.myMembership.displayNameAlt,
-                href: "#",
-                avatar: true,
-                icon: (
-                  <img
-                    src={event.myMembership.avatarAlt}
-                    className={styles.avatarImage}
-                    // width={50}
-                    // height={50}
-                    alt="Avatar"
-                  />
-                ),
-              }}
-            />
-          </div>
-        </SidebarBody>
-      </Ace_Sidebar>
-
-      <motion.div
-        className={styles.mainContent}
-        // className={cn(styles.mainContent, "")}
-        animate={{
-          marginLeft: open ? "300px" : "60px",
-          // media tag
-          // backgroundColor: open ? "red" : "blue",
-        }}
-        transition={{
-          // different type for open and close
-          type: "spring",
-          stiffness: 210,
-          // neat little trick
-          damping: open ? 20 : 30,
-          mass: 1,
-          restDelta: 0.01,
-          restSpeed: 10,
-        }}
-      >
+          </AnimatePresence>
+        </motion.div>
         <AnimatePresence>
-          {showSpinner && (
-            <motion.div
-              key={"sidebarspinner"}
-              initial={{ opacity: 0, scale: 0.99 }}
-              // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.99 }}
-              transition={{
-                type: "spring",
-                stiffness: 210,
-                damping: 20,
-                opacity: {
-                  duration: 0.2,
-                },
-              }}
-              className={styles.galleryTitle}
-            >
-              <Spinner id="rendersidebarspin" loading={true} size={32} />
-            </motion.div>
-          )}
-
-          {renderChildren && (
-            <motion.div
-              key={"sidebarpage"}
-              initial={{ opacity: 0, scale: 0.99 }}
-              // TODO: Point
-              // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.99 }}
-              transition={{
-                type: "spring",
-                stiffness: 210,
-                damping: 20,
-                opacity: {
-                  duration: 0.2,
-                },
-              }}
-              className={styles.mainContentChildren}
-            >
-              {children}
-            </motion.div>
+          {manageEventVisible && (
+            <ManageEvent
+              event={event}
+              setManageEventVisible={setManageEventVisible}
+            />
           )}
         </AnimatePresence>
-      </motion.div>
-      <AnimatePresence>
-        {manageEventVisible && (
-          <ManageEvent
-            event={event}
-            setManageEventVisible={setManageEventVisible}
-          />
-        )}
-      </AnimatePresence>
-      {/* <Dashboard /> */}
-    </div>
+        {/* <Dashboard /> */}
+      </div>
+    </PhotoUpload>
   );
 }

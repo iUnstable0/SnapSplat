@@ -28,6 +28,11 @@
 .dropzone {
   width: 100%;
   height: 100vh;
+  user-select: none;
+
+  /* z-index: inherit; */
+
+  /* background: red; */
 }
 
 .dropModalOverlay {
@@ -45,7 +50,7 @@
 
   backdrop-filter: blur(10px);
 
-  z-index: 2;
+  z-index: 102;
 
   /* background: rgba(0, 0, 0, 0.1); */
 
@@ -53,22 +58,69 @@
 
   /* Reduce padding to give more space for the image */
   padding: 32px;
-  padding-right: 100px;
+  /* padding-right: 100px; */
   /* background: transparent; */
 }
 
 .dropModalOverlayImagesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(162px, 1fr));
   gap: 6px;
   justify-content: start;
   align-items: start;
+  align-content: start;
 
   width: 100%;
   height: 100%;
 
+  padding: calc(14vh + 12px + 72px) calc(14vw + 12px);
+
+  /* overflow: auto !important; */
+  /* padding-right: 116px; */
+
   /* Remove background color */
   /* background: red; */
+}
+
+.dropModalOverlayImagesGridOverlay {
+  pointer-events: none;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 14vh 14vw;
+}
+
+.dropModalOverlayImagesGridOverlayCtn {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  /* background: blue; */
+
+  background-color: var(--sp-background-color);
+
+  border-radius: 24px;
+}
+
+.dropModalOverlayImagesGridOverlayBlur {
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 50%;
+
+  background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.2));
+  border-end-start-radius: 24px;
+  border-end-end-radius: 24px;
 }
 
 .dropModalOverlayImageGridContainer {
@@ -84,10 +136,62 @@
   align-items: center;
   justify-content: center;
 
-  max-width: 180px;
-  max-height: 180px;
+  max-width: 210px;
+  max-height: 210px;
+
+  z-index: 103;
+  /* display: none; */
 
   position: relative;
+}
+
+.dropModalOverlayImageDelete {
+  cursor: pointer;
+}
+
+.dropModalOverlayImageGridContainer:disabled {
+  cursor: default;
+
+  .dropModalOverlayImageDelete {
+    cursor: default;
+  }
+}
+
+.dropModalOverlayImageGridContainer:hover:not(:disabled) {
+  .dropModalOverlayImageDelete {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dropModalOverlayImageDelete {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 24px;
+  height: 24px;
+
+  border-radius: 100%;
+
+  padding: 2px;
+  margin: 4px;
+
+  background: rgba(255, 40, 40, 0.725);
+
+  backdrop-filter: blur(10px);
+
+  opacity: 0;
+  transition:
+    opacity 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
+
+  transform: scale(0.9);
+}
+
+.dropModalOverlayImageDeleteIcon {
+  width: 100%;
+  height: 100%;
 }
 
 .dropModalOverlayImageGridContainerInitial {
@@ -103,9 +207,12 @@
   align-items: center;
   justify-content: center;
 
-  max-width: 90px;
-  margin-top: 48px;
-  margin-left: 52px;
+  max-width: 105px;
+  /* margin-top: 48px;
+  margin-left: 52px; */
+
+  margin-top: calc(14vh + 12px + 26px);
+  margin-left: calc(14vw + 12px + 26px);
   /* max-height: 180px; */
 
   /* position: relative; */
@@ -138,13 +245,20 @@
 
   max-height: 100%;
   max-width: 100%;
+  /* height: 100%;
+  width: 100%; */
 }
 
 .dropModalOverlayImageGridImage {
   border-radius: 8px;
 
-  width: 180px;
-  height: 180px;
+  /* width: 180px;
+  height: 180px; */
+
+  width: 100%;
+  height: 100%;
+
+  /* background: red; */
 
   /* 
   min-width: 180px;
@@ -186,7 +300,8 @@
   height: 50%;
 
   background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 1));
-  border-radius: 24px;
+  border-end-start-radius: 24px;
+  border-end-end-radius: 24px;
 }
 
 .dropModalOverlayImagesTitle {
@@ -212,6 +327,11 @@
 }
 
 .dropModalOverlayImagesTitleText {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(4px, 1vw, 8px);
+
   font-size: clamp(18px, 4vw, 32px);
   font-weight: 600;
   color: var(--sp-text-color-dark);
@@ -225,9 +345,23 @@
 .dropModalOverlayImagesSize {
   font-size: clamp(14px, 2vw, 16px);
   color: var(--sp-text-color-dark);
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.dropModalOverlayImagesSizeText {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
 }
 
 .dropModalOverlayImagesFooter {
+  pointer-events: auto;
+
   position: absolute;
   top: 0;
   left: 0;
@@ -235,9 +369,9 @@
   width: 100%;
 
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: flex-end;
-  align-items: flex-end;
+  align-items: center;
 
   gap: 12px;
 
@@ -255,7 +389,7 @@
 
 @media (max-width: 768px) {
   .dropModalOverlay {
-    padding-right: 32px;
+    padding-right: 72px;
   }
 }
 
