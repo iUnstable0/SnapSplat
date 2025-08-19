@@ -8,21 +8,22 @@ import { useRouter } from "next/navigation";
 // import convert from "heic-convert/browser";
 // import axios from "axios";
 
-// import { Images, ImageUp, X } from "lucide-react";
+import { Images, ImageUp, X } from "lucide-react";
 
-// import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 // import getToken from "@/actions/auth/getToken";
 
 // import Spinner from "@/components/spinner";
 // import Toaster from "@/components/toaster";
 
+import PhotoPreview from "../../_components/photo-preview";
 import PhotoGrid from "../../_components/photo-grid";
-import PhotoUpload from "../../_components/photo-upload";
+// import PhotoUpload from "../../_components/photo-upload";
 
 import type { T_Event, T_EventPhoto, T_EventMembership } from "@/gql/types";
 
-// import styles from "./my-photo.module.css";
+import styles from "./my-photo.module.css";
 
 // import { toast } from "react-hot-toast";
 
@@ -189,11 +190,31 @@ export default function MyPhoto({ event }: { event: T_EventData }) {
   // };
 
   return (
-    <PhotoUpload
-      event={event}
-      selectedPhoto={selectedPhoto}
-      setSelectedPhoto={setSelectedPhoto}
-    >
+    // <PhotoUpload
+    //   event={event}
+    //   selectedPhoto={selectedPhoto}
+    //   setSelectedPhoto={setSelectedPhoto}
+    // >
+    <>
+      <AnimatePresence>
+        {selectedPhoto && (
+          <PhotoPreview
+            photo={selectedPhoto}
+            setSelectedPhoto={setSelectedPhoto}
+            ownsPhoto={selectedPhoto.memberId === event.myMembership?.memberId}
+          />
+        )}
+      </AnimatePresence>
+
+      {event.photos.length === 0 && (
+        <div className={styles.galleryTitle}>
+          <Images className={styles.galleryTitleIcon} />
+          <span className={styles.galleryTitleText}>
+            Drag and drop files here to upload
+          </span>
+        </div>
+      )}
+
       <PhotoGrid
         event={event}
         type="my"
@@ -201,7 +222,7 @@ export default function MyPhoto({ event }: { event: T_EventData }) {
           setSelectedPhoto(photo);
         }}
       />
-    </PhotoUpload>
+    </>
 
     // <div {...getRootProps()} className={styles.dropzone}>
     //   <Toaster />

@@ -3,11 +3,16 @@
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 
+import { Images, ImageUp, X } from "lucide-react";
+
 import PhotoGrid from "../../_components/photo-grid";
 import PhotoPreview from "../../_components/photo-preview";
 
 import type { T_Event, T_EventPhoto, T_EventMembership } from "@/gql/types";
-import PhotoUpload from "../../_components/photo-upload";
+
+import styles from "./gallery.module.css";
+
+// import PhotoUpload from "../../_components/photo-upload";
 
 type T_EventData = T_Event & {
   photos: T_EventPhoto[] & {
@@ -38,11 +43,31 @@ export default function Gallery({ event }: { event: T_EventData }) {
     //   />
     // </div>
 
-    <PhotoUpload
+    <>
+      <AnimatePresence>
+        {selectedPhoto && (
+          <PhotoPreview
+            photo={selectedPhoto}
+            setSelectedPhoto={setSelectedPhoto}
+            ownsPhoto={selectedPhoto.memberId === event.myMembership?.memberId}
+          />
+        )}
+      </AnimatePresence>
+
+      {event.photos.length === 0 && (
+        <div className={styles.galleryTitle}>
+          <Images className={styles.galleryTitleIcon} />
+          <span className={styles.galleryTitleText}>
+            Drag and drop files here to upload
+          </span>
+        </div>
+      )}
+
+      {/* <PhotoUpload
       event={event}
       selectedPhoto={selectedPhoto}
       setSelectedPhoto={setSelectedPhoto}
-    >
+    > */}
       <PhotoGrid
         event={event}
         type="all"
@@ -50,6 +75,7 @@ export default function Gallery({ event }: { event: T_EventData }) {
           setSelectedPhoto(photo);
         }}
       />
-    </PhotoUpload>
+      {/* </PhotoUpload> */}
+    </>
   );
 }
