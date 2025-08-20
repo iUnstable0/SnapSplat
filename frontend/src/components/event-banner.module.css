@@ -18,6 +18,8 @@
   left: 0;
 
   background-color: var(--sp-skeleton-color);
+
+  /* z-index: 1; */
 }
 
 .eventBannerImageContainer {
@@ -112,6 +114,9 @@
 .eventIconImage {
   width: 100%;
   height: 100%;
+
+  object-fit: cover;
+  object-position: center;
 }
 
 .eventTitleContainer {
@@ -204,11 +209,24 @@
   transition: scale 0.2s ease-in-out;
 }
 
+.eventIconEditIconText {
+  font-size: 20px;
+
+  color: var(--sp-text-color-dark);
+}
+
 .eventIconEditIcon {
   width: 32px;
   height: 32px;
 
-  transition: filter 0.2s ease-in-out;
+  transition:
+    filter 0.2s ease-in-out,
+    scale 0.2s ease-in-out;
+}
+
+.eventIconEditIconDragging {
+  scale: 1.2;
+  filter: drop-shadow(0 0 10px rgb(201, 200, 200));
 }
 
 .invalid {

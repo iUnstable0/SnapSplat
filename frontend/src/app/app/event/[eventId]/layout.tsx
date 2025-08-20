@@ -52,6 +52,9 @@ export default async function Page({
               "description",
               "isDraft",
               "isArchived",
+              "icon",
+              "cover",
+              "banner",
               {
                 memberships: [
                   "memberId",

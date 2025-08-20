@@ -381,7 +381,7 @@ export default function Sidebar({
   ];
 
   return (
-    <PhotoUpload event={event}>
+    <PhotoUpload event={event} disabled={manageEventVisible}>
       <div
         style={{
           userSelect: "none",

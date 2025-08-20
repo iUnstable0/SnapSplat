@@ -6,34 +6,38 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 import { useDropzone } from "react-dropzone";
-import { toast } from "react-hot-toast";
-import convert from "heic-convert/browser";
+
+import toast from "react-hot-toast";
+// import convert from "heic-convert/browser";
 import axios from "axios";
+import clsx from "clsx";
 
-import { Images, ImageUp, X } from "lucide-react";
-
+import { Images, ImageUp, Upload, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+
+import { processFile } from "@/lib/utils";
 
 import getToken from "@/actions/auth/getToken";
 
-import Spinner from "@/components/spinner";
-import Toaster from "@/components/toaster";
 import { KeybindButton, T_Keybind } from "@/components/keybind";
 
 import { useBlurContext } from "@/components/blur-context";
 
 import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 import { TextShimmer } from "@/components/ui/mp_text-shimmer";
+// import { TextMorph } from "@/components/ui/mp_text-morph";
+// import { TextShimmerWave } from "@/components/ui/mp_text-shimmer-wave";
+import { SlidingNumber } from "@/components/ui/mp_sliding-number";
+
+import Spinner from "@/components/spinner";
+import Toaster from "@/components/toaster";
 
 import PhotoPreview from "./photo-preview";
 
 import type { T_Event, T_EventMembership, T_EventPhoto } from "@/gql/types";
 
 import styles from "./photo-upload.module.css";
-import clsx from "clsx";
-import { TextShimmerWave } from "@/components/ui/mp_text-shimmer-wave";
-import { TextMorph } from "@/components/ui/mp_text-morph";
-import { SlidingNumber } from "@/components/ui/mp_sliding-number";
+import { Skeleton } from "@/components/ui/scn_skeleton";
 
 type T_EventData = T_Event;
 
@@ -102,9 +106,11 @@ const hashFile = async (file: File): Promise<string> => {
 export default function PhotoUpload({
   event,
   children,
+  disabled,
 }: {
   event: T_EventData;
   children?: React.ReactNode;
+  disabled?: boolean;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -115,9 +121,12 @@ export default function PhotoUpload({
 
   const [pendingFiles, setPendingFiles] = useState<T_PendingFile[]>([]);
   // const [heicLoading, setHeicLoading] = useState(false);
+  const [dropDisabled, setDropDisabled] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
   const [firstDrop, setFirstDrop] = useState(true);
-
+  const [fileLoadStatus, setFileLoadStatus] = useState<Record<string, boolean>>(
+    {}
+  );
   const [uploading, setUploading] = useState(false);
 
   const [error, setError] = useState<string | null>(null);
@@ -144,7 +153,16 @@ export default function PhotoUpload({
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // setHeicLoading(false);
+      if (disabled) {
+        return;
+      }
+
+      if (dropDisabled) {
+        return;
+      }
+
+      setDropDisabled(true);
+
       setLoading(
         acceptedFiles.length > 1
           ? `Processing ${acceptedFiles.length} files...`
@@ -184,6 +202,7 @@ export default function PhotoUpload({
             toast.error("Total batch size cannot exceed 50MB.", {
               id: "total-batch-size-exceeded",
             });
+
             // setLoading(null);
             // return;
             continue;
@@ -191,53 +210,69 @@ export default function PhotoUpload({
 
           console.log(file);
 
-          let processedFile = file;
-          let previewUrl: string;
+          // let processedFile = file;
+          // let previewUrl: string;
 
-          if (
-            file.type === "image/heic" ||
-            file.name.toLowerCase().endsWith(".heic") ||
-            file.type === "image/heif" ||
-            file.name.toLowerCase().endsWith(".heif")
-          ) {
-            // setHeicLoading(true);
+          // if (
+          //   file.type === "image/heic" ||
+          //   file.name.toLowerCase().endsWith(".heic") ||
+          //   file.type === "image/heif" ||
+          //   file.name.toLowerCase().endsWith(".heif")
+          // ) {
+          //   // setHeicLoading(true);
 
-            try {
-              const arrayBuffer = (await file.arrayBuffer()) as ArrayBuffer;
+          //   try {
+          //     const arrayBuffer = (await file.arrayBuffer()) as ArrayBuffer;
 
-              const outputBuffer = await convert({
-                // @ts-expect-error weird types
-                buffer: new Uint8Array(arrayBuffer),
-                format: "JPEG",
-                quality: 0.9,
-              });
+          //     const outputBuffer = await convert({
+          //       // @ts-expect-error weird types
+          //       buffer: new Uint8Array(arrayBuffer),
+          //       format: "JPEG",
+          //       quality: 0.9,
+          //     });
 
-              const blob = new Blob([outputBuffer], { type: "image/jpeg" });
-              previewUrl = URL.createObjectURL(blob);
+          //     const blob = new Blob([outputBuffer], { type: "image/jpeg" });
+          //     previewUrl = URL.createObjectURL(blob);
 
-              processedFile = new File(
-                [blob],
-                file.name.replace(/\.(heic|heif)$/i, ".jpg"),
-                {
-                  type: "image/jpeg",
-                  lastModified: file.lastModified,
-                }
-              );
-            } catch (error) {
-              console.error(error);
+          //     processedFile = new File(
+          //       [blob],
+          //       file.name.replace(/\.(heic|heif)$/i, ".jpg"),
+          //       {
+          //         type: "image/jpeg",
+          //         lastModified: file.lastModified,
+          //       }
+          //     );
+          //   } catch (error) {
+          //     console.error(error);
 
-              setError(
-                "Failed to convert HEIC files because your browser is not supported, please try a different browser or upload photos in another format."
-              );
+          //     setError(
+          //       "Failed to convert HEIC files because your browser is not supported, please try a different browser or upload photos in another format."
+          //     );
 
-              setLoading(null);
-              // setHeicLoading(false);
+          //     setLoading(null);
+          //     // setHeicLoading(false);
 
-              return;
-            }
-          } else {
-            previewUrl = URL.createObjectURL(file);
+          //     return;
+          //   }
+          // } else {
+          //   previewUrl = URL.createObjectURL(file);
+          // }
+
+          const { success, data } = await processFile(file);
+
+          if (!success) {
+            setError(
+              "Failed to convert HEIC files because your browser is not supported, please try a different browser or upload photos in another format."
+            );
+
+            setLoading(null);
+
+            setDropDisabled(false);
+
+            return;
           }
+
+          const { file: processedFile, preview: previewUrl } = data!;
 
           newPendingFiles.push({
             file: processedFile,
@@ -260,14 +295,17 @@ export default function PhotoUpload({
 
         // setTimeout(() => {
         setPendingFiles((prev) => [...prev, ...newPendingFiles]);
+
         // }, 1000);
+
+        setDropDisabled(false);
 
         // setPendingFiles((prev) => [...prev, ...newPendingFiles]);
       } finally {
         // setHeicLoading(false);
       }
     },
-    [pendingFiles, totalBatchSize]
+    [pendingFiles, totalBatchSize, disabled, dropDisabled]
   );
 
   const {
@@ -286,16 +324,23 @@ export default function PhotoUpload({
   });
 
   const handleUpload = async () => {
+    if (disabled) {
+      return;
+    }
+
+    if (dropDisabled) {
+      return;
+    }
+
     const { success, token } = await getToken();
 
     if (!success) {
       toast.error("Failed to get token");
 
-      setUploading(false);
-
       return;
     }
 
+    setDropDisabled(true);
     setUploading(true);
 
     const formData = new FormData();
@@ -329,6 +374,7 @@ export default function PhotoUpload({
       toast.error("Failed to upload files");
 
       setUploading(false);
+      setDropDisabled(false);
 
       return;
     }
@@ -338,6 +384,7 @@ export default function PhotoUpload({
     cleanupPreviews();
     setPendingFiles([]);
 
+    setDropDisabled(false);
     setUploading(false);
 
     // router.refresh();
@@ -347,12 +394,20 @@ export default function PhotoUpload({
   };
 
   useEffect(() => {
-    if (isDragActive || !!loading) {
+    if (disabled) {
+      return;
+    }
+
+    if (dropDisabled) {
+      return;
+    }
+
+    if (isDragActive) {
       setIsBlurred(true);
     } else {
       setIsBlurred(false);
     }
-  }, [isDragActive, loading]);
+  }, [isDragActive, dropDisabled]);
 
   // useEffect(() => {
   //   return () => {
@@ -378,7 +433,7 @@ export default function PhotoUpload({
             key="pending-previews"
             className={clsx(
               styles.dropModalOverlay,
-              pendingFiles.length > 1 && styles.dropModalOverlayImagesGrid
+              pendingFiles.length > 1 && styles.dropModalOverlayGrid
             )}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -392,33 +447,6 @@ export default function PhotoUpload({
             layout
           >
             <AnimatePresence mode="popLayout" initial={false}>
-              {pendingFiles.length > 1 && (
-                <motion.div
-                  key={`p-${pendingFiles[0].hash}-initial`}
-                  className={styles.dropModalOverlayImageGridContainerInitial}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 140,
-                    damping: 20,
-                    opacity: {
-                      duration: 0.2,
-                      ease: "easeInOut",
-                    },
-                  }}
-                  layout
-                >
-                  <img
-                    src={pendingFiles[0].preview}
-                    alt={`Pending Photo`}
-                    className={styles.dropModalOverlayImageGridImageInitial}
-                    loading="eager"
-                  />
-                </motion.div>
-              )}
-
               {pendingFiles.length > 1 && (
                 <motion.div
                   className={styles.dropModalOverlayImagesGridOverlay}
@@ -451,7 +479,7 @@ export default function PhotoUpload({
                         }}
                         forcetheme="dark"
                         dangerous={true}
-                        disabled={uploading || !!loading}
+                        disabled={dropDisabled}
                         className={styles.toolbarButton}
                       >
                         Cancel
@@ -468,7 +496,7 @@ export default function PhotoUpload({
                         forcetheme="dark"
                         loading={uploading}
                         loadingText="Uploading..."
-                        disabled={uploading || !!loading}
+                        disabled={dropDisabled}
                         className={styles.toolbarButton}
                         preload={false}
                       >
@@ -517,180 +545,290 @@ export default function PhotoUpload({
                 </motion.div>
               )}
 
-              {pendingFiles.length > 1 &&
-                pendingFiles.map((item, idx) => (
-                  <motion.button
-                    key={`p-${item.hash}`}
-                    className={styles.dropModalOverlayImageGridContainer}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      ...(idx === 0 && !firstDrop
-                        ? {
-                            transition: {
-                              delay: 0.3,
-                            },
-                          }
-                        : {}),
-                    }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{
-                      opacity: {
-                        duration: 0.2,
-                        ease: "easeInOut",
-                      },
-                      type: "spring",
-                      stiffness: 140,
-                      damping: 20,
-                    }}
-                    disabled={uploading || !!loading}
-                    layout
-                  >
-                    <div
-                      className={styles.dropModalOverlayImageDelete}
-                      onClick={() => {
-                        URL.revokeObjectURL(item.preview);
-
-                        setPendingFiles((prev) =>
-                          prev.filter((it) => it.hash !== item.hash)
-                        );
-
-                        console.log(pendingFiles);
+              <motion.div
+                className={clsx(
+                  pendingFiles.length === 1 && styles.dropModalOverlayContainer,
+                  pendingFiles.length > 1 && styles.dropModalOverlayImagesGrid
+                )}
+                key="imagescontainer"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{
+                  opacity: {
+                    duration: 0.2,
+                    ease: "easeInOut",
+                  },
+                  type: "spring",
+                  stiffness: 140,
+                  damping: 20,
+                }}
+                // layout
+              >
+                <AnimatePresence mode="popLayout">
+                  {pendingFiles.length > 1 && (
+                    <motion.div
+                      key={`p-${pendingFiles[0].hash}-initial`}
+                      className={
+                        styles.dropModalOverlayImageGridContainerInitial
+                      }
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 140,
+                        damping: 20,
+                        opacity: {
+                          duration: 0.2,
+                          ease: "easeInOut",
+                        },
                       }}
+                      layout
                     >
-                      <X className={styles.dropModalOverlayImageDeleteIcon} />
-                    </div>
-                    <img
-                      src={item.preview}
-                      alt={`Pending Photo ${idx + 1}`}
-                      className={styles.dropModalOverlayImageGridImage}
-                      loading="eager"
-                    />
-                  </motion.button>
-                ))}
-
-              {pendingFiles.length === 1 &&
-                pendingFiles.map((item) => (
-                  <motion.div
-                    key={`p-${item.hash}-initial`}
-                    className={styles.dropModalOverlayImages}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: isBlurred ? 0.7 : 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 140,
-                      damping: 20,
-                      opacity: {
-                        duration: 0.2,
-                        ease: "easeInOut",
-                      },
-                    }}
-                    layout
-                  >
-                    <img
-                      src={item.preview}
-                      className={styles.dropModalOverlayImagesImage}
-                      alt={`Pending Photo`}
-                      loading="eager"
-                    />
-
-                    <ProgressiveBlur
-                      className={styles.dropModalOverlayImagesBlur}
-                      blurIntensity={2}
-                    />
-
-                    <div className={styles.dropModalOverlayImagesFooter}>
-                      <KeybindButton
-                        keybinds={[T_Keybind.escape]}
-                        onPress={() => {
-                          cleanupPreviews();
-                          setPendingFiles([]);
-                        }}
-                        forcetheme="dark"
-                        dangerous={true}
-                        disabled={uploading || !!loading}
-                        className={styles.toolbarButton}
-                      >
-                        Cancel
-                      </KeybindButton>
-                      <KeybindButton
-                        keybinds={[T_Keybind.shift, T_Keybind.enter]}
-                        onPress={() => {
-                          if (uploading) {
-                            return;
+                      {!fileLoadStatus[pendingFiles[0].hash] && (
+                        <Skeleton
+                          className={
+                            styles.dropModalOverlayImageGridImageSkeleton
                           }
+                        />
+                      )}
 
-                          handleUpload();
+                      <Image
+                        src={pendingFiles[0].preview}
+                        alt={`Pending Photo`}
+                        className={styles.dropModalOverlayImageGridImageInitial}
+                        loading="lazy"
+                        decoding="async"
+                        width={100}
+                        height={100}
+                        onLoad={() => {
+                          setFileLoadStatus((prev) => ({
+                            ...prev,
+                            [pendingFiles[0].hash]: true,
+                          }));
                         }}
-                        forcetheme="dark"
-                        loading={uploading}
-                        loadingText="Uploading..."
-                        disabled={uploading || !!loading}
-                        className={styles.toolbarButton}
-                        preload={false}
-                      >
-                        Upload
-                      </KeybindButton>
-                    </div>
+                      />
+                    </motion.div>
+                  )}
 
-                    <div className={styles.dropModalOverlayImagesTitle}>
-                      <div className={styles.dropModalOverlayImagesTitleText}>
-                        {item.file.name}
-                      </div>
-                      <div
-                        className={styles.dropModalOverlayImagesSize}
-                        style={
-                          {
-                            // gradient based left to right filling up as file size increases
-                          }
-                        }
+                  {pendingFiles.length > 1 &&
+                    pendingFiles.map((item, idx) => (
+                      <motion.button
+                        key={`p-${item.hash}`}
+                        className={styles.dropModalOverlayImageGridContainer}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{
+                          opacity: 1,
+                          scale: 1,
+                          ...(idx === 0 && !firstDrop
+                            ? {
+                                transition: {
+                                  delay: 0.3,
+                                },
+                              }
+                            : {}),
+                        }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{
+                          opacity: {
+                            duration: 0.2,
+                            ease: "easeInOut",
+                          },
+                          type: "spring",
+                          stiffness: 140,
+                          damping: 20,
+                        }}
+                        disabled={dropDisabled}
+                        layout
                       >
-                        <span
-                          style={{
-                            color: getFileSizeColor(
-                              item.file.size,
-                              MAX_BATCH_SIZE
-                            ),
+                        <div
+                          className={styles.dropModalOverlayImageDelete}
+                          onClick={() => {
+                            URL.revokeObjectURL(item.preview);
+
+                            setPendingFiles((prev) =>
+                              prev.filter((it) => it.hash !== item.hash)
+                            );
+
+                            console.log(pendingFiles);
                           }}
-                          className={styles.dropModalOverlayImagesSizeText}
                         >
-                          {/* <SlidingNumber
-                            value={formatFileSizeNumber(item.file.size)}
-                            decimalSeparator="."
-                          /> */}
-                          {/* {getFileSizeUnit(item.file.size)} */}
-                          {/* <TextMorph> */}
-                          {`${formatFileSizeNumber(item.file.size)} ${getFileSizeUnit(item.file.size)}`}
-                          {/* </TextMorph> */}
-                        </span>
-                        {" of "}
-                        <span style={{ color: "#ef4444" }}>50 MB</span>
-                        <span
-                          className={styles.dropModalOverlayImagesSizeDragText}
+                          <X
+                            className={styles.dropModalOverlayImageDeleteIcon}
+                          />
+                        </div>
+
+                        {!fileLoadStatus[item.hash] && (
+                          <Skeleton
+                            className={
+                              styles.dropModalOverlayImageGridImageSkeleton
+                            }
+                          />
+                        )}
+
+                        <Image
+                          src={item.preview}
+                          alt={`Pending Photo ${idx + 1}`}
+                          className={styles.dropModalOverlayImageGridImage}
+                          loading="lazy"
+                          decoding="async"
+                          fill
+                          onLoad={() => {
+                            setFileLoadStatus((prev) => ({
+                              ...prev,
+                              [item.hash]: true,
+                            }));
+                          }}
+                        />
+                      </motion.button>
+                    ))}
+
+                  {pendingFiles.length === 1 &&
+                    pendingFiles.map((item) => {
+                      return (
+                        <motion.div
+                          key={`p-${item.hash}-initial`}
+                          className={styles.dropModalOverlayImages}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: isBlurred ? 0.7 : 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 140,
+                            damping: 20,
+                            opacity: {
+                              duration: 0.2,
+                              ease: "easeInOut",
+                            },
+                          }}
+                          layout
                         >
-                          {" "}
-                          <TextShimmer
-                            duration={2.5}
-                            spread={2}
-                            className=" [--base-gradient-color:#F3FEF1]"
-                          >
-                            - Drag and drop additional files to upload here
-                          </TextShimmer>
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                          {!fileLoadStatus[item.hash] && (
+                            <Skeleton
+                              className={styles.dropModalOverlayImagesSkeleton}
+                            />
+                          )}
+
+                          <Image
+                            src={item.preview}
+                            className={styles.dropModalOverlayImagesImage}
+                            // fill
+                            width={100}
+                            height={100}
+                            alt={`Pending Photo`}
+                            loading="lazy"
+                            decoding="async"
+                            onLoad={() => {
+                              setFileLoadStatus((prev) => ({
+                                ...prev,
+                                [item.hash]: true,
+                              }));
+                            }}
+                          />
+                          <ProgressiveBlur
+                            className={styles.dropModalOverlayImagesBlur}
+                            blurIntensity={2}
+                          />
+                          <div className={styles.dropModalOverlayImagesFooter}>
+                            <KeybindButton
+                              keybinds={[T_Keybind.escape]}
+                              onPress={() => {
+                                cleanupPreviews();
+                                setPendingFiles([]);
+                              }}
+                              forcetheme="dark"
+                              dangerous={true}
+                              disabled={dropDisabled}
+                              className={styles.toolbarButton}
+                            >
+                              Cancel
+                            </KeybindButton>
+                            <KeybindButton
+                              keybinds={[T_Keybind.shift, T_Keybind.enter]}
+                              onPress={() => {
+                                if (uploading) {
+                                  return;
+                                }
+
+                                handleUpload();
+                              }}
+                              forcetheme="dark"
+                              loading={uploading}
+                              loadingText="Uploading..."
+                              disabled={dropDisabled}
+                              className={styles.toolbarButton}
+                              preload={false}
+                            >
+                              Upload
+                            </KeybindButton>
+                          </div>
+                          <div className={styles.dropModalOverlayImagesTitle}>
+                            <div
+                              className={styles.dropModalOverlayImagesTitleText}
+                            >
+                              {item.file.name}
+                            </div>
+                            <div
+                              className={styles.dropModalOverlayImagesSize}
+                              style={
+                                {
+                                  // gradient based left to right filling up as file size increases
+                                }
+                              }
+                            >
+                              <span
+                                style={{
+                                  color: getFileSizeColor(
+                                    item.file.size,
+                                    MAX_BATCH_SIZE
+                                  ),
+                                }}
+                                className={
+                                  styles.dropModalOverlayImagesSizeText
+                                }
+                              >
+                                {/* <SlidingNumber
+              value={formatFileSizeNumber(item.file.size)}
+              decimalSeparator="."
+            /> */}
+                                {/* {getFileSizeUnit(item.file.size)} */}
+                                {/* <TextMorph> */}
+                                {`${formatFileSizeNumber(item.file.size)} ${getFileSizeUnit(item.file.size)}`}
+                                {/* </TextMorph> */}
+                              </span>
+                              {" of "}
+                              <span style={{ color: "#ef4444" }}>50 MB</span>
+                              <span
+                                className={
+                                  styles.dropModalOverlayImagesSizeDragText
+                                }
+                              >
+                                {" "}
+                                <TextShimmer
+                                  duration={2.5}
+                                  spread={2}
+                                  className=" [--base-gradient-color:#F3FEF1]"
+                                >
+                                  - Drag and drop additional files to upload
+                                  here
+                                </TextShimmer>
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                </AnimatePresence>
+              </motion.div>
             </AnimatePresence>
           </motion.div>
         )}
 
-        {isDragAccept && (
+        {isDragAccept && !dropDisabled && !disabled && (
           <motion.div
             key="drag-accept"
-            className={styles.dropModalOverlay}
+            className={styles.dropModalOverlayCentered}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -698,15 +836,15 @@ export default function PhotoUpload({
           >
             <ImageUp className={styles.galleryTitleIcon} />
             <span className={styles.galleryTitleText}>
-              Drop photos to upload
+              Drop files to upload
             </span>
           </motion.div>
         )}
 
-        {isDragReject && (
+        {isDragReject && !dropDisabled && !disabled && (
           <motion.div
             key="drag-reject"
-            className={styles.dropModalOverlay}
+            className={styles.dropModalOverlayCentered}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -719,17 +857,17 @@ export default function PhotoUpload({
           </motion.div>
         )}
 
-        {loading && (
+        {loading && !disabled && (
           <motion.div
             key="loadingheiclol"
-            className={styles.dropModalOverlay}
+            className={styles.dropModalOverlayCentered}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
             <div className={styles.galleryTitleIcon}>
-              <Spinner id="heicloading" loading={!!loading} size={24} />
+              <Spinner id="heicloading" loading={!!loading} size={32} />
             </div>
             <span
               className={styles.galleryTitleText}
@@ -740,10 +878,10 @@ export default function PhotoUpload({
           </motion.div>
         )}
 
-        {error && (
+        {error && !disabled && (
           <motion.div
             key="error"
-            className={styles.dropModalOverlay}
+            className={styles.dropModalOverlayCentered}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

@@ -114,7 +114,7 @@ export default function PhotoGrid({
                 setImageLoaded((prev) => ({ ...prev, [photo.photoId]: true }))
               }
               loading="lazy"
-              objectFit="cover"
+              // objectFit="cover"
               // style={{
               //   objectFit: "cover",
               // }}
