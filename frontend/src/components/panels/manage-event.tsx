@@ -1,23 +1,28 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { usePathname, useRouter } from "next/navigation";
 
 import { AnimatePresence, motion } from "motion/react";
 
-import { T_Event, T_User } from "@/gql/types";
+import { useDropzone } from "react-dropzone";
+
+import toast from "react-hot-toast";
 
 import publishEvent from "@/actions/event/publishEvent";
 
-import EventBanner from "@/components/event-banner";
+import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
 
 import { KeybindButton, T_Keybind } from "@/components/keybind";
 
-import styles from "./manage-event.module.css";
-import { ProgressiveBlur } from "@/components/ui/mp_progressive-blur";
-
 import Toaster from "@/components/toaster";
-import Confirmation from "../confirmation";
-import { toast } from "react-hot-toast";
+import EventBanner from "@/components/event-banner";
+import Confirmation from "@/components/confirmation";
+
+import styles from "./manage-event.module.css";
+
+import { T_Event } from "@/gql/types";
+
+const MAX_SIZE = 1024 * 1024 * 10; // 10MB
 
 export default function ManageEvent({
   event,
@@ -46,6 +51,19 @@ export default function ManageEvent({
 
   const [mode, setMode] = useState<"close" | "openevent" | null>(null);
 
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    // Do something with the files
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false,
+    noClick: true,
+    noKeyboard: true,
+    maxSize: MAX_SIZE,
+  });
+
   // alert(event.name);
   return (
     <motion.div
@@ -55,18 +73,20 @@ export default function ManageEvent({
       exit={{ opacity: 0, scale: 0.98 }}
       transition={{
         type: "spring",
-        stiffness: 120,
+        stiffness: 140,
         damping: 20,
         opacity: {
           duration: 0.2,
+          ease: "easeInOut",
         },
       }}
       onClick={() => {
         setManageEventVisible(false);
       }}
     >
-      <motion.div
+      <div
         className={styles.manageEventContainer}
+        {...getRootProps()}
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -201,7 +221,7 @@ export default function ManageEvent({
                       setManageEventDisabled(true);
                       setFooterItemLoading("save");
 
-                      alert("todo");
+                      // alert("todo");
 
                       // await saveEvent(
                       //   "captchaDemo",
@@ -210,6 +230,7 @@ export default function ManageEvent({
                       //   event.description
                       // );
                     }}
+                    preload={false}
                     disabled={manageEventDisabled || saveDisabled}
                     loadingText="Saving..."
                     loading={footerItemLoading === "save"}
@@ -291,6 +312,8 @@ export default function ManageEvent({
             setEdited={setEdited}
             manageEventDisabled={manageEventDisabled}
             setSaveDisabled={setSaveDisabled}
+            isParentDragActive={isDragActive}
+            MAX_SIZE={MAX_SIZE}
           />
 
           <ProgressiveBlur
@@ -318,7 +341,7 @@ export default function ManageEvent({
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

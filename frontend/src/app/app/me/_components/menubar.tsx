@@ -370,7 +370,11 @@ export default function MenuBar({ me }: { me: T_User }) {
           >
             <div
               className={styles.joinEventContainer}
-              onClick={(e) => setJoinEventOpen(false)}
+              onClick={(e) => {
+                if (!joinEventDisabled) {
+                  setJoinEventOpen(false);
+                }
+              }}
             >
               <AnimatePresence mode="wait">
                 {joinEventDisabled && (
@@ -611,7 +615,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                 onPress={() => {
                   setJoinEventOpen(false);
                 }}
-                disabled={createEventDisabled}
+                disabled={joinEventDisabled}
                 // textClassName={styles.createEventFormButtonText}
               >
                 Cancel

@@ -80,7 +80,7 @@ export default function PhotoPreview({
       <AnimatePresence>
         {deleteConfirmationOpen && (
           <Confirmation
-            title="Delete Photo"
+            title="Delete photo"
             description="Are you sure you want to delete this photo?"
             confirmText="Delete"
             confirmLoadingText="Deleting..."
