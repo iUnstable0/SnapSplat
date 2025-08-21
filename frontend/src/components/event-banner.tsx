@@ -89,8 +89,8 @@ export default function EventBanner({
   setEdited?: (edited: boolean) => void;
   manageEventDisabled?: boolean;
   setSaveDisabled?: (edited: boolean) => void;
-  isParentDragActive: boolean;
-  MAX_SIZE: number;
+  isParentDragActive?: boolean;
+  MAX_SIZE?: number;
 }) {
   const [isIconLoaded, setIsIconLoaded] = useState(false);
   const [isBannerLoaded, setIsBannerLoaded] = useState(false);
@@ -404,7 +404,7 @@ export default function EventBanner({
                 <DragEditIcon
                   id="bannerdragediticon"
                   loading={bannerLoading}
-                  isDragActive={isParentDragActive}
+                  isDragActive={isParentDragActive || false}
                   isItemDragActive={isBannerDragActive}
                 />
               </Magnetic>
@@ -489,7 +489,7 @@ export default function EventBanner({
                     <DragEditIcon
                       id="icondragediticon"
                       loading={iconLoading}
-                      isDragActive={isParentDragActive}
+                      isDragActive={isParentDragActive || false}
                       isItemDragActive={isIconDragActive}
                     />
                   </Magnetic>
