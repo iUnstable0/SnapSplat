@@ -24,7 +24,7 @@ export default async function Page({
   params,
   children,
 }: {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
