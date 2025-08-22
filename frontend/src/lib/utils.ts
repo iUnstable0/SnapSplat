@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { getHeicWorker } from "@/workers/heicWorker";
+import { getHeicPool } from "@/workers/heicPool";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -19,13 +19,13 @@ export async function processFile(file: File) {
 
   if (isHeic) {
     try {
-      const worker = getHeicWorker();
+      const pool = getHeicPool();
 
-      if (!worker) {
+      if (!pool) {
         const { default: convert } = await import("heic-convert/browser");
 
         const outputBuffer = await convert({
-          // @ts-expect-error weird ahh type
+          // @ts-expect-error weird err and bruh ts forcing me to write this msg
           buffer: new Uint8Array(await file.arrayBuffer()),
           format: "JPEG",
           quality: 0.9,
@@ -46,44 +46,24 @@ export async function processFile(file: File) {
       } else {
         const arrayBuffer = await file.arrayBuffer();
 
-        const result = await new Promise<{
-          ok: boolean;
-          buffer?: ArrayBuffer;
-          name?: string;
-          lastModified?: number;
-          error?: string;
-        }>((resolve) => {
-          const onMessage = (ev: MessageEvent) => {
-            worker.removeEventListener("message", onMessage);
-            resolve(ev.data);
-          };
-
-          worker.addEventListener("message", onMessage);
-
-          worker.postMessage(
-            {
-              arrayBuffer,
-              name: file.name,
-              lastModified: file.lastModified,
-              quality: 0.9,
-            },
-            [arrayBuffer]
-          );
+        const { buffer, name, lastModified } = await pool.run({
+          arrayBuffer,
+          name: file.name,
+          lastModified: file.lastModified,
+          quality: 0.9,
         });
 
-        if (!result.ok || !result.buffer)
-          throw new Error(result.error || "Convert failed");
-
-        const blob = new Blob([result.buffer], { type: "image/jpeg" });
+        const blob = new Blob([buffer], { type: "image/jpeg" });
 
         previewUrl = URL.createObjectURL(blob);
 
         processedFile = new File(
           [blob],
-          file.name.replace(/\.(heic|heif)$/i, ".jpg"),
+          name?.replace(/\.(heic|heif)$/i, ".jpg") ||
+            file.name.replace(/\.(heic|heif)$/i, ".jpg"),
           {
             type: "image/jpeg",
-            lastModified: file.lastModified,
+            lastModified: lastModified ?? file.lastModified,
           }
         );
       }
@@ -96,8 +76,5 @@ export async function processFile(file: File) {
     previewUrl = URL.createObjectURL(file);
   }
 
-  return {
-    success: true,
-    data: { file: processedFile, preview: previewUrl },
-  };
+  return { success: true, data: { file: processedFile, preview: previewUrl } };
 }

@@ -9,6 +9,8 @@
   height: 100vh;
   width: 100vw;
 
+  /* background: yellow !important; */
+
   border-top-left-radius: 28px;
 
   box-shadow: inset 0 0 5px 0 rgba(0, 0, 0, 0.2);
@@ -398,10 +400,12 @@
   height: 100%;
   overflow: hidden;
   padding: 10px 10px;
+  padding-bottom: 0px;
 
   /* z-index: 1; */
+  /* background: red !important; */
 
-  background-color: var(--sp-background-color);
+  /* background-color: var(--sp-background-color); */
 }
 
 .galleryTitle {

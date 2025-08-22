@@ -2,6 +2,8 @@
   border-radius: 10px;
   overflow: hidden;
 
+  /* background: red !important; */
+
   background-color: var(--sp-background-color);
 }
 

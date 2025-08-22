@@ -5,17 +5,26 @@
   justify-content: start;
 
   min-height: 100%;
-  max-height: calc(100vh - 200px);
+  /* max-height: calc(100vh - 100px); */
+  max-height: calc(100vh - 150px);
+
   overflow-y: auto;
   overflow-x: hidden;
 
   /* background: blue; */
 
-  padding-left: 24px;
+  border-radius: 6px;
+
+  margin-left: 24px;
+  /* padding-left: 24px; */
   padding-right: 56px;
-  padding-bottom: 24px;
+  padding-bottom: 4px;
 
   transition: opacity 0.2s ease-in-out;
+
+  /* i hate firefox */
+  align-items: start;
+  grid-auto-rows: min-content;
 }
 
 .blurred {
@@ -25,20 +34,33 @@
 .photoGridItem {
   position: relative;
 
-  width: 100%;
+  /* background: red; */
+  /* height: 0; */
+
+  padding-bottom: 100%;
 
   border-radius: 6px;
-  aspect-ratio: 1;
+  /* have to remove this cuz firefox */
+  /* aspect-ratio: 1; */
 
   overflow: hidden;
+
   cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
+  width: 100%;
+  height: 100%;
+  /* height: 0; */
+
   max-width: 180px;
   max-height: 180px;
+
+  /* firefox sucky */
+  min-height: 132px;
+  min-width: 132px;
 }
 
 .photoGridItemImageSkeleton {
@@ -93,8 +115,20 @@
 .photoGridItemImage {
   width: 100%;
   height: 100%;
+
+  /* min-width: 180px;
+  min-height: 180px; */
+
+  /* min-width: 100vw;
+  min-height: 100vh; */
+  /* min-height: 180px; */
+
+  /* min-width: 100%;
+  min-height: 100%; */
+
   object-fit: cover;
   object-position: center;
+
   display: block;
 }
 
