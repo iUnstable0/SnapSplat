@@ -33,8 +33,6 @@ type T_EventData = T_Event & {
   };
 };
 
-const MAX_BATCH_SIZE = 50 * 1024 * 1024;
-
 export default function MyPhoto({ event }: { event: T_EventData }) {
   // const router = useRouter();
 

@@ -16,6 +16,7 @@ import stylesDark from "./keybind-dark.module.css";
 import { Magnetic } from "./ui/mp_magnetic";
 import Spinner from "./spinner";
 import { AnimatePresence, motion } from "motion/react";
+import { TextMorph } from "./ui/mp_text-morph";
 
 const letters = "abcdefghijklmnopqrstuvwxyz.";
 
@@ -48,6 +49,7 @@ export const KeybindButton = ({
   magnetic = true,
   className,
   preload = true,
+  loadingTextEnabled = true,
 }: {
   keybinds: T_Keybind[];
   dangerous?: boolean;
@@ -64,6 +66,7 @@ export const KeybindButton = ({
   className?: string;
   // loadingTheme?: "light" | "dark" | "dangerous";
   preload?: boolean;
+  loadingTextEnabled?: boolean;
 }) => {
   let styles;
 
@@ -173,15 +176,35 @@ export const KeybindButton = ({
                     ease: "easeInOut",
                   },
                 }}
-                style={
-                  {
-                    // if loading and preload is false then set margin left to 32px
-                    // ...(loading && !preload ? { paddingLeft: "32px" } : {}),
-                  }
-                }
+                style={{
+                  // if loading and preload is false then set margin left to 32px
+                  // ...(loading && !preload ? { paddingLeft: "32px" } : {}),
+                  width: "auto",
+                }}
                 layout
               >
-                {children}
+                {/* Temp fix sameline */}
+                {loadingTextEnabled ? (
+                  <TextMorph
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {`${
+                      (loading &&
+                        loadingText &&
+                        loadingTextEnabled &&
+                        loadingText) ||
+                      ((!loading || !loadingTextEnabled) && children)
+                    }`}
+                  </TextMorph>
+                ) : (
+                  children
+                )}
+
+                {/* {children} */}
               </motion.div>
 
               {keybinds.length > 0 && (

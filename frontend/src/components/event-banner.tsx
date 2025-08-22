@@ -338,79 +338,72 @@ export default function EventBanner({
       </AnimatePresence>
 
       <motion.div
-        // className={styles.eventBannerImageContainer}
+        className={styles.eventBannerImageContainer}
         initial={{ opacity: 0 }}
         animate={{ opacity: isBannerLoaded ? 1 : 0 }}
         transition={{ duration: 0.2 }}
       >
-        <div
-          {...getBannerRootProps()}
-          className={styles.eventBannerImageContainer}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isBannerHidden ? 0 : 1 }}
+          transition={{ duration: 0.2 }}
         >
-          <input {...getBannerInputProps()} />
+          <Image
+            src={bannerFile?.preview || event.banner}
+            // src={`https://picsum.photos/seed/eventBanner-${event.eventId}/1400/1400`}
+            alt={`Event ${event.eventId}`}
+            // fill
+            width={1400}
+            height={1400}
+            onLoad={() => {
+              // console.log("loaded");
+              setIsBannerLoaded(true);
+            }}
+            decoding="async"
+            loading="lazy"
+            className={styles.eventImage}
+          />
+        </motion.div>
 
+        {edit && !manageEventDisabled && (
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: isBannerHidden ? 0 : 1 }}
-            transition={{ duration: 0.2 }}
+            animate={{
+              opacity:
+                (isParentDragActive || bannerLoading) && !isIconDragActive
+                  ? 1
+                  : 0,
+            }}
+            whileHover={{ opacity: 1 }}
+            transition={{
+              duration: 0.2,
+              ease: "easeInOut",
+            }}
+            onClick={() => {
+              if (bannerLoading) {
+                return;
+              }
+
+              toast.error("Changing event banner is not implemented yet");
+            }}
+            className={styles.eventIconEdit}
           >
-            <Image
-              src={bannerFile?.preview || event.banner}
-              // src={`https://picsum.photos/seed/eventBanner-${event.eventId}/1400/1400`}
-              alt={`Event ${event.eventId}`}
-              // fill
-              width={1400}
-              height={1400}
-              onLoad={() => {
-                // console.log("loaded");
-                setIsBannerLoaded(true);
-              }}
-              decoding="async"
-              loading="lazy"
-              className={styles.eventImage}
-            />
-          </motion.div>
-
-          {edit && !manageEventDisabled && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity:
-                  (isParentDragActive || bannerLoading) && !isIconDragActive
-                    ? 1
-                    : 0,
-              }}
-              whileHover={{ opacity: 1 }}
-              transition={{
-                duration: 0.2,
-                ease: "easeInOut",
-              }}
-              onClick={() => {
-                if (bannerLoading) {
-                  return;
-                }
-
-                toast.error("Changing event banner is not implemented yet");
-              }}
-              className={styles.eventIconEdit}
+            <Magnetic
+              intensity={0.1}
+              springOptions={{ bounce: 0.1 }}
+              actionArea="global"
+              className={styles.eventIconEditIconMagnet}
+              range={175}
             >
-              <Magnetic
-                intensity={0.1}
-                springOptions={{ bounce: 0.1 }}
-                actionArea="global"
-                className={styles.eventIconEditIconMagnet}
-                range={175}
-              >
-                <DragEditIcon
-                  id="bannerdragediticon"
-                  loading={bannerLoading}
-                  isDragActive={isParentDragActive || false}
-                  isItemDragActive={isBannerDragActive}
-                />
-              </Magnetic>
-            </motion.div>
-          )}
-        </div>
+              <DragEditIcon
+                id="bannerdragediticon"
+                loading={bannerLoading}
+                isDragActive={isParentDragActive || false}
+                isItemDragActive={isBannerDragActive}
+              />
+            </Magnetic>
+          </motion.div>
+        )}
       </motion.div>
 
       <ProgressiveBlur className={styles.eventBannerBlur} blurIntensity={2} />
@@ -499,7 +492,12 @@ export default function EventBanner({
           </motion.div>
         </div>
 
-        <div className={styles.eventTitleContainer}>
+        <div
+          className={clsx(
+            styles.eventTitleContainer,
+            edit && isParentDragActive && styles.eventTitleContainerDragging
+          )}
+        >
           {edit ? (
             <motion.input
               type="text"
@@ -566,6 +564,13 @@ export default function EventBanner({
             </p>
           )}
         </div>
+      </div>
+
+      <div
+        {...getBannerRootProps()}
+        className={styles.eventBannerImageContainer}
+      >
+        <input {...getBannerInputProps()} />
       </div>
     </motion.div>
   );

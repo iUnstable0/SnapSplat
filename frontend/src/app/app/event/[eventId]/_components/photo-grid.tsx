@@ -65,72 +65,60 @@ export default function PhotoGrid({
 
       // return () => clearTimeout(timeout);
 
-      setShowOverlay(true);
+      // setShowOverlay(true);
 
-      return () => clearInterval(interval);
-    } else {
-      setShowOverlay(false);
+      const oldSelectedPhoto = selectedPhoto;
+
+      const timeout = setTimeout(() => {
+        if (
+          selectedPhoto &&
+          selectedPhoto.photoId === oldSelectedPhoto.photoId
+        ) {
+          setShowOverlay(true);
+        } else {
+          setShowOverlay(false);
+        }
+      }, 250);
+
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timeout);
+      };
     }
+
+    setShowOverlay(false);
+
+    // const oldSelectedPhoto = selectedPhoto;
+
+    // const timeout = setTimeout(() => {
+    //   if (selectedPhoto && selectedPhoto.photoId === oldSelectedPhoto.photoId) {
+    //     setShowOverlay(true);
+    //   } else {
+    //     setShowOverlay(false);
+    //   }
+    // }, 250);
+
+    // return () => clearTimeout(timeout);
   }, [selectedPhoto]);
 
   return (
-    <div className={clsx(styles.photoGrid, isBlurred && styles.blurred)}>
-      {event.photos
-        .filter((photo) => photo.presignedUrl)
-        .map((photo) => (
-          <motion.div
-            initial={{ scale: 1 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{
-              type: "spring",
-              stiffness: 120,
-              damping: 20,
-            }}
-            className={styles.photoGridItem}
-            key={photo.photoId}
-            onMouseEnter={() => setSelectedPhoto(photo)}
-            onMouseLeave={() => setSelectedPhoto(null)}
-            onClick={() => onPhotoClick(photo)}
-          >
-            <AnimatePresence>
-              {!imageLoaded[photo.photoId] && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <Skeleton className={styles.photoGridItemImageSkeleton} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <Image
-              src={photo.presignedUrl!}
-              alt={`Event ${photo.eventId}`}
-              fill
-              className={styles.photoGridItemImage}
-              onLoad={() =>
-                setImageLoaded((prev) => ({ ...prev, [photo.photoId]: true }))
-              }
-              loading="lazy"
-              // objectFit="cover"
-              // style={{
-              //   objectFit: "cover",
-              // }}
-            />
+    <motion.div
+      className={clsx(styles.photoGrid, isBlurred && styles.blurred)}
+      // initial={{ opacity: 0 }}
+      // animate={{ opacity: 1 }}
+      // transition={{ duration: 0.2 }}
+      layout
+    >
+      <AnimatePresence mode="popLayout">
+        {event.photos
+          .filter((photo) => photo.presignedUrl)
+          .map((photo) => (
             <motion.div
-              className={styles.photoGridItemOverlay}
-              initial={{ opacity: 0 }}
-              animate={{
-                opacity:
-                  selectedPhoto?.photoId === photo.photoId && showOverlay
-                    ? 1
-                    : 0,
-              }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              exit={{ opacity: 0 }}
+              key={`pg-${photo.photoId}`}
+              initial={{ scale: 0.98, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.98, opacity: 0 }}
+              whileHover={{ scale: 1.02 }}
               transition={{
                 type: "spring",
                 stiffness: 120,
@@ -139,45 +127,107 @@ export default function PhotoGrid({
                   duration: 0.2,
                 },
               }}
+              className={styles.photoGridItem}
+              onMouseEnter={() => setSelectedPhoto(photo)}
+              onMouseLeave={() => setSelectedPhoto(null)}
+              onClick={() => onPhotoClick(photo)}
+              layout
             >
-              <div className={styles.photoGridItemOverlayContent}>
-                <h3 className={styles.photoGridItemOverlayContentText}>
-                  <TextMorph>{uploadedRelativeTime || "Updating..."}</TextMorph>
-                </h3>
-                {type === "all" && (
-                  <div className={styles.photoGridItemOverlayContentUser}>
-                    {photo.memberId === event.myMembership?.memberId && (
-                      <div
-                        className={styles.photoGridItemOverlayContentUserText}
-                      >
-                        You
-                      </div>
-                    )}
+              <AnimatePresence>
+                {!imageLoaded[photo.photoId] && (
+                  <motion.div
+                    key={`pg-${photo.photoId}-skeleton`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Skeleton className={styles.photoGridItemImageSkeleton} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                    {photo.memberId !== event.myMembership?.memberId && (
-                      <>
-                        <Image
-                          src={photo.member!.avatarAlt}
-                          alt={photo.member!.displayNameAlt}
-                          width={24}
-                          height={24}
-                          className={
-                            styles.photoGridItemOverlayContentUserImage
-                          }
-                        />
+              <Image
+                src={photo.presignedUrl!}
+                alt={`Event ${photo.eventId}`}
+                fill
+                // width={180}
+                // height={180}
+                className={styles.photoGridItemImage}
+                onLoad={() =>
+                  setImageLoaded((prev) => ({ ...prev, [photo.photoId]: true }))
+                }
+                loading="lazy"
+                decoding="async"
+                // objectFit="cover"
+                // style={{
+                //   objectFit: "cover",
+                // }}
+              />
+
+              <motion.div
+                className={styles.photoGridItemOverlay}
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity:
+                    selectedPhoto?.photoId === photo.photoId && showOverlay
+                      ? 1
+                      : 0,
+                }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 120,
+                  damping: 20,
+                  opacity: {
+                    duration: 0.2,
+                  },
+                }}
+              >
+                <div className={styles.photoGridItemOverlayContent}>
+                  <h3 className={styles.photoGridItemOverlayContentText}>
+                    <TextMorph>
+                      {uploadedRelativeTime || "Updating..."}
+                    </TextMorph>
+                  </h3>
+                  {type === "all" && (
+                    <div className={styles.photoGridItemOverlayContentUser}>
+                      {photo.memberId === event.myMembership?.memberId && (
                         <div
                           className={styles.photoGridItemOverlayContentUserText}
                         >
-                          {photo.member!.displayNameAlt}
+                          You
                         </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+                      )}
+
+                      {photo.memberId !== event.myMembership?.memberId && (
+                        <>
+                          <Image
+                            src={photo.member!.avatarAlt}
+                            alt={photo.member!.displayNameAlt}
+                            width={24}
+                            height={24}
+                            className={
+                              styles.photoGridItemOverlayContentUserImage
+                            }
+                          />
+                          <div
+                            className={
+                              styles.photoGridItemOverlayContentUserText
+                            }
+                          >
+                            {photo.member!.displayNameAlt}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        ))}
-    </div>
+          ))}
+      </AnimatePresence>
+    </motion.div>
   );
 }
