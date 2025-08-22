@@ -25,7 +25,7 @@ export async function processFile(file: File) {
         const { default: convert } = await import("heic-convert/browser");
 
         const outputBuffer = await convert({
-          // @ts-expect-error
+          // @ts-expect-error weird err and bruh ts forcing me to write this msg
           buffer: new Uint8Array(await file.arrayBuffer()),
           format: "JPEG",
           quality: 0.9,
