@@ -68,9 +68,9 @@ export default function ManageEvent({
   return (
     <motion.div
       className={styles.manageEvent}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
+      initial={{ opacity: 0, transform: "scale(0.98)" }}
+      animate={{ opacity: 1, transform: "scale(1)" }}
+      exit={{ opacity: 0, transform: "scale(0.98)" }}
       transition={{
         type: "spring",
         stiffness: 140,

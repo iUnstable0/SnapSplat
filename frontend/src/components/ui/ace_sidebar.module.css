@@ -83,12 +83,12 @@
   cursor: pointer;
 
   /* .mobileSidebarCloseIcon { */
-  scale: 1.1;
+  transform: scale(1.1);
   /* } */
 }
 
 .mobileSidebarCloseButton:active {
-  scale: 0.98;
+  transform: scale(0.98);
 }
 
 .mobileSidebarCloseIcon {
@@ -153,7 +153,7 @@
 
 .sidebarLink:hover {
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
-  scale: 0.99;
+  transform: scale(0.99);
 
   .sidebarLinkIcon {
     transform: translateX(3px);
@@ -168,7 +168,7 @@
 
 .sidebarLinkFull_active {
   box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
-  scale: 0.99;
+  transform: scale(0.99);
 
   .sidebarLinkIcon {
     transform: translateX(3px) !important;
@@ -181,7 +181,7 @@
 
 .sidebarLink_active {
   .sidebarLinkIcon {
-    scale: 1.1;
+    transform: scale(1.1);
     color: #939393;
   }
 
@@ -229,7 +229,7 @@
     transform: translateX(0px);
   } */
 
-  scale: 0.98;
+  transform: scale(0.98);
 }
 
 .sidebarLinkText {

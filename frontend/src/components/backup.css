@@ -39,7 +39,7 @@
 
 .buttonKeybind_active {
   background-color: #00000037;
-  scale: 1.1;
+  transform: scale(1.1);
 
   .buttonKeybindIcon {
     filter: drop-shadow(0 0 10px #0000009d) !important;
@@ -54,7 +54,7 @@
 
 .buttonKeybindDangerous_active {
   background-color: var(--sp-dangerous-color) !important;
-  scale: 1.1;
+  transform: scale(1.1);
   color: #492020;
 
   .buttonKeybindIcon {
@@ -75,6 +75,6 @@
 
   .buttonKeybind_active {
     background-color: #707070a4;
-    scale: 1.1;
+    transform: scale(1.1);
   }
 }

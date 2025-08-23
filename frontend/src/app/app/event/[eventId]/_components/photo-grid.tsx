@@ -55,38 +55,15 @@ export default function PhotoGrid({
         );
       }, 500);
 
-      // const timeout = setTimeout(() => {
-      //   if (selectedPhoto) {
-      //     setShowOverlay(true);
-      //   } else {
-      //     setShowOverlay(false);
-      //   }
-      // }, 250);
-
-      // return () => clearTimeout(timeout);
-
-      // setShowOverlay(true);
-
-      const oldSelectedPhoto = selectedPhoto;
-
-      const timeout = setTimeout(() => {
-        if (
-          selectedPhoto &&
-          selectedPhoto.photoId === oldSelectedPhoto.photoId
-        ) {
-          setShowOverlay(true);
-        } else {
-          setShowOverlay(false);
-        }
-      }, 250);
+      setShowOverlay(true);
 
       return () => {
         clearInterval(interval);
-        clearTimeout(timeout);
       };
     }
 
     setShowOverlay(false);
+    // alert(1);
 
     // const oldSelectedPhoto = selectedPhoto;
 
@@ -115,10 +92,10 @@ export default function PhotoGrid({
           .map((photo) => (
             <motion.div
               key={`pg-${photo.photoId}`}
-              initial={{ scale: 0.98, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.98, opacity: 0 }}
-              whileHover={{ scale: 1.02 }}
+              initial={{ transform: "scale(0.98)", opacity: 0 }}
+              animate={{ transform: "scale(1)", opacity: 1 }}
+              exit={{ transform: "scale(0.98)", opacity: 0 }}
+              whileHover={{ transform: "scale(1.02)" }}
               transition={{
                 type: "spring",
                 stiffness: 120,
@@ -173,6 +150,8 @@ export default function PhotoGrid({
                       ? 1
                       : 0,
                 }}
+                // whileHover={{ transform: "scale(1.05)" }}
+                // whileTap={{ transform: "scale(0.98)" }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 exit={{ opacity: 0 }}

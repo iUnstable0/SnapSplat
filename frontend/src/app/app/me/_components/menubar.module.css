@@ -53,12 +53,12 @@
 }
 
 .joinEvent:hover {
-  scale: 1.05;
+  transform: scale(1.05);
   cursor: pointer;
 }
 
 .joinEvent:active {
-  scale: 1;
+  transform: scale(1);
 }
 
 .joinEventContainer {
@@ -129,14 +129,14 @@
 }
 
 .joinEventInputSlot:hover {
-  scale: 1.05;
+  transform: scale(1.05);
 
   background-color: rgba(255, 255, 255, 0.221);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
 .joinEventInputSlot:focus {
-  scale: 1.1;
+  transform: scale(1.1);
 
   background-color: rgba(255, 255, 255, 0.221);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
@@ -175,12 +175,12 @@
 }
 
 .createEvent:hover {
-  scale: 1.1;
+  transform: scale(1.1);
   cursor: pointer;
 }
 
 .createEvent:active {
-  scale: 1;
+  transform: scale(1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -207,12 +207,12 @@
 }
 
 .profile:hover {
-  scale: 1.1;
+  transform: scale(1.1);
   cursor: pointer;
 }
 
 .profile:active {
-  scale: 1;
+  transform: scale(1);
 }
 
 .profileAvatar {
@@ -346,7 +346,7 @@
 }
 
 .createEventFormMagnet:hover {
-  scale: 1.1;
+  transform: scale(1.1);
 
   .createEventFormKeybind {
     filter: drop-shadow(0 0 10px #0000009d);
@@ -360,7 +360,7 @@
 }
 
 .createEventFormMagnet:active {
-  scale: 1.05;
+  transform: scale(1.05);
 }
 
 .createEventFormMagnetCancel:hover {
@@ -380,7 +380,7 @@
 }
 
 .createEventFormMagnetDisabled:hover {
-  scale: 1 !important;
+  transform: scale(1) !important;
 
   .createEventFormKeybind {
     filter: none !important;
@@ -388,7 +388,7 @@
 }
 
 .createEventFormMagnetDisabled:active {
-  scale: 1 !important;
+  transform: scale(1) !important;
 }
 
 .createEventFormButtonText {

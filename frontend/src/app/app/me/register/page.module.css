@@ -165,7 +165,7 @@
 }
 
 .formMagnet:hover:not(.formMagnetDisabled) {
-  scale: 1.1;
+  transform: scale(1.1);
 
   .formKeybind {
     filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
@@ -187,7 +187,7 @@
 }
 
 .formMagnet:active:not(.formMagnetDisabled) {
-  scale: 1.05;
+  transform: scale(1.05);
 }
 
 .formButton {

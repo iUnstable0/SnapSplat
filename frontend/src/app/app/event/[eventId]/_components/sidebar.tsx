@@ -41,8 +41,9 @@ import {
 
 import { Magnetic } from "@/components/ui/mp_magnetic";
 
-import { useMediaQuery } from "@/components/useMediaQuery";
 import { useBlurContext } from "@/components/blur-context";
+
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 import Spinner from "@/components/spinner";
 import { KeybindButton, T_Keybind } from "@/components/keybind";
@@ -555,9 +556,9 @@ export default function Sidebar({
                   eventMenuItems.map((item, index) => (
                     <motion.div
                       key={`item_${item.label}_${index}`}
-                      initial={{ opacity: 0, x: "0", scale: 0.95 }}
-                      animate={{ opacity: 1, x: "0", scale: 1 }}
-                      exit={{ opacity: 0, x: "0", scale: 0.95 }}
+                      initial={{ opacity: 0, transform: "scale(0.95)" }}
+                      animate={{ opacity: 1, transform: "scale(1)" }}
+                      exit={{ opacity: 0, transform: "scale(0.95)" }}
                       transition={{
                         delay: isMobile
                           ? index * 0.07 + 0.2
@@ -751,10 +752,10 @@ export default function Sidebar({
             {showSpinner && (
               <motion.div
                 key={"sidebarspinner"}
-                initial={{ opacity: 0, scale: 0.99 }}
+                initial={{ opacity: 0, transform: "scale(0.99)" }}
                 // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.99 }}
+                animate={{ opacity: 1, transform: "scale(1)" }}
+                exit={{ opacity: 0, transform: "scale(0.99)" }}
                 transition={{
                   type: "spring",
                   stiffness: 210,
@@ -772,11 +773,11 @@ export default function Sidebar({
             {renderChildren && (
               <motion.div
                 key={"sidebarpage"}
-                initial={{ opacity: 0, scale: 0.99 }}
+                initial={{ opacity: 0, transform: "scale(0.99)" }}
                 // TODO: Point
                 // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.99 }}
+                animate={{ opacity: 1, transform: "scale(1)" }}
+                exit={{ opacity: 0, transform: "scale(0.99)" }}
                 transition={{
                   type: "spring",
                   stiffness: 210,

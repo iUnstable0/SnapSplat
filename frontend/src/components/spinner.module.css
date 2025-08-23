@@ -1,16 +1,15 @@
 .spinner {
   display: inherit;
   position: relative;
-  transform: rotate(165deg);
-  scale: 0.9;
+  transform: rotate(165deg) scale(0.9);
   opacity: 0;
   transition:
-    scale 0.2s ease-in-out,
+    transform 0.2s ease-in-out,
     opacity 0.2s ease-in-out;
 }
 
 .spinner_loading {
-  scale: 1;
+  transform: scale(1);
   opacity: 1;
 }
 

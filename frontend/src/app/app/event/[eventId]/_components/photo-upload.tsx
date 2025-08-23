@@ -33,9 +33,11 @@ import { SlidingNumber } from "@/components/ui/mp_sliding-number";
 import Spinner from "@/components/spinner";
 import Toaster from "@/components/toaster";
 
-import { useUploadQueue } from "../_hooks/useUploadQueue";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-import PhotoPreview from "./photo-preview";
+import { useUploadQueue, type T_FileQueue } from "../_hooks/useUploadQueue";
+
+import UploadPreview from "./upload-preivew";
 
 import type { T_Event, T_EventMembership, T_EventPhoto } from "@/gql/types";
 
@@ -109,7 +111,11 @@ export default function PhotoUpload({
     {}
   );
 
+  const [selectedPhoto, setSelectedPhoto] = useState<T_FileQueue | null>(null);
+
   const [uploadingProgress, setUploadingProgress] = useState<number>(0);
+
+  const isDark = useMediaQuery("(prefers-color-scheme: dark)");
 
   const resetState = useCallback(
     (clearBlobs = true) => {
@@ -491,6 +497,19 @@ export default function PhotoUpload({
       setIsBlurred(false);
     }
   }, [isDragActive]);
+
+  useEffect(() => {
+    if (items.length === 1 && items[0].status === "processing") {
+      setIsBlurred(true);
+    } else {
+      setIsBlurred(false);
+    }
+
+    // else if (items.length === 1) {
+    //   setIsBlurred(false);
+    // }
+  }, [items]);
+
   // }, [isDragActive, isUploading]);
 
   // useEffect(() => {
@@ -517,6 +536,16 @@ export default function PhotoUpload({
         <input {...getInputProps()} />
       </div> */}
 
+      <AnimatePresence>
+        {selectedPhoto && (
+          <UploadPreview
+            photo={selectedPhoto}
+            setSelectedPhoto={setSelectedPhoto}
+            removeItem={removeItem}
+          />
+        )}
+      </AnimatePresence>
+
       <input {...getInputProps()} />
 
       <AnimatePresence>
@@ -527,6 +556,9 @@ export default function PhotoUpload({
               styles.dropModalOverlay,
               items.length > 1 && styles.dropModalOverlayGrid
             )}
+            // initial={{ opacity: 0, transform: "scale(0.95)" }}
+            // animate={{ opacity: 1, transform: "scale(1)" }}
+            // exit={{ opacity: 0, transform: "scale(0.95)" }}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -539,9 +571,13 @@ export default function PhotoUpload({
             layout
           >
             <AnimatePresence mode="popLayout" initial={false}>
+              {/* Blur overlay button menu */}
               {items.length > 1 && (
                 <motion.div
                   className={styles.dropModalOverlayImagesGridOverlay}
+                  // initial={{ opacity: 0, transform: "scale(0.95)" }}
+                  // animate={{ opacity: 1, transform: "scale(1)" }}
+                  // exit={{ opacity: 0, transform: "scale(0.95)" }}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
@@ -566,10 +602,10 @@ export default function PhotoUpload({
                       <KeybindButton
                         keybinds={[T_Keybind.escape]}
                         onPress={resetState}
-                        forcetheme="dark"
+                        // forcetheme="dark"
                         dangerous={true}
-                        disabled={isUploading}
-                        className={styles.toolbarButton}
+                        disabled={isUploading || !!selectedPhoto}
+                        // className={styles.toolbarButton}
                       >
                         Cancel
                       </KeybindButton>
@@ -578,11 +614,11 @@ export default function PhotoUpload({
                         onPress={() => {
                           handleUpload();
                         }}
-                        forcetheme="dark"
+                        // forcetheme="dark"
                         loading={isUploading}
                         loadingText={"Uploading..."}
-                        disabled={isUploading || !canUpload}
-                        className={styles.toolbarButton}
+                        disabled={isUploading || !canUpload || !!selectedPhoto}
+                        // className={styles.toolbarButton}
                         preload={false}
                         loadingTextEnabled={false}
                       >
@@ -633,7 +669,7 @@ export default function PhotoUpload({
                             // key={`text-shimmer-${pendingFiles.length}`}
                             duration={2.5}
                             spread={2}
-                            className=" [--base-gradient-color:#F3FEF1]"
+                            className={`[--base-gradient-color:${isDark ? "#F3FEF1" : "#111827"}]`}
                           >
                             - Drag and drop additional files to upload here
                           </TextShimmer>
@@ -650,6 +686,9 @@ export default function PhotoUpload({
                   items.length > 1 && styles.dropModalOverlayImagesGrid
                 )}
                 key="imagescontainer"
+                // initial={{ opacity: 0, transform: "scale(0.95)" }}
+                // animate={{ opacity: 1, transform: "scale(1)" }}
+                // exit={{ opacity: 0, transform: "scale(0.95)" }}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -711,6 +750,7 @@ export default function PhotoUpload({
                     </motion.div>
                   )}
 
+                  {/* photo grid */}
                   {items.length > 1 &&
                     items.map((it, idx) => (
                       <motion.button
@@ -723,9 +763,11 @@ export default function PhotoUpload({
                             styles.dropModalOverlayImageGridContainerEnabled
                         )}
                         initial={{ opacity: 0, scale: 0.9 }}
+                        // initial={{ opacity: 0, transform: "scale(0.9)" }}
                         animate={{
-                          opacity: 1,
+                          opacity: isBlurred ? 0.7 : 1,
                           scale: 1,
+                          // transform: "scale(1)",
                           ...(idx === 0 && firstDrop
                             ? {
                                 transition: {
@@ -734,7 +776,15 @@ export default function PhotoUpload({
                               }
                             : {}),
                         }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                        whileHover={{
+                          scale: 1.02,
+                          // transform: "scale(1.02)",
+                        }}
+                        exit={{
+                          opacity: 0,
+                          scale: 0.9,
+                          // transform: "scale(0.9)",
+                        }}
                         transition={{
                           opacity: {
                             duration: 0.2,
@@ -745,6 +795,13 @@ export default function PhotoUpload({
                           damping: 20,
                         }}
                         disabled={isUploading}
+                        onClick={(e) => {
+                          if (isUploading) {
+                            return;
+                          }
+
+                          setSelectedPhoto(it);
+                        }}
                         layout
                       >
                         <AnimatePresence mode="popLayout">
@@ -763,7 +820,12 @@ export default function PhotoUpload({
                                 ease: "easeInOut",
                               }}
                             >
-                              <Spinner id={it.id} loading={true} size={32} />
+                              <Spinner
+                                id={it.id}
+                                loading={true}
+                                size={32}
+                                // forcetheme="dark"
+                              />
                             </motion.div>
                           )}
 
@@ -783,7 +845,9 @@ export default function PhotoUpload({
                             >
                               <div
                                 className={styles.dropModalOverlayImageDelete}
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
+
                                   if (isUploading) {
                                     return;
                                   }
@@ -937,12 +1001,18 @@ export default function PhotoUpload({
                           </div>
                           <div className={styles.dropModalOverlayImagesTitle}>
                             <div
-                              className={styles.dropModalOverlayImagesTitleText}
+                              className={clsx(
+                                styles.dropModalOverlayImagesTitleText,
+                                styles.dropModalOverlayImagesTitleTextDark
+                              )}
                             >
                               {it.fileOut?.name ?? it.fileIn.name}
                             </div>
                             <div
-                              className={styles.dropModalOverlayImagesSize}
+                              className={clsx(
+                                styles.dropModalOverlayImagesSize,
+                                styles.dropModalOverlayImagesSizeTextDark
+                              )}
                               style={
                                 {
                                   // gradient based left to right filling up as file size increases
@@ -984,6 +1054,7 @@ export default function PhotoUpload({
                                   // key={`text-shimmer-${item.file.name}`}
                                   duration={2.5}
                                   spread={2}
+                                  // tailwind media dark:
                                   className=" [--base-gradient-color:#F3FEF1]"
                                 >
                                   - Drag and drop additional files to upload
@@ -1001,7 +1072,7 @@ export default function PhotoUpload({
           </motion.div>
         )}
 
-        {isDragAccept && !isUploading && !disabled && (
+        {isDragAccept && !isUploading && !disabled && !selectedPhoto && (
           <motion.div
             key="drag-accept"
             className={styles.dropModalOverlayCentered}
