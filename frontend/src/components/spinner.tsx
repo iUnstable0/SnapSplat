@@ -3,8 +3,6 @@
 import clsx from "clsx";
 import tinycolor from "tinycolor2";
 
-import { useMediaQuery } from "./useMediaQuery";
-
 import styles from "./spinner.module.css";
 
 export default function Spinner({
