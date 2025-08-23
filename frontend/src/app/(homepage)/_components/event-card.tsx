@@ -23,8 +23,8 @@ export default function EventCard({
     <motion.div
       className={styles.eventCardContainer}
       key={index}
-      initial={{ scale: 0.98 }}
-      whileHover={{ scale: 1 }}
+      initial={{ transform: "scale(0.98)" }}
+      whileHover={{ transform: "scale(1)" }}
       transition={{
         duration: 0.05,
       }}

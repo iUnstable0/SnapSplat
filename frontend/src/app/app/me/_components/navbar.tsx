@@ -186,9 +186,9 @@ export default function Navbar() {
               {menuItems.map((item, index) => (
                 <motion.div
                   key={`item_${item.label}_${index}`}
-                  initial={{ opacity: 0, x: "0", scale: 0.95 }}
-                  animate={{ opacity: 1, x: "0", scale: 1 }}
-                  exit={{ opacity: 0, x: "0", scale: 0.95 }}
+                  initial={{ opacity: 0, x: "0", transform: "scale(0.95)" }}
+                  animate={{ opacity: 1, x: "0", transform: "scale(1)" }}
+                  exit={{ opacity: 0, x: "0", transform: "scale(0.95)" }}
                   transition={{
                     delay: showMenu ? index * 0.1 + 0.1 : 0,
                   }}

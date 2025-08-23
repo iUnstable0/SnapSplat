@@ -167,8 +167,7 @@
 .sidebarOverlayMagnet:hover:not(.sidebarOverlayMagnetDisabled) {
   cursor: pointer;
 
-  transform: translateX(8px) !important;
-  scale: 1.1 !important;
+  transform: translateX(8px) scale(1.1) !important;
 
   .sidebarOverlayButtonText {
     /* text-shadow: 0 0 10px rgba(0, 0, 0, 0.3); */
@@ -196,8 +195,7 @@
 .sidebarOverlayMagnet_active {
   cursor: pointer;
 
-  transform: translateX(4px) !important;
-  scale: 1.05 !important;
+  transform: translateX(4px) scale(1.05) !important;
 }
 
 .sidebarOverlayButtonIcon {
@@ -340,19 +338,16 @@
 }
 
 .logoLink:hover {
-  transform: translateX(6px);
-  scale: 1.05;
+  transform: translateX(6px) scale(1.05);
 }
 
 .logoLink:active {
-  transform: translateX(0px);
-  scale: 1;
+  transform: translateX(0px) scale(1);
 }
 
 @media (max-width: 767px) {
   .logoLink:hover {
-    transform: translateX(12px);
-    scale: 1.05;
+    transform: translateX(12px) scale(1.05);
   }
 }
 

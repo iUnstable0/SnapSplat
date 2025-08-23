@@ -352,9 +352,9 @@ export default function MenuBar({ me }: { me: T_User }) {
           <motion.div
             key="joinEventContent"
             className={styles.overlayContent}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, transform: "scale(0.98)" }}
+            animate={{ opacity: 1, transform: "scale(1)" }}
+            exit={{ opacity: 0, transform: "scale(0.98)" }}
             transition={{
               ...(showForm && {
                 type: "spring",
@@ -629,9 +629,9 @@ export default function MenuBar({ me }: { me: T_User }) {
         {overlayOpen && (
           <motion.div
             className={styles.overlayContent}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, transform: "scale(0.98)" }}
+            animate={{ opacity: 1, transform: "scale(1)" }}
+            exit={{ opacity: 0, transform: "scale(0.98)" }}
             transition={{
               ...(showForm && {
                 type: "spring",

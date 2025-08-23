@@ -212,7 +212,7 @@
 
   color: var(--sp-text-color-dark);
 
-  transition: scale 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
 }
 
 .eventIconEditIconText {
@@ -227,11 +227,11 @@
 
   transition:
     filter 0.2s ease-in-out,
-    scale 0.2s ease-in-out;
+    transform 0.2s ease-in-out;
 }
 
 .eventIconEditIconDragging {
-  scale: 1.2;
+  transform: scale(1.2);
   filter: drop-shadow(0 0 10px rgb(201, 200, 200));
 }
 

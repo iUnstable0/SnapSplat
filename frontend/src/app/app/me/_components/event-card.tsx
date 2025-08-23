@@ -163,9 +163,9 @@ export default function EventCard({
   return (
     <motion.div
       className={styles.eventCard}
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: isBlurred ? 0.3 : 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
+      initial={{ opacity: 0, transform: "scale(0.98)" }}
+      animate={{ opacity: isBlurred ? 0.3 : 1, transform: "scale(1)" }}
+      exit={{ opacity: 0, transform: "scale(0.98)" }}
       transition={{
         type: "spring",
         stiffness: 120,
@@ -208,7 +208,7 @@ export default function EventCard({
         // setManageEvent(event);
         setOverlayOpen(true);
       }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ transform: "scale(1.02)" }}
       layout="position"
       layoutId={event.eventId}
     >
@@ -363,12 +363,12 @@ export default function EventCard({
                 onClick={() => {
                   item.onClick();
                 }}
-                initial={{ opacity: 0, scale: 0.98 }}
+                initial={{ opacity: 0, transform: "scale(0.98)" }}
                 animate={{
                   opacity: 1,
-                  scale: 1,
+                  transform: "scale(1)",
                 }}
-                exit={{ opacity: 0, scale: 0.98 }}
+                exit={{ opacity: 0, transform: "scale(0.98)" }}
                 transition={{
                   type: "spring",
                   stiffness: 120,

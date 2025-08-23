@@ -13,7 +13,7 @@ const needsConversion = (file: File) =>
   file.type === "image/heif" ||
   /\.hei[cf]$/i.test(file.name);
 
-type T_FileQueue = {
+export type T_FileQueue = {
   id: string;
   fileIn: File;
   fileOut?: File;

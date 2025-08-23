@@ -58,7 +58,7 @@ export function GlowEffect({
         (color) =>
           `radial-gradient(circle at 50% 50%, ${color} 0%, transparent 100%)`
       ),
-      scale: [1 * scale, 1.1 * scale, 1 * scale],
+      transform: ["scale(1)", "scale(1.1)", "scale(1)"],
       opacity: [0.5, 0.8, 0.5],
       transition: {
         ...(transition ?? {
@@ -74,7 +74,7 @@ export function GlowEffect({
             `radial-gradient(circle at 50% 50%, ${color} 0%, transparent 100%)`
         ),
       ],
-      scale: [1 * scale, 1.05 * scale, 1 * scale],
+      transform: ["scale(1)", "scale(1.05)", "scale(1)"],
       transition: {
         ...(transition ?? {
           ...BASE_TRANSITION,
