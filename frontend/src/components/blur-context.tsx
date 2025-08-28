@@ -14,7 +14,7 @@ export const BlurContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [isBlurred, setIsBlurred] = useState(false);
+  const [isBlurred, setIsBlurred] = useState<boolean>(false);
 
   return (
     <BlurContext.Provider value={{ isBlurred, setIsBlurred }}>

@@ -2,13 +2,12 @@
   border-radius: 10px;
   overflow: hidden;
 
-  background-color: var(--sp-background-color);
-}
-
-.mainContent {
   display: flex;
   flex-direction: column;
+
   gap: 12px;
+
+  background-color: var(--sp-background-color);
 }
 
 .pageTitle {
@@ -17,11 +16,7 @@
 
   padding: 24px;
 
-  /* background: red; */
-}
-
-.galleryContainer {
-  /* padding-left: 24px; */
+  /*background: red;*/
 }
 
 .galleryTitle {

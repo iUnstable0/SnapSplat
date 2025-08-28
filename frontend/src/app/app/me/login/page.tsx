@@ -23,11 +23,11 @@ function LoginComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [actionDisabled, setActionDisabled] = useState(false);
+  const [actionDisabled, setActionDisabled] = useState<boolean>(false);
 
-  const [blurOverlayOpen, setBlurOverlayOpen] = useState(true);
-  const [formVisible, setFormVisible] = useState(true);
-  const [redirecting, setRedirecting] = useState(false);
+  const [blurOverlayOpen, setBlurOverlayOpen] = useState<boolean>(true);
+  const [formVisible, setFormVisible] = useState<boolean>(true);
+  const [redirecting, setRedirecting] = useState<boolean>(false);
 
   const [issues, setIssues] = useState<{
     email: {
@@ -43,8 +43,8 @@ function LoginComponent() {
     password: { success: true, reasons: [] },
   });
 
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     // Only focus on the first issue
@@ -260,7 +260,7 @@ function LoginComponent() {
                   placeholder="Email"
                   className={clsx(
                     styles.input,
-                    !issues.email.success && styles.inputInvalid
+                    !issues.email.success && styles.inputInvalid,
                   )}
                   onChange={checkEmailIssues}
                   onBlur={checkEmailIssues}
@@ -311,7 +311,7 @@ function LoginComponent() {
                   placeholder="Password"
                   className={clsx(
                     styles.input,
-                    !issues.password.success && styles.inputInvalid
+                    !issues.password.success && styles.inputInvalid,
                   )}
                   onChange={checkPasswordIssues}
                   onBlur={checkPasswordIssues}

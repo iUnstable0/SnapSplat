@@ -23,7 +23,7 @@ export default function EventContainer({
   events: T_EventData[][];
 }) {
   const [manageEvent, setManageEvent] = useState<T_EventData | null>(null);
-  const [manageEventVisible, setManageEventVisible] = useState(false);
+  const [manageEventVisible, setManageEventVisible] = useState<boolean>(false);
   const { setIsBlurred } = useBlurContext();
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function EventContainer({
               setManageEvent={setManageEvent}
               setManageEventVisible={setManageEventVisible}
             />
-          ))
+          )),
         )}
       </AnimatePresence>
     </motion.div>

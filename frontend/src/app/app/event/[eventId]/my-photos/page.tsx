@@ -64,13 +64,13 @@ export default async function Page({
           }),
           withAuth: true,
         },
-        cookieStore.get("token")?.value
+        cookieStore.get("token")?.value,
       )
     ).event as T_EventData;
   } catch (error: any) {
     console.error(
       `[/app/event/${eventId}/my-photos] Error fetching data`,
-      error
+      error,
     );
 
     if ("redirect" in error) {
@@ -115,7 +115,7 @@ export default async function Page({
   const filteredEvent = {
     ...event,
     photos: event.photos.filter(
-      (photo) => photo.memberId === event.myMembership?.memberId
+      (photo) => photo.memberId === event.myMembership?.memberId,
     ),
   } as T_EventData;
 
@@ -123,19 +123,18 @@ export default async function Page({
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={styles.mainContent}>
-        <div className={styles.pageTitle}>My Photos</div>
+      <div className={styles.pageTitle}>My Photos</div>
 
-        {event.isDraft && (
-          <div className={styles.galleryTitle}>
-            <Images className={styles.galleryTitleIcon} />
-            <span className={styles.galleryTitleText}>
-              Publish your event to get started
-            </span>
-          </div>
-        )}
+      {event.isDraft && (
+        <div className={styles.galleryTitle}>
+          <Images className={styles.galleryTitleIcon} />
+          <span className={styles.galleryTitleText}>
+            Publish your event to get started
+          </span>
+        </div>
+      )}
 
-        {/* {!event.isDraft && filteredEvent.photos.length === 0 && (
+      {/* {!event.isDraft && filteredEvent.photos.length === 0 && (
           <div className={styles.galleryTitle}>
             <Images className={styles.galleryTitleIcon} />
             <span className={styles.galleryTitleText}>
@@ -144,12 +143,11 @@ export default async function Page({
           </div>
         )} */}
 
-        {/* {!event.isDraft && filteredEvent.photos.length > 0 && (
+      {/* {!event.isDraft && filteredEvent.photos.length > 0 && (
           <MyPhoto event={filteredEvent} />
         )} */}
 
-        {!event.isDraft && <MyPhoto event={filteredEvent} />}
-      </div>
+      {!event.isDraft && <MyPhoto event={filteredEvent} />}
     </div>
   );
 }

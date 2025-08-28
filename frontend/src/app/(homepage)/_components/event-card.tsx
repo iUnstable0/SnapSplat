@@ -17,7 +17,7 @@ export default function EventCard({
   event: any;
   index: number;
 }) {
-  //   const [isGlowVisible, setIsGlowVisible] = useState(false);
+  //   const [isGlowVisible, setIsGlowVisible] = useState<boolean>(false);
 
   return (
     <motion.div

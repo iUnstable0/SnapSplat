@@ -31,8 +31,8 @@ export default function Navbar() {
 
   const { setIsBlurred } = useBlurContext();
 
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(true);
+  const [overlayOpen, setOverlayOpen] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState<boolean>(true);
   const [viewportDimensions, setViewportDimensions] = useState({
     width: 0,
     height: 0,
@@ -206,7 +206,7 @@ export default function Navbar() {
                       styles.overlayMagnet,
                       item.className,
                       pathname === item.href && styles.overlayMagnet_active,
-                      pathname !== item.href && styles.overlayMagnet_free
+                      pathname !== item.href && styles.overlayMagnet_free,
                       // activeEventMenuItem === item.label &&
                       //   styles.sidebarOverlayMagnet_active,
                       // activeEventMenuItem !== item.label &&

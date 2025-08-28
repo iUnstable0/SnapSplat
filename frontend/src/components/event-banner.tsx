@@ -57,7 +57,7 @@ const DragEditIcon = ({
           <Upload
             className={clsx(
               styles.eventIconEditIcon,
-              isItemDragActive && styles.eventIconEditIconDragging
+              isItemDragActive && styles.eventIconEditIconDragging,
             )}
           />
         </motion.div>
@@ -92,16 +92,16 @@ export default function EventBanner({
   isParentDragActive?: boolean;
   MAX_SIZE?: number;
 }) {
-  const [isIconLoaded, setIsIconLoaded] = useState(false);
-  const [isBannerLoaded, setIsBannerLoaded] = useState(false);
+  const [isIconLoaded, setIsIconLoaded] = useState<boolean>(false);
+  const [isBannerLoaded, setIsBannerLoaded] = useState<boolean>(false);
 
-  const [isIconHidden, setIsIconHidden] = useState(false);
-  const [isBannerHidden, setIsBannerHidden] = useState(false);
+  const [isIconHidden, setIsIconHidden] = useState<boolean>(false);
+  const [isBannerHidden, setIsBannerHidden] = useState<boolean>(false);
 
-  const [iconLoading, setIconLoading] = useState(false);
-  const [bannerLoading, setBannerLoading] = useState(false);
+  const [iconLoading, setIconLoading] = useState<boolean>(false);
+  const [bannerLoading, setBannerLoading] = useState<boolean>(false);
 
-  const eventTitleInputRef = useRef<HTMLInputElement>(null);
+  const eventTitleInputRef = useRef<HTMLInputElement | null>(null);
 
   const [iconFile, setIconFile] = useState<{
     file: File;
@@ -495,7 +495,7 @@ export default function EventBanner({
         <div
           className={clsx(
             styles.eventTitleContainer,
-            edit && isParentDragActive && styles.eventTitleContainerDragging
+            edit && isParentDragActive && styles.eventTitleContainerDragging,
           )}
         >
           {edit ? (
@@ -504,7 +504,7 @@ export default function EventBanner({
               className={clsx(
                 styles.eventTitle,
                 styles.eventTitleInput,
-                !issues.name.success && styles.invalid
+                !issues.name.success && styles.invalid,
               )}
               placeholder={"Event Name"}
               onBlur={() => {
@@ -552,7 +552,7 @@ export default function EventBanner({
             <p
               className={clsx(
                 styles.eventDescription,
-                edit && styles.eventDescriptionEdit
+                edit && styles.eventDescriptionEdit,
               )}
               onClick={() => {
                 if (edit) {

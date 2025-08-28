@@ -35,7 +35,7 @@ export default function PhotoGrid({
   const { isBlurred, setIsBlurred } = useBlurContext();
 
   const [selectedPhoto, setSelectedPhoto] = useState<T_EventPhoto | null>(null);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState<boolean>(false);
   const [uploadedRelativeTime, setUploadedRelativeTime] = useState<
     string | null
   >(null);
@@ -46,12 +46,12 @@ export default function PhotoGrid({
   useEffect(() => {
     if (selectedPhoto) {
       setUploadedRelativeTime(
-        DateTime.fromISO(selectedPhoto.uploadedAt).toRelative()
+        DateTime.fromISO(selectedPhoto.uploadedAt).toRelative(),
       );
 
       const interval = setInterval(() => {
         setUploadedRelativeTime(
-          DateTime.fromISO(selectedPhoto.uploadedAt).toRelative()
+          DateTime.fromISO(selectedPhoto.uploadedAt).toRelative(),
         );
       }, 500);
 

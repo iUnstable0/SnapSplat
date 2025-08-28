@@ -1,15 +1,17 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import Error from "@/components/error";
+import { Images } from "lucide-react";
 
 import * as gql_builder from "gql-query-builder";
 
 import requester from "@/gql/requester";
 import type { T_Event, T_EventPhoto } from "@/gql/types";
 
-import styles from "./page.module.css";
-import { Hammer, Images } from "lucide-react";
+import Error from "@/components/error";
+import Canvas from "./_components/canvas";
+
+import styles from "./page.module.scss";
 
 export default async function Page({
   params,
@@ -53,13 +55,13 @@ export default async function Page({
           }),
           withAuth: true,
         },
-        cookieStore.get("token")?.value
+        cookieStore.get("token")?.value,
       )
     ).event as T_EventData;
   } catch (error: any) {
     console.error(
       `[/app/event/${eventId}/my-photos] Error fetching data`,
-      error
+      error,
     );
 
     if ("redirect" in error) {
@@ -103,27 +105,25 @@ export default async function Page({
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={styles.mainContent}>
-        <div className={styles.pageTitle}>Board</div>
+      <div className={styles.pageTitle}>Board</div>
 
-        {event.isDraft && (
-          <div className={styles.galleryTitle}>
-            <Images className={styles.galleryTitleIcon} />
-            <span className={styles.galleryTitleText}>
-              Publish your event to get started
-            </span>
-          </div>
-        )}
+      {event.isDraft && (
+        <div className={styles.galleryTitle}>
+          <Images className={styles.galleryTitleIcon} />
+          <span className={styles.galleryTitleText}>
+            Publish your event to get started
+          </span>
+        </div>
+      )}
 
-        {!event.isDraft && (
-          <div className={styles.galleryTitle}>
-            <Hammer className={styles.galleryTitleIcon} />
-            <span className={styles.galleryTitleText}>Under construction</span>
-          </div>
-        )}
+      {/*{!event.isDraft && (
+        <div className={styles.galleryTitle}>
+          <Hammer className={styles.galleryTitleIcon} />
+          <span className={styles.galleryTitleText}>Under construction</span>
+        </div>
+      )}*/}
 
-        {/* {!event.isDraft && <Gallery photos={event.photos} />} */}
-      </div>
+      {!event.isDraft && <Canvas />}
     </div>
   );
 }

@@ -62,13 +62,13 @@ export default async function Page({
           }),
           withAuth: true,
         },
-        cookieStore.get("token")?.value
+        cookieStore.get("token")?.value,
       )
     ).event as T_EventData;
   } catch (error: any) {
     console.error(
       `[/app/event/${eventId}/my-photos] Error fetching data`,
-      error
+      error,
     );
 
     if ("redirect" in error) {
@@ -112,29 +112,27 @@ export default async function Page({
 
   return (
     <div className={styles.pageWrapper}>
-      <div className={styles.mainContent}>
-        <div className={styles.pageTitle}>Gallery</div>
+      <div className={styles.pageTitle}>Gallery</div>
 
-        {event.isDraft && (
-          <div className={styles.galleryTitle}>
-            <Images className={styles.galleryTitleIcon} />
-            <span className={styles.galleryTitleText}>
-              Publish your event to get started
-            </span>
-          </div>
-        )}
+      {event.isDraft && (
+        <div className={styles.galleryTitle}>
+          <Images className={styles.galleryTitleIcon} />
+          <span className={styles.galleryTitleText}>
+            Publish your event to get started
+          </span>
+        </div>
+      )}
 
-        {/* {!event.isDraft && (
+      {/* {!event.isDraft && (
           <div className={styles.galleryTitle}>
             <Hammer className={styles.galleryTitleIcon} />
             <span className={styles.galleryTitleText}>Under construction</span>
           </div>
         )} */}
 
-        {/* <div className={styles.galleryContainer}> */}
-        {!event.isDraft && <Gallery event={event} />}
-        {/* </div> */}
-      </div>
+      {/* <div className={styles.galleryContainer}> */}
+      {!event.isDraft && <Gallery event={event} />}
+      {/* </div> */}
     </div>
   );
 }

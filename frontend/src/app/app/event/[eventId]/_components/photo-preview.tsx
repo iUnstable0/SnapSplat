@@ -26,12 +26,13 @@ export default function PhotoPreview({
   setSelectedPhoto: (photo: T_EventPhoto | null) => void;
   ownsPhoto: boolean;
 }) {
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const [buttonDisabled, setButtonDisabled] = useState<boolean>(false);
 
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] =
+    useState<boolean>(false);
   const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
-    useState(false);
+    useState<boolean>(false);
 
   const router = useRouter();
 

@@ -40,7 +40,7 @@ export default function MyPhoto({ event }: { event: T_EventData }) {
 
   // const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   // const [pendingPreviews, setPendingPreviews] = useState<string[]>([]);
-  // const [heicLoading, setHeicLoading] = useState(false);
+  // const [heicLoading, setHeicLoading] = useState<boolean>(false);
   // const [loading, setLoading] = useState<string | null>(null);
 
   // const [error, setError] = useState<string | null>(null);

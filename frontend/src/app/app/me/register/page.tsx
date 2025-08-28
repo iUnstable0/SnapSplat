@@ -25,11 +25,11 @@ function RegisterComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [actionDisabled, setActionDisabled] = useState(false);
+  const [actionDisabled, setActionDisabled] = useState<boolean>(false);
 
-  const [blurOverlayOpen, setBlurOverlayOpen] = useState(true);
-  const [formVisible, setFormVisible] = useState(true);
-  const [redirecting, setRedirecting] = useState(false);
+  const [blurOverlayOpen, setBlurOverlayOpen] = useState<boolean>(true);
+  const [formVisible, setFormVisible] = useState<boolean>(true);
+  const [redirecting, setRedirecting] = useState<boolean>(false);
 
   const [issues, setIssues] = useState<{
     displayName: {
@@ -55,10 +55,10 @@ function RegisterComponent() {
     confirmPassword: { success: true, reasons: [] },
   });
 
-  const displayNameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+  const displayNameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     // Only focus on the first issue
@@ -276,7 +276,7 @@ function RegisterComponent() {
       "captchaDemo",
       displayName!,
       email!,
-      password!
+      password!,
     );
 
     setTimeout(() => {
@@ -389,7 +389,7 @@ function RegisterComponent() {
                   placeholder="Display Name"
                   className={clsx(
                     styles.input,
-                    !issues.displayName.success && styles.inputInvalid
+                    !issues.displayName.success && styles.inputInvalid,
                   )}
                   onChange={checkDisplayNameIssues}
                   onBlur={checkDisplayNameIssues}
@@ -439,7 +439,7 @@ function RegisterComponent() {
                   placeholder="Email"
                   className={clsx(
                     styles.input,
-                    !issues.email.success && styles.inputInvalid
+                    !issues.email.success && styles.inputInvalid,
                   )}
                   onChange={checkEmailIssues}
                   onBlur={checkEmailIssues}
@@ -490,7 +490,7 @@ function RegisterComponent() {
                   placeholder="Password"
                   className={clsx(
                     styles.input,
-                    !issues.password.success && styles.inputInvalid
+                    !issues.password.success && styles.inputInvalid,
                   )}
                   onChange={() => {
                     checkPasswordIssues();
@@ -546,7 +546,7 @@ function RegisterComponent() {
                   placeholder="Confirm Password"
                   className={clsx(
                     styles.input,
-                    !issues.confirmPassword.success && styles.inputInvalid
+                    !issues.confirmPassword.success && styles.inputInvalid,
                   )}
                   onChange={checkConfirmPasswordIssues}
                   onBlur={checkConfirmPasswordIssues}
@@ -589,7 +589,7 @@ function RegisterComponent() {
                     ? "24px"
                     : calculateIssueMargin(
                         issues.confirmPassword.reasons,
-                        true
+                        true,
                       ),
                 }}
               >
