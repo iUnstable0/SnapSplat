@@ -7,6 +7,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function clamp(n: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, n));
+}
+
 export async function processFile(file: File) {
   let processedFile = file;
   let previewUrl: string;
@@ -41,7 +45,7 @@ export async function processFile(file: File) {
           {
             type: "image/jpeg",
             lastModified: file.lastModified,
-          }
+          },
         );
       } else {
         const arrayBuffer = await file.arrayBuffer();
@@ -64,7 +68,7 @@ export async function processFile(file: File) {
           {
             type: "image/jpeg",
             lastModified: lastModified ?? file.lastModified,
-          }
+          },
         );
       }
     } catch (error) {

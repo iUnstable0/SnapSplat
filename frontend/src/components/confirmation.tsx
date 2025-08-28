@@ -49,8 +49,8 @@ export default function Confirmation({
   cancelKeybinds?: T_Keybind[];
   parentClassName?: string;
 }) {
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [cancelLoading, setCancelLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
+  const [cancelLoading, setCancelLoading] = useState<boolean>(false);
 
   // const [buttonDisabled, setButtonDisabled] = useState(
   //   confirmLoading || cancelLoading
@@ -73,7 +73,7 @@ export default function Confirmation({
       className={clsx(
         styles.confirmation,
         dim && styles.confirmationDim,
-        parentClassName
+        parentClassName,
       )}
       key={title}
       // initial={{ opacity: 0, scale: 0.9 }}

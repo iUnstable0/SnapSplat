@@ -1,0 +1,60 @@
+.canvas {
+  background: red;
+
+  width: 100%;
+  height: calc(100vh - 156px);
+
+  position: relative;
+
+  //display: flex;
+  //justify-content: center;
+  //align-items: center;
+
+  padding: 8px;
+  border-radius: 12px;
+
+  overflow: auto;
+
+  .world {
+    background: blue;
+
+    position: relative;
+
+    .overlay {
+      background: green;
+
+      transform-origin: top left;
+
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      .content {
+        background: purple;
+
+        position: absolute;
+
+        .crosshair {
+          background: brown;
+
+          position: absolute;
+          left: 0;
+          top: 0;
+
+          transform: translate(-50%, -50%);
+        }
+
+        .image {
+          background: yellow;
+
+          position: relative;
+
+          width: 200px;
+          height: 200px;
+
+          z-index: 100;
+        }
+      }
+    }
+  }
+}

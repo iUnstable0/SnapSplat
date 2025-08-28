@@ -31,9 +31,9 @@ export default function MenuBar({ me }: { me: T_User }) {
 
   const { setIsBlurred } = useBlurContext();
 
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  const [joinEventOpen, setJoinEventOpen] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [overlayOpen, setOverlayOpen] = useState<boolean>(false);
+  const [joinEventOpen, setJoinEventOpen] = useState<boolean>(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
   const [viewportDimensions, setViewportDimensions] = useState({
     width: 0,
     height: 0,
@@ -55,12 +55,13 @@ export default function MenuBar({ me }: { me: T_User }) {
     description: { success: true, reasons: [] },
   });
 
-  const [createEventDisabled, setCreateEventDisabled] = useState(false);
-  const [joinEventDisabled, setJoinEventDisabled] = useState(false);
+  const [createEventDisabled, setCreateEventDisabled] =
+    useState<boolean>(false);
+  const [joinEventDisabled, setJoinEventDisabled] = useState<boolean>(false);
   const [joinEventError, setJoinEventError] = useState<string | null>(null);
 
-  const eventNameRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const eventNameRef = useRef<HTMLInputElement | null>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
 
   const inputRefs = useRef<HTMLInputElement[]>([]);
   // const descriptionRef = useRef<HTMLInputElement>(null);
@@ -596,7 +597,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                         }}
                         className={clsx(
                           styles.joinEventInputSlot,
-                          joinEventError && styles.joinEventInputSlotError
+                          joinEventError && styles.joinEventInputSlotError,
                         )}
                         ref={(el) => {
                           if (el) {
@@ -650,7 +651,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                 <input
                   className={clsx(
                     styles.createEventFormEventName,
-                    !issues.eventName.success && styles.createEventFormInvalid
+                    !issues.eventName.success && styles.createEventFormInvalid,
                   )}
                   onChange={() => {
                     checkEventNameIssues();
@@ -721,7 +722,8 @@ export default function MenuBar({ me }: { me: T_User }) {
                 <textarea
                   className={clsx(
                     styles.createEventFormDescription,
-                    !issues.description.success && styles.createEventFormInvalid
+                    !issues.description.success &&
+                      styles.createEventFormInvalid,
                   )}
                   disabled={createEventDisabled}
                   maxLength={500}
@@ -814,7 +816,7 @@ export default function MenuBar({ me }: { me: T_User }) {
                     const result = await createEvent(
                       "captchaDemo",
                       eventName!,
-                      description!
+                      description!,
                     );
 
                     setTimeout(() => {

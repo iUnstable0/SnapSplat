@@ -30,7 +30,7 @@ import {
   Aperture,
 } from "lucide-react";
 
-// import { layoutGridPlus } from "@lucide/lab";
+import { layoutGridPlus } from "@lucide/lab";
 import { AnimatePresence, motion } from "motion/react";
 
 import {
@@ -57,7 +57,7 @@ import lib_role from "@/modules/role";
 
 // import clsx from "clsx";
 
-import styles from "./sidebar.module.css";
+import styles from "./sidebar.module.scss";
 
 import { T_Event, T_EventInvite, T_EventMembership, T_User } from "@/gql/types";
 
@@ -78,40 +78,43 @@ export default function Sidebar({
 
   const pathname = usePathname();
 
-  const { isBlurred, setIsBlurred } = useBlurContext();
+  // const { isBlurred, setIsBlurred } = useBlurContext();
 
   // const rootPath = pathname.split("/").slice(0, 4).join("/");
   // const pathDirec = `/${pathname.split("/")[4] ?? ""}`;
 
   // const [page, setPage] = useState(pathDirec);
 
-  const [open, setOpen] = useState(false);
-  const [eventMenuOpen, setEventMenuOpen] = useState(false);
-  const [showMenu, setShowMenu] = useState(true);
-  const [showMobileMenu, setShowMobileMenu] = useState(true);
-  const [renderChildren, setRenderChildren] = useState(true);
+  const [open, setOpen] = useState<boolean>(false);
+  const [eventMenuOpen, setEventMenuOpen] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState<boolean>(true);
+  const [showMobileMenu, setShowMobileMenu] = useState<boolean>(true);
+  const [renderChildren, setRenderChildren] = useState<boolean>(true);
   const [targetPath, setTargetPath] = useState<string>(pathname);
   const [showSpinner, setShowSpinner] = useState<boolean>(false);
 
-  const [manageEventVisible, setManageEventVisible] = useState(false);
+  const [manageEventVisible, setManageEventVisible] = useState<boolean>(false);
 
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] =
+    useState<boolean>(false);
   const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
-    useState(false);
+    useState<boolean>(false);
 
-  const [leaveConfirmationOpen, setLeaveConfirmationOpen] = useState(false);
+  const [leaveConfirmationOpen, setLeaveConfirmationOpen] =
+    useState<boolean>(false);
   const [leaveConfirmationLoading, setLeaveConfirmationLoading] =
-    useState(false);
+    useState<boolean>(false);
 
-  const [archiveConfirmationOpen, setArchiveConfirmationOpen] = useState(false);
+  const [archiveConfirmationOpen, setArchiveConfirmationOpen] =
+    useState<boolean>(false);
   const [archiveConfirmationLoading, setArchiveConfirmationLoading] =
-    useState(false);
+    useState<boolean>(false);
 
   const [menuItemsLoading, setMenuItemsLoading] = useState<{
     [key: string]: boolean;
   }>({});
 
-  const [overlayDisabled, setOverlayDisabled] = useState(false);
+  const [overlayDisabled, setOverlayDisabled] = useState<boolean>(false);
 
   const isMobile = useMediaQuery("(max-width: 767px)");
 
@@ -196,7 +199,7 @@ export default function Sidebar({
       icon: <UsersRound />,
       onClick: () => {
         const members = event.memberships.map(
-          (member) => member.displayNameAlt
+          (member) => member.displayNameAlt,
         );
 
         alert(`Members (${members.length}): ${members.join(", ")}`);
@@ -363,17 +366,17 @@ export default function Sidebar({
         navigate(`/app/event/${event.eventId}/gallery`);
       },
     },
-    // {
-    //   label: "Public Board",
-    //   icon: (
-    //     <Icon iconNode={layoutGridPlus} className={styles.sidebarLinkIcon} />
-    //   ),
-    //   href: "/board",
-    //   onClick: () => {
-    //     // setPage("/board");
-    //     navigate(`/app/event/${event.eventId}/board`);
-    //   },
-    // },
+    {
+      label: "Board",
+      icon: (
+        <Icon iconNode={layoutGridPlus} className={styles.sidebarLinkIcon} />
+      ),
+      href: "/board",
+      onClick: () => {
+        // setPage("/board");
+        navigate(`/app/event/${event.eventId}/board`);
+      },
+    },
     // {
     //   label: "Members",
     //   icon: <UsersRound className={styles.sidebarLinkIcon} />,
@@ -582,7 +585,8 @@ export default function Sidebar({
                           styles.sidebarOverlayMagnet,
                           item.dangerous &&
                             styles.sidebarOverlayMagnetDangerous,
-                          overlayDisabled && styles.sidebarOverlayMagnetDisabled
+                          overlayDisabled &&
+                            styles.sidebarOverlayMagnetDisabled,
                           // activeEventMenuItem === item.label &&
                           //   styles.sidebarOverlayMagnet_active,
                           // activeEventMenuItem !== item.label &&
@@ -649,7 +653,7 @@ export default function Sidebar({
               >
                 <Image
                   src={`https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(
-                    event.name
+                    event.name,
                   )}`}
                   alt="SnapSplat"
                   width={24}
@@ -770,14 +774,30 @@ export default function Sidebar({
               </motion.div>
             )}
 
+            {/* Prevent user interaction while width animating or else cause lags*/}
+            {open && (
+              <motion.div
+                className={styles.contentOverlay}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { duration: 0 } }}
+                exit={{ opacity: 0, transition: { duration: 0.3 } }}
+              />
+            )}
+
             {renderChildren && (
               <motion.div
                 key={"sidebarpage"}
                 initial={{ opacity: 0, transform: "scale(0.99)" }}
-                // TODO: Point
-                // animate={{ opacity: isBlurred ? 0.5 : 1, scale: 1 }}
                 animate={{ opacity: 1, transform: "scale(1)" }}
                 exit={{ opacity: 0, transform: "scale(0.99)" }}
+                //
+                // initial={{ opacity: 0, scale: 0.99 }}
+                // animate={{ opacity: 1, scale: 1 }}
+                // exit={{ opacity: 0, scale: 0.99 }}
+                //
+                // initial={{ opacity: 0 }}
+                // animate={{ opacity: 1 }}
+                // exit={{ opacity: 0 }}
                 transition={{
                   type: "spring",
                   stiffness: 210,

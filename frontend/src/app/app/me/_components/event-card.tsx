@@ -46,22 +46,24 @@ export default function EventCard({
 
   const { isBlurred, setIsBlurred } = useBlurContext();
 
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [overlayOpen, setOverlayOpen] = useState(false);
-  const [overlayDisabled, setOverlayDisabled] = useState(false);
-  // const [overlayLoading, setOverlayLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [overlayOpen, setOverlayOpen] = useState<boolean>(false);
+  const [overlayDisabled, setOverlayDisabled] = useState<boolean>(false);
+  // const [overlayLoading, setOverlayLoading] = useState<boolean>(false);
   const [menuItemsLoading, setMenuItemsLoading] = useState<{
     [key: string]: boolean;
   }>({});
 
-  const [showMenu, setShowMenu] = useState(false);
+  const [showMenu, setShowMenu] = useState<boolean>(false);
 
-  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] =
+    useState<boolean>(false);
   const [deleteConfirmationLoading, setDeleteConfirmationLoading] =
-    useState(false);
-  const [leaveConfirmationOpen, setLeaveConfirmationOpen] = useState(false);
+    useState<boolean>(false);
+  const [leaveConfirmationOpen, setLeaveConfirmationOpen] =
+    useState<boolean>(false);
   const [leaveConfirmationLoading, setLeaveConfirmationLoading] =
-    useState(false);
+    useState<boolean>(false);
 
   useEffect(() => {
     if (overlayOpen) {
@@ -95,7 +97,7 @@ export default function EventCard({
         }));
 
         router.push(
-          `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`
+          `/app/event/${event.eventId}/home?back=${encodeURIComponent(pathname)}`,
         );
       },
       keybinds: [T_Keybind.enter],

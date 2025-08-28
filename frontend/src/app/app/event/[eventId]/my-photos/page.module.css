@@ -4,13 +4,11 @@
 
   /* background: red !important; */
 
-  background-color: var(--sp-background-color);
-}
-
-.mainContent {
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  background-color: var(--sp-background-color);
 }
 
 .pageTitle {
@@ -20,12 +18,6 @@
   padding: 24px;
 
   /* background: red; */
-}
-
-.galleryContainer {
-  /* display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px; */
 }
 
 .galleryTitle {

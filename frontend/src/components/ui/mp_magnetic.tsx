@@ -27,8 +27,8 @@ export function Magnetic({
   springOptions = SPRING_CONFIG,
   className,
 }: MagneticProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);

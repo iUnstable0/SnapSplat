@@ -34,20 +34,23 @@ export default function ManageEvent({
   const router = useRouter();
   const pathname = usePathname();
 
-  const [manageEventDisabled, setManageEventDisabled] = useState(false);
+  const [manageEventDisabled, setManageEventDisabled] =
+    useState<boolean>(false);
 
-  const [publishConfirmationOpen, setPublishConfirmationOpen] = useState(false);
+  const [publishConfirmationOpen, setPublishConfirmationOpen] =
+    useState<boolean>(false);
   const [publishConfirmationLoading, setPublishConfirmationLoading] =
-    useState(false);
+    useState<boolean>(false);
 
-  const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
+  const [discardConfirmationOpen, setDiscardConfirmationOpen] =
+    useState<boolean>(false);
 
   const [footerItemLoading, setFooterItemLoading] = useState<string | null>(
-    null
+    null,
   );
 
-  const [edited, setEdited] = useState(false);
-  const [saveDisabled, setSaveDisabled] = useState(false);
+  const [edited, setEdited] = useState<boolean>(false);
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
 
   const [mode, setMode] = useState<"close" | "openevent" | null>(null);
 
@@ -121,7 +124,7 @@ export default function ManageEvent({
                 onConfirm={async () => {
                   const publishResult = await publishEvent(
                     "captchaDemo",
-                    event.eventId
+                    event.eventId,
                   );
                   setPublishConfirmationOpen(false);
                   setTimeout(() => {

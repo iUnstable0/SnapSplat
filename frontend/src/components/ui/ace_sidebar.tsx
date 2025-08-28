@@ -26,7 +26,7 @@ interface SidebarContextProps {
 }
 
 const SidebarContext = createContext<SidebarContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 export const useSidebar = () => {
@@ -52,7 +52,7 @@ export const SidebarProvider = ({
   setEventMenuOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   animate?: boolean;
 }) => {
-  const [openState, setOpenState] = useState(false);
+  const [openState, setOpenState] = useState<boolean>(false);
 
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
@@ -228,7 +228,7 @@ export const SidebarLink = ({
         styles.sidebarLink,
         className,
         pathDirec === info.href &&
-          (open ? styles.sidebarLinkFull_active : styles.sidebarLink_active)
+          (open ? styles.sidebarLinkFull_active : styles.sidebarLink_active),
       )}
       {...props}
     >

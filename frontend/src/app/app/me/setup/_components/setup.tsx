@@ -34,11 +34,11 @@ export default function SetupPage({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [actionDisabled, setActionDisabled] = useState(false);
+  const [actionDisabled, setActionDisabled] = useState<boolean>(false);
 
-  const [blurOverlayOpen, setBlurOverlayOpen] = useState(true);
-  const [formVisible, setFormVisible] = useState(true);
-  const [redirecting, setRedirecting] = useState(false);
+  const [blurOverlayOpen, setBlurOverlayOpen] = useState<boolean>(true);
+  const [formVisible, setFormVisible] = useState<boolean>(true);
+  const [redirecting, setRedirecting] = useState<boolean>(false);
 
   const [issues, setIssues] = useState<{
     displayName: {
@@ -69,11 +69,11 @@ export default function SetupPage({
     setupKey: { success: true, reasons: [] },
   });
 
-  const displayNameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const setupKeyRef = useRef<HTMLInputElement>(null);
+  const displayNameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement | null>(null);
+  const setupKeyRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (setupCompleted === true && !actionDisabled) {
@@ -350,7 +350,7 @@ export default function SetupPage({
       displayName!,
       email!,
       password!,
-      setupKey!
+      setupKey!,
     );
 
     setTimeout(() => {
@@ -467,7 +467,7 @@ export default function SetupPage({
                   placeholder="Display Name"
                   className={clsx(
                     styles.input,
-                    !issues.displayName.success && styles.inputInvalid
+                    !issues.displayName.success && styles.inputInvalid,
                   )}
                   onChange={checkDisplayNameIssues}
                   onBlur={checkDisplayNameIssues}
@@ -517,7 +517,7 @@ export default function SetupPage({
                   placeholder="Email"
                   className={clsx(
                     styles.input,
-                    !issues.email.success && styles.inputInvalid
+                    !issues.email.success && styles.inputInvalid,
                   )}
                   onChange={checkEmailIssues}
                   onBlur={checkEmailIssues}
@@ -568,7 +568,7 @@ export default function SetupPage({
                   placeholder="Password"
                   className={clsx(
                     styles.input,
-                    !issues.password.success && styles.inputInvalid
+                    !issues.password.success && styles.inputInvalid,
                   )}
                   onChange={() => {
                     checkPasswordIssues();
@@ -626,7 +626,7 @@ export default function SetupPage({
                   placeholder="Confirm Password"
                   className={clsx(
                     styles.input,
-                    !issues.confirmPassword.success && styles.inputInvalid
+                    !issues.confirmPassword.success && styles.inputInvalid,
                   )}
                   onChange={checkConfirmPasswordIssues}
                   onBlur={checkConfirmPasswordIssues}
@@ -678,7 +678,7 @@ export default function SetupPage({
                   placeholder="Setup Key"
                   className={clsx(
                     styles.input,
-                    !issues.setupKey.success && styles.inputInvalid
+                    !issues.setupKey.success && styles.inputInvalid,
                   )}
                   onChange={checkSetupKeyIssues}
                   onBlur={checkSetupKeyIssues}
