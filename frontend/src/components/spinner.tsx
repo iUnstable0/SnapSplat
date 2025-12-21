@@ -28,19 +28,13 @@ export default function Spinner({
   speedMultiplier?: number;
   preload?: boolean;
 }) {
-  // const isDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-
-  // if (id === "keybind-shift-enter") {
-  //   alert(`forcetheme: ${forcetheme} | id: ${id}`);
-  // }
-
   const getCSSVariable = (variable: string) => {
     if (typeof window === "undefined") {
       return "";
     }
 
     return getComputedStyle(document.documentElement).getPropertyValue(
-      variable
+      variable,
     );
   };
 
@@ -48,8 +42,6 @@ export default function Spinner({
     ? getCSSVariable("--sp-dangerous-color")
     : getCSSVariable("--sp-text-color");
 
-  // if (forcetheme) {
-  // console.log("forcetheme", forcetheme);
   if (forcetheme === "light") {
     if (dangerous) {
       color = getCSSVariable("--sp-dangerous-color-light");
@@ -68,10 +60,6 @@ export default function Spinner({
   if (forcecolor) {
     color = forcecolor;
   }
-
-  // console.log("precolor", color);
-  // console.log("forcecolor", forcecolor);
-  // console.log("color", color);
 
   const thickness = size / 5;
 
@@ -126,7 +114,7 @@ export default function Spinner({
       className={clsx(
         styles.spinner,
         className,
-        loading && styles.spinner_loading
+        loading && styles.spinner_loading,
       )}
       style={newClassName}
     >
