@@ -65,9 +65,9 @@
   /* background: green; */
 
   transition:
-    scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-    opacity 0.2s ease-in-out;
+      scale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      opacity 0.2s ease-in-out;
 }
 
 .keybindButtonReversed {
@@ -85,9 +85,9 @@
   justify-content: center;
 
   transition:
-    color 0.2s ease-in-out,
-    filter 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
+      color 0.2s ease-in-out,
+      filter 0.2s ease-in-out,
+      opacity 0.2s ease-in-out;
 }
 
 .keybindButtonText {
@@ -95,9 +95,9 @@
   /* display: none !important; */
 
   transition:
-    color 0.2s ease-in-out,
-    text-shadow 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
+      color 0.2s ease-in-out,
+      text-shadow 0.2s ease-in-out,
+      opacity 0.2s ease-in-out;
 }
 
 /* keybindButton.hover If Keybinds is not disabled */
@@ -265,4 +265,17 @@
     box-shadow: 0 0 10px var(--sp-dangerous-color-dark-box-shadow);
     background-color: var(--sp-dangerous-color-dark);
   }
+}
+
+/*// When <Keybind is used independent of KeybindButton (not nested)*/
+
+.keybindContainer_active {
+  box-shadow: 0 0 10px #4d4d4d8e;
+  background-color: rgba(148, 148, 148, 0.41);
+  transform: scale(1.1);
+}
+
+.keybindContainer_activeall {
+  box-shadow: 0 0 10px #4d4d4d8e;
+  background-color: rgba(148, 148, 148, 0.41);
 }

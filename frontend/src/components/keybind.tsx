@@ -26,11 +26,45 @@ export enum T_Keybind {
   enter = "enter",
   escape = "escape",
   backspace = "backspace",
-  m = "m",
-  p = "p",
+
+  q = "q",
+  w = "w",
   e = "e",
   r = "r",
+  t = "t",
+  y = "y",
+  u = "u",
+  i = "i",
+  o = "o",
+  p = "p",
+  a = "a",
   s = "s",
+  d = "d",
+  f = "f",
+  g = "g",
+  h = "h",
+  j = "j",
+  k = "k",
+  l = "l",
+  z = "z",
+  x = "x",
+  c = "c",
+  v = "v",
+  b = "b",
+  n = "n",
+  m = "m",
+
+  one = "1",
+  two = "2",
+  three = "3",
+  four = "4",
+  five = "5",
+  six = "6",
+  seven = "7",
+  eight = "8",
+  nine = "9",
+  zero = "0",
+
   period = ".",
   tab = "tab",
   right_arrow = "arrowright",
@@ -82,13 +116,6 @@ export const KeybindButton = ({
   } else {
     styles = stylesDynamic;
   }
-
-  // const spinnertheme = forcetheme === "dark" ? "dark" : "light";
-  // if (loadingText === "Publishing Now...") {
-  //   alert(
-  //     `forcetheme: ${forcetheme} | loadingText: ${loadingText} | spinnertheme: ${spinnertheme}`
-  //   );
-  // }
 
   return (
     <motion.div
