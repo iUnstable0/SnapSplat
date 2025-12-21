@@ -33,8 +33,8 @@ export enum T_Keybind {
   s = "s",
   period = ".",
   tab = "tab",
-  right_arrow = "right_arrow",
-  left_arrow = "left_arrow",
+  right_arrow = "arrowright",
+  left_arrow = "arrowleft",
 }
 
 export const KeybindButton = ({
