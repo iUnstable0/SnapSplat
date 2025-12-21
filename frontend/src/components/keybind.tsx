@@ -19,7 +19,7 @@ import Spinner from "./spinner";
 import { AnimatePresence, motion } from "motion/react";
 import { TextMorph } from "./ui/mp_text-morph";
 
-const letters = "abcdefghijklmnopqrstuvwxyz.";
+const letters = "abcdefghijklmnopqrstuvwxyz.1234567890";
 
 export enum T_Keybind {
   shift = "shift",
@@ -439,7 +439,7 @@ export default function Keybind({
   return (
     <motion.div
       key={`keybind_${keybinds.join("_")}_${forcetheme}_magnet`}
-      className={styles.keybindContainerMagnet}
+      className={clsx(styles.keybindContainerMagnet, parentClass)}
       layout
     >
       <Magnetic
