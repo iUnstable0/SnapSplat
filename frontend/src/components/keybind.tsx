@@ -118,6 +118,7 @@ export const KeybindButton = ({
             className={clsx(
               styles.keybindButton,
               dangerous && styles.keybindButtonDangerous,
+              reversed && styles.keybindButtonReversed,
               // dangerous && loading === true && styles.keybindButtonDangerous,
             )}
             layout

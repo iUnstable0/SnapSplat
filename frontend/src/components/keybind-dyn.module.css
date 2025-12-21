@@ -53,6 +53,10 @@
     opacity 0.2s ease-in-out;
 }
 
+.keybindButtonReversed {
+  flex-direction: row-reverse;
+}
+
 .keybindButtonIcon {
   width: clamp(24px, 2vw, 32px);
   height: clamp(24px, 2vw, 32px);
